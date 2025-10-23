@@ -17,7 +17,9 @@ OBJS := $(OBJS:main.cpp=$(OBJS_DIR)/main.o)
 # Compile all .cpp files to .o files and store it to output folder
 # To create .o file with structure like: obj/CppUTest/*.o, we must set to let makefile know where to find *.cpp like this
 # cpputest/src/CppUTest/*.cpp. If just %.cpp makefile will find in CppUTest/*.cpp that doesn't exist.
+# mkdir -p: Automatically create folder for obj folder
 $(OBJS_DIR)/%.o: $(SRC_DIR)/%.cpp
+	@mkdir -p $(dir $@)
 	$(CXX) $(CFLAGS) -c $^ -o $@
 
 $(OBJS_DIR)/main.o: main.cpp
