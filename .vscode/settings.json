@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "testharness.h": "c"
+        "testharness.h": "c",
+        "outputdriver.h": "c"
     }
 }

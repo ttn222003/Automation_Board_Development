@@ -2,18 +2,19 @@
 
 CC := gcc
 CXX := g++
-CFLAGS := -Icpputest/include	\
-			-I./../Loigc/include
+CFLAGS := -Icpputest/include		\
+			-I./../Loigc/include	\
+			-I./../Logic/include
 
 # Get all source files
 SRC_TEST_DIR := cpputest/src
-SRC_LOGIC_DIR := ./../Loigc/src
+SRC_LOGIC_DIR := ./../Logic
 
 SRC := $(wildcard $(SRC_TEST_DIR)/CppUTest/*.cpp)		\
 		$(wildcard $(SRC_TEST_DIR)/CppUTestExt/*.cpp)	\
 		$(wildcard $(SRC_TEST_DIR)/Platforms/Gcc/*.cpp)	\
 		main.cpp										\
-		$(wildcard $(SRC_LOGIC_DIR)/*.c)				\
+		$(wildcard $(SRC_LOGIC_DIR)/src/*.c)			\
 		$(wildcard tests/*.cpp)
 
 OBJS_DIR := obj
