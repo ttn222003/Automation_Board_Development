@@ -116,7 +116,10 @@ int main(void)
   MX_I2C1_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  SSD1306_Init();
+  SSD1306_GotoXY(0, 0);
+  SSD1306_Puts("Hello", &Font_7x10, 1);
+  SSD1306_UpdateScreen();
   /* USER CODE END 2 */
 
   /* Infinite loop */
