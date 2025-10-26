@@ -52,6 +52,9 @@ default.size.stdout \
 OBJDUMP_LIST += \
 Bootloader_STM32.list \
 
+OBJCOPY_BIN += \
+Bootloader_STM32.bin \
+
 
 # All Target
 all: main-build
@@ -75,12 +78,17 @@ Bootloader_STM32.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS
 	@echo 'Finished building: $@'
 	@echo ' '
 
+Bootloader_STM32.bin: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "Bootloader_STM32.bin"
+	@echo 'Finished building: $@'
+	@echo ' '
+
 # Other Targets
 clean:
-	-$(RM) Bootloader_STM32.elf Bootloader_STM32.list Bootloader_STM32.map default.size.stdout
+	-$(RM) Bootloader_STM32.bin Bootloader_STM32.elf Bootloader_STM32.list Bootloader_STM32.map default.size.stdout
 	-@echo ' '
 
-secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)
+secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST) $(OBJCOPY_BIN)
 
 fail-specified-linker-script-missing:
 	@echo 'Error: Cannot find the specified linker script. Check the linker settings in the build configuration.'

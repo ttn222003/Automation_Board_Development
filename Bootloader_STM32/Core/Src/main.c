@@ -32,7 +32,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define MAJOR	1
+#define MINOR	0
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -46,6 +47,7 @@ I2C_HandleTypeDef hi2c1;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
+uint8_t BootloaderVersion[2] = { MAJOR, MINOR };
 
 /* USER CODE END PV */
 
@@ -60,7 +62,26 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+#ifdef __GNUC__
+  /* With GCC, small printf (option LD Linker->Libraries->Small printf
+     set to 'Yes') calls __io_putchar() */
+int __io_putchar(int ch)
+#else
+int fputc(int ch, FILE *f)
+#endif /* __GNUC__ */
+{
+  /* Place your implementation of fputc here */
+  /* e.g. write a character to the UART3 and Loop until the end of transmission */
+  HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
+  return ch;
+}
 
+void goto_application( void )
+{
+  //printf("Gonna Jump to Application...\n");
+  void (*app_reset_handler)(void) = (void*)(*((volatile uint32_t*)(0x08004400 + 4U)));
+  app_reset_handler();
+}
 /* USER CODE END 0 */
 
 /**
@@ -105,6 +126,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  HAL_Delay(2000);
+	  goto_application();
   }
   /* USER CODE END 3 */
 }
