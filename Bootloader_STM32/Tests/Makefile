@@ -3,7 +3,6 @@
 CC := gcc
 CXX := g++
 CFLAGS := -Icpputest/include		\
-			-I./../Loigc/include	\
 			-I./../Logic/include
 
 # Get all source files
