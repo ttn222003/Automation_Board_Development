@@ -14,7 +14,8 @@
 */
 
 /* Private define */
-#define MAX_DATA_LEN    64
+#define MAX_DATA_LEN        64
+#define PROTOCOL_VER_10     1
 /*----------------*/
 
 enum CommandCode
@@ -40,3 +41,4 @@ static unsigned int polynomial_crc = 0x04C11DB7;
 
 uint8_t CheckCommandCode(uint8_t received_data[]);
 uint32_t CalculateCrc32(uint8_t data[], uint8_t data_length);
+void GetCommand(uint8_t* data, uint8_t protocol_version);

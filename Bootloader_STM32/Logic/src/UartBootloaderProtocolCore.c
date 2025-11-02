@@ -35,3 +35,21 @@ unsigned int CalculateCrc32(unsigned char data[], uint8_t data_length)
     
     return crc;
 }
+
+void GetCommand(uint8_t* data, uint8_t protocol_version)
+{
+    data[0] = 0x79;
+    if(protocol_version == PROTOCOL_VER_10)
+    {
+        data[1] = 0x06;
+        data[2] = 0x10;
+        data[3] = GET_CMD;
+        data[4] = GET_VERSION;
+        data[5] = GET_ID;
+        data[6] = READ_MEM;
+        data[7] = GO_CMD;
+        data[8] = WRITE_MEM;
+        data[9] = GET_CHECKSUM;
+    }
+    
+}
