@@ -45,7 +45,7 @@ build: $(OBJS)
 # -c: color
 run:
 	@echo "------- Running Test -------"
-	./test.exe -c
+	./test.exe -c -v
 
 clean:
 	@echo "------- Clean all file -------"

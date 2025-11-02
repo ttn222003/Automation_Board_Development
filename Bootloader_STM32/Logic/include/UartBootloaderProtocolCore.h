@@ -1,5 +1,5 @@
 #include "stdio.h"
-
+#include "stdint.h"
 /*
 -------------------------------
 --------- Test list -----------
@@ -10,7 +10,12 @@
 2.2. CRC32
 2.3. XOR check
 3. Check command code
+4. Check CRC32
 */
+
+/* Private define */
+#define MAX_DATA_LEN    64
+/*----------------*/
 
 enum CommandCode
 {
@@ -31,4 +36,7 @@ enum CommandCode
     EXT_SPECIAL_CMD     = 0x51
 };
 
-unsigned char CheckCommandCode(unsigned char received_data[]);
+static unsigned int polynomial_crc = 0x04C11DB7;
+
+uint8_t CheckCommandCode(uint8_t received_data[]);
+uint32_t CalculateCrc32(uint8_t data[], uint8_t data_length);

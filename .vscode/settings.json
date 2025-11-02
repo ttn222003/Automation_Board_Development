@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "testharness.h": "c",
-        "outputdriver.h": "c"
+        "outputdriver.h": "c",
+        "xstring": "c",
+        "xutility": "c"
     }
 }

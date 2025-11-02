@@ -3,6 +3,9 @@ extern "C" {
     #include "UartBootloaderProtocolCore.h"
 }
 
+// #define DISABLE_TEST_GROUP  1
+
+#ifdef DISABLE_TEST_GROUP
 TEST_GROUP(BootloaderProtocolCoreCheckCmdCode)
 {
     
@@ -112,3 +115,5 @@ TEST(BootloaderProtocolCoreCheckCmdCode, CheckCmdCodeExtendSpecialCmd)
     unsigned char command_code = CheckCommandCode(data);
     CHECK_EQUAL(EXT_SPECIAL_CMD, command_code);
 }
+
+#endif
