@@ -14,10 +14,11 @@
 */
 
 /* Private define */
-#define MAX_DATA_LEN        64
-#define PROTOCOL_VER_10     1
+#define MAX_DATA_LEN            64
+#define PROTOCOL_VER_10         10
 /*----------------*/
 
+/* Enum define */
 enum CommandCode
 {
     GET_CMD             = 0x00,
@@ -37,8 +38,20 @@ enum CommandCode
     EXT_SPECIAL_CMD     = 0x51
 };
 
-static unsigned int polynomial_crc = 0x04C11DB7;
+enum OtherCodes
+{
+    ACK                 = 0x79,
+    NACK                = 0X1F
+};
+/*----------------*/
 
+/* Private variable */
+static unsigned int polynomial_crc = 0x04C11DB7;
+/*----------------*/
+
+/*Function*/
 uint8_t CheckCommandCode(uint8_t received_data[]);
 uint32_t CalculateCrc32(uint8_t data[], uint8_t data_length);
-void GetCommand(uint8_t* data, uint8_t protocol_version);
+void GetCommand(uint8_t* data_cmds, uint8_t protocol_version);
+void GetVersion(uint8_t* data_version, uint8_t protocol_version);
+/*----------------*/

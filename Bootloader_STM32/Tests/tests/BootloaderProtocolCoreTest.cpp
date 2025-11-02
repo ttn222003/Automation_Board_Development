@@ -36,10 +36,18 @@ IGNORE_TEST(BootloaderProtocolCoreGetCmd, CalculateCRC32Random5ByteData)
     CHECK_EQUAL(0x2C90DB04, crc32);
 }
 
-TEST(BootloaderProtocolCoreGetCmd, DataSentByBootloaderFollowVersion10)
+TEST(BootloaderProtocolCoreGetCmd, GetCommandFollowVersion10)
 {
     uint8_t data[MAX_DATA_LEN] = { 0 };
-    uint8_t expected_data[MAX_DATA_LEN] = { 0x79, 0x06, 0x10, 0x00, 0x01, 0x02, 0x11, 0x21, 0x31, 0xA1 };
-    GetCommand(data, 1);
-    MEMCMP_EQUAL(expected_data, data, 10);
+    uint8_t expected_data[MAX_DATA_LEN] = { 0x79, 0x07, 0x10, 0x00, 0x01, 0x02, 0x11, 0x21, 0x31, 0x43, 0xA1 };
+    GetCommand(data, 10);
+    MEMCMP_EQUAL(expected_data, data, 11);
+}
+
+TEST(BootloaderProtocolCoreGetCmd, GetVersionFollowVersion10)
+{
+    uint8_t data[MAX_DATA_LEN] = { 0 };
+    uint8_t expected_data[MAX_DATA_LEN] = { 0x79, 0x10, 0x00, 0x00, 0x79 };
+    GetVersion(data, 10);
+    MEMCMP_EQUAL(expected_data, data, 5);
 }
