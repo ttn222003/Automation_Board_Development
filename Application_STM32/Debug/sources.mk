@@ -26,10 +26,4 @@ SUBDIRS := \
 Core/Src \
 Core/Startup \
 Drivers/STM32F1xx_HAL_Driver/Src \
-Tests/obj/CppUTest \
-Tests/obj/CppUTestExt \
-Tests/obj/Platforms/Gcc \
-Tests/obj \
-Tests/obj/src \
-Tests/obj/tests \
 

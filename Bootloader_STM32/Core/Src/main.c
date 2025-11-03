@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "ssd1306.h"
 #include "fonts.h"
+#include "UartBootloaderProtocolCore.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

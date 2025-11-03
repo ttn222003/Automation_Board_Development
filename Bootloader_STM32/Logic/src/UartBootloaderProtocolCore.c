@@ -1,12 +1,16 @@
 #include "UartBootloaderProtocolCore.h"
 
+/* Private variable */
+static unsigned int polynomial_crc = 0x04C11DB7;
+/*----------------*/
+
 unsigned char CheckCommandCode(unsigned char received_data[])
 {
     return received_data[0];
 }
 
 
-unsigned int CalculateCrc32(unsigned char data[], uint8_t data_length)
+uint32_t CalculateCrc32(uint8_t data[], uint8_t data_length)
 {
     unsigned int crc = (data[0] << 24) | (data[1] << 16) | (data[2] << 8) | (data[3] << 0);
 
@@ -61,4 +65,32 @@ void GetVersion(uint8_t* data_version, uint8_t protocol_version)
     data_version[2] = 0x00;
     data_version[3] = 0x00;
     data_version[4] = ACK;
+}
+
+void GetId(uint8_t* data_id, uint8_t id)
+{
+    data_id[0] = ACK;
+    data_id[1] = 0x01;
+    data_id[2] = 0x04;
+    data_id[3] = id;
+    data_id[4] = ACK;
+}
+
+uint32_t ProcessAddressAndChecksum(uint8_t* received_data)
+{
+    uint32_t crc = CalculateCrc32(received_data, 8);
+    uint32_t address;
+
+    if(crc == 0x00000000) {
+        address = (received_data[0] << 24) | (received_data[1] << 16) | (received_data[2] << 8) | received_data[3];
+    }
+    else {
+        return 0;
+    }
+    
+    if((address < 0x08000000) && (address > 0x0801FFFF)) {
+        return 0;
+    }
+
+    return address;
 }

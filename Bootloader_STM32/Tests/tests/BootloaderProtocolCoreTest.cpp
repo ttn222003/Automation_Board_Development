@@ -51,3 +51,20 @@ TEST(BootloaderProtocolCoreGetCmd, GetVersionFollowVersion10)
     GetVersion(data, 10);
     MEMCMP_EQUAL(expected_data, data, 5);
 }
+
+TEST(BootloaderProtocolCoreGetCmd, GetIdFollowVersion10)
+{
+    uint8_t data[MAX_DATA_LEN] = { 0 };
+    uint8_t expected_data[MAX_DATA_LEN] = { 0x79, 0x01, 0x04, 0x01, 0x79 };
+    GetId(data, 1);
+    MEMCMP_EQUAL(expected_data, data, 5);
+}
+
+TEST(BootloaderProtocolCoreGetCmd, ProcessAddress)
+{
+    uint8_t data[MAX_DATA_LEN] = { 0x08, 0x01, 0x55, 0x55, 0x89, 0xA1, 0x69, 0x60 };
+    uint32_t expected_data = 0x08015555;
+    uint32_t output_data = ProcessAddressAndChecksum(data);
+    CHECK_EQUAL(expected_data, output_data);
+}
+

@@ -9,12 +9,6 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include Tests/obj/tests/subdir.mk
--include Tests/obj/src/subdir.mk
--include Tests/obj/Platforms/Gcc/subdir.mk
--include Tests/obj/CppUTestExt/subdir.mk
--include Tests/obj/CppUTest/subdir.mk
--include Tests/obj/subdir.mk
 -include Drivers/STM32F1xx_HAL_Driver/Src/subdir.mk
 -include Core/Startup/subdir.mk
 -include Core/Src/subdir.mk
