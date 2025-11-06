@@ -8,34 +8,6 @@ TEST_GROUP(BootloaderProtocolCoreGetCmd)
     
 };
 
-IGNORE_TEST(BootloaderProtocolCoreGetCmd, CalculateCRC32DataAllZero)
-{
-    unsigned char data[] = { 0x00, 0x00, 0x00, 0x00 };
-    uint32_t crc32 = CalculateCrc32(data, 4);
-    CHECK_EQUAL(0x00000000, crc32);
-}
-
-IGNORE_TEST(BootloaderProtocolCoreGetCmd, CalculateCRC32LastByteOne)
-{
-    unsigned char data[] = { 0x00, 0x00, 0x00, 0x01 };
-    uint32_t crc32 = CalculateCrc32(data, 4);
-    CHECK_EQUAL(0x9823B6E, crc32);
-}
-
-IGNORE_TEST(BootloaderProtocolCoreGetCmd, CalculateCRC32Random4ByteData)
-{
-    unsigned char data[] = { 0x12, 0x34, 0x56, 0x78 };
-    uint32_t crc32 = CalculateCrc32(data, 4);
-    CHECK_EQUAL(0xD0202C9A, crc32);
-}
-
-IGNORE_TEST(BootloaderProtocolCoreGetCmd, CalculateCRC32Random5ByteData)
-{
-    unsigned char data[] = { 0x12, 0x34, 0x56, 0x78, 0x00 };
-    uint32_t crc32 = CalculateCrc32(data, 5);
-    CHECK_EQUAL(0x2C90DB04, crc32);
-}
-
 TEST(BootloaderProtocolCoreGetCmd, GetCommandFollowVersion10)
 {
     uint8_t data[MAX_DATA_LEN] = { 0 };
@@ -68,3 +40,20 @@ TEST(BootloaderProtocolCoreGetCmd, ProcessAddress)
     CHECK_EQUAL(expected_data, output_data);
 }
 
+TEST(BootloaderProtocolCoreGetCmd, ReceiveNumberOfBytesAndChecksumForReadMem)
+{
+    uint8_t data[2] = { 0x04, 0xFB };
+    uint32_t pass_checksum = CheckNumberOfByteAndChecksumForReadMem(data);
+    CHECK_EQUAL(1, pass_checksum);
+}
+
+IGNORE_TEST(BootloaderProtocolCoreGetCmd, PreparedDataSendToHost) // Try with mock later
+{
+    uint32_t start_address = 0x08015555;
+    uint8_t number_of_bytes = 4;
+    uint8_t transmitted_data[MAX_DATA_LEN] = { 0 };
+    uint8_t expected_data[MAX_DATA_LEN] = { 0x12, 0x34, 0x56, 0x78 };
+    *(uint32_t*)0x08015555 = 0x12345678;
+    PrepareDataToSendToHost(transmitted_data, start_address, number_of_bytes);
+    MEMCMP_EQUAL(expected_data, transmitted_data, 4);
+}

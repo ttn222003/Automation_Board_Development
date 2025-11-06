@@ -1,16 +1,16 @@
 #include "UartBootloaderProtocolCore.h"
 
 /* Private variable */
-static unsigned int polynomial_crc = 0x04C11DB7;
+static unsigned int polynomial_crc32 = 0x04C11DB7;
+static uint8_t polynomial_crc8 = 0xB1;
 /*----------------*/
 
-unsigned char CheckCommandCode(unsigned char received_data[])
+uint8_t CheckCommandCode(uint8_t received_data[])
 {
     return received_data[0];
 }
 
-
-uint32_t CalculateCrc32(uint8_t data[], uint8_t data_length)
+static uint32_t CalculateCrc32(uint8_t data[], uint8_t data_length)
 {
     unsigned int crc = (data[0] << 24) | (data[1] << 16) | (data[2] << 8) | (data[3] << 0);
 
@@ -20,7 +20,7 @@ uint32_t CalculateCrc32(uint8_t data[], uint8_t data_length)
         {
             if(crc & 0x80000000)
             {
-                crc ^= polynomial_crc;
+                crc ^= polynomial_crc32;
             }
             crc = crc << 1;
 
@@ -32,12 +32,17 @@ uint32_t CalculateCrc32(uint8_t data[], uint8_t data_length)
     {
         if(crc & 0x80000000)
         {
-            crc ^= polynomial_crc;
+            crc ^= polynomial_crc32;
         }
         crc = crc << 1;
     }
     
     return crc;
+}
+
+static uint8_t ChecksumXOR(uint8_t data)
+{
+    return data ^ 0xFF;
 }
 
 void GetCommand(uint8_t* data_cmds, uint8_t protocol_version)
@@ -93,4 +98,21 @@ uint32_t ProcessAddressAndChecksum(uint8_t* received_data)
     }
 
     return address;
+}
+
+bool CheckNumberOfByteAndChecksumForReadMem(uint8_t received_data[])
+{
+    uint8_t checksum = ChecksumXOR(received_data[1]);
+    
+    if(received_data[0] == checksum)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+void PrepareDataToSendToHost(uint8_t* prepared_data, uint32_t start_address, uint8_t number_of_bytes)
+{
+   memcpy(prepared_data, (uint8_t*)start_address, number_of_bytes); 
 }
