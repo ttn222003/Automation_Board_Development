@@ -43,7 +43,7 @@ TEST(BootloaderProtocolCoreGetCmd, ProcessAddress)
 TEST(BootloaderProtocolCoreGetCmd, ReceiveNumberOfBytesAndChecksumForReadMem)
 {
     uint8_t data[2] = { 0x04, 0xFB };
-    uint32_t pass_checksum = CheckNumberOfByteAndChecksumForReadMem(data);
+    uint32_t pass_checksum = CheckNumberOfByteAndChecksum(data);
     CHECK_EQUAL(1, pass_checksum);
 }
 

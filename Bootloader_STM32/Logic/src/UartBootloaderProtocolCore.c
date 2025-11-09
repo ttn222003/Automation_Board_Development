@@ -93,14 +93,14 @@ uint32_t ProcessAddressAndChecksum(uint8_t* received_data)
         return 0;
     }
     
-    if((address < 0x08000000) && (address > 0x0801FFFF)) {
+    if((address < 0x08004400) && (address > 0x08010000)) {
         return 0;
     }
 
     return address;
 }
 
-bool CheckNumberOfByteAndChecksumForReadMem(uint8_t received_data[])
+bool CheckNumberOfByteAndChecksum(uint8_t received_data[])
 {
     uint8_t checksum = ChecksumXOR(received_data[1]);
     
@@ -115,4 +115,10 @@ bool CheckNumberOfByteAndChecksumForReadMem(uint8_t received_data[])
 void PrepareDataToSendToHost(uint8_t* prepared_data, uint32_t start_address, uint8_t number_of_bytes)
 {
    memcpy(prepared_data, (uint8_t*)start_address, number_of_bytes); 
+}
+
+void GotoApplication(uint32_t start_address)
+{
+    void (*application_reset_handler)(void) = (void*)(*((volatile uint32_t*)(start_address + 4U)));
+    application_reset_handler();
 }
