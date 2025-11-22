@@ -24,6 +24,7 @@
 #include "ssd1306.h"
 #include "fonts.h"
 #include "UartBootloaderProtocolCore.h"
+#include "UartBootloaderProtocolDepenedencies.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,8 +49,11 @@ I2C_HandleTypeDef hi2c1;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-uint8_t BootloaderVersion[2] = { MAJOR, MINOR };
+uint8_t ReceivedDataFromHost[MAX_DATA_LEN] = { 0 };
+uint8_t TransmittedDataToHost[MAX_DATA_LEN] = { 0 };
+UartBootloaderProtocolDepeDevice_t uart_bootloader;
 
+bool update_screen = false;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -63,20 +67,6 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-#ifdef __GNUC__
-  /* With GCC, small printf (option LD Linker->Libraries->Small printf
-     set to 'Yes') calls __io_putchar() */
-int __io_putchar(int ch)
-#else
-int fputc(int ch, FILE *f)
-#endif /* __GNUC__ */
-{
-  /* Place your implementation of fputc here */
-  /* e.g. write a character to the UART3 and Loop until the end of transmission */
-  HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
-  return ch;
-}
-
 void goto_application( void )
 {
   //printf("Gonna Jump to Application...\n");
@@ -117,9 +107,16 @@ int main(void)
   MX_I2C1_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+
+  // Initialize
+  uart_bootloader.CommandCode = NOT_CODE;
+  uart_bootloader.ProcessStatus = NOT_IN_PROCESS;
+
+  HAL_UART_Receive_IT(&huart1, ReceivedDataFromHost, 64);
+
   SSD1306_Init();
   SSD1306_GotoXY(0, 0);
-  SSD1306_Puts("Hello", &Font_7x10, 1);
+  SSD1306_Puts("Init Bootloader!", &Font_7x10, 1);
   SSD1306_UpdateScreen();
   /* USER CODE END 2 */
 
@@ -130,8 +127,57 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  HAL_Delay(2000);
-	  goto_application();
+//	 if(update_screen == true)
+//	 {
+//		 switch (CmdCode)
+//		  {
+//		  case GET_CMD:
+//			  BootloaderCommandType = GET_CMD;
+//			  HandlingSteps = STEP_1;
+//			  break;
+//		  case GET_VERSION:
+//			  BootloaderCommandType = GET_VERSION;
+//			  break;
+//		  }
+//
+//		 update_screen = false;
+//	 }
+//
+	 if(uart_bootloader.ProcessStatus == IN_PROCESS)
+	 {
+		 if(uart_bootloader.CommandCode == GET_CMD)
+		 {
+			 switch(uart_bootloader.HandlingSteps)
+			 {
+			 case STEP_1:
+				 TransmittedDataToHost[0] = 1;
+				 TransmittedDataToHost[1] = ACK;
+
+				 uart_bootloader.HandlingSteps = STEP_2;
+				 break;
+
+			 case STEP_2:
+				 TransmittedDataToHost[0] = 10;
+				 GetCommand(TransmittedDataToHost, 10);
+
+				 uart_bootloader.HandlingSteps = STEP_3;
+				 break;
+
+			 case STEP_3:
+				 TransmittedDataToHost[0] = 1;
+				 TransmittedDataToHost[1] = ACK;
+
+				 // End process and reset all status
+				 uart_bootloader.ProcessStatus = NOT_IN_PROCESS;
+				 uart_bootloader.CommandCode = NOT_CODE;
+				 uart_bootloader.HandlingSteps = STEP_1;
+
+				 break;
+			 }
+
+			 HAL_UART_Transmit(&huart1, TransmittedDataToHost, 64, 5);
+		 }
+	 }
   }
   /* USER CODE END 3 */
 }
@@ -260,7 +306,20 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_UART_RxCpltCallback (UART_HandleTypeDef* huart)
+{
+	if(huart->Instance == huart1.Instance)
+	{
+		if (uart_bootloader.ProcessStatus == NOT_IN_PROCESS)
+		{
+			uart_bootloader.ProcessStatus = IsInProcessCommand(ReceivedDataFromHost);
+			uart_bootloader.CommandCode = CheckCommandCode(ReceivedDataFromHost);
+			uart_bootloader.HandlingSteps = STEP_1;
+		}
 
+		HAL_UART_Receive_IT(&huart1, ReceivedDataFromHost, 64);
+	}
+}
 /* USER CODE END 4 */
 
 /**

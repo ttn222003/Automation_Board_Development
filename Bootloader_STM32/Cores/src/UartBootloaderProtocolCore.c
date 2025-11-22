@@ -2,7 +2,6 @@
 
 /* Private variable */
 static unsigned int polynomial_crc32 = 0x04C11DB7;
-static uint8_t polynomial_crc8 = 0xB1;
 /*----------------*/
 
 uint8_t CheckCommandCode(uint8_t received_data[])
@@ -47,7 +46,6 @@ static uint8_t ChecksumXOR(uint8_t data)
 
 void GetCommand(uint8_t* data_cmds, uint8_t protocol_version)
 {
-    data_cmds[0] = ACK;
     if(protocol_version == PROTOCOL_VER_10)
     {
         data_cmds[1] = 0x07;

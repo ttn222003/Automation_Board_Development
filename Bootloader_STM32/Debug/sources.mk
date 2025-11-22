@@ -10,6 +10,7 @@ C_SRCS :=
 S_UPPER_SRCS := 
 O_SRCS := 
 CYCLO_FILES := 
+OBJCOPY_HEX := 
 SIZE_OUTPUT := 
 OBJDUMP_LIST := 
 SU_FILES := 
@@ -25,6 +26,7 @@ OBJCOPY_BIN :=
 SUBDIRS := \
 Core/Src \
 Core/Startup \
+Cores/src \
+Dependencies/src \
 Drivers/STM32F1xx_HAL_Driver/Src \
-Logic/src \
 
