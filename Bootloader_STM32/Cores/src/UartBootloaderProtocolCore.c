@@ -6,7 +6,7 @@ static unsigned int polynomial_crc32 = 0x04C11DB7;
 
 uint8_t CheckCommandCode(uint8_t received_data[])
 {
-    return received_data[0];
+    return received_data[1];
 }
 
 static uint32_t CalculateCrc32(uint8_t data[], uint8_t data_length)

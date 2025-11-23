@@ -109,6 +109,10 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   // Initialize
+
+  memset(TransmittedDataToHost, 0, 64);
+  memset(ReceivedDataFromHost, 0, 64);
+
   uart_bootloader.CommandCode = NOT_CODE;
   uart_bootloader.ProcessStatus = NOT_IN_PROCESS;
 
@@ -176,7 +180,10 @@ int main(void)
 			 }
 
 			 HAL_UART_Transmit(&huart1, TransmittedDataToHost, 64, 5);
+			 memset(TransmittedDataToHost, 0, 64);
 		 }
+
+		 HAL_Delay(1);
 	 }
   }
   /* USER CODE END 3 */

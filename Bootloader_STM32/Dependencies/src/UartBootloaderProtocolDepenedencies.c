@@ -9,7 +9,7 @@
 
 ProcessingStatus_t IsInProcessCommand(uint8_t received_data[])
 {
-	if ((received_data[0] == 2) && (received_data[1] != NOT_CODE) & (received_data[2] == 0xFF - received_data[2]))
+	if ((received_data[0] == 2) && (received_data[1] != NOT_CODE) && (received_data[2] == 0xFF - received_data[1]))
 	{
 		return IN_PROCESS;
 	}
