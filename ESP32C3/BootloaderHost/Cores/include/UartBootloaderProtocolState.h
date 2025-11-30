@@ -10,6 +10,8 @@
 
 /* Private define */
 #include "rom/ets_sys.h"
+#include "freertos/FreeRTOS.h"
+
 #define MAX_DATA_LEN            64
 #define PROTOCOL_VER_10         10
 /*----------------*/

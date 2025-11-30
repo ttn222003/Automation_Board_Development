@@ -9,25 +9,21 @@
 #define DEPENDENCIES_INCLUDE_UARTBOOTLOADERPROTOCOLDEPEHOST_H_
 
 #include <stdint.h>
+#include <string.h>
 #include "UartBootloaderProtocolCoresHost.h"
 
-typedef struct {
-	uint8_t SupportVersion;
-	uint8_t SupportId;
-	uint8_t SupportReadMem;
-	uint8_t SupportGo;
-	uint8_t SupportWriteMem;
-	uint8_t SupportEraseMem;
-	uint8_t SupportGetChecksum;
-} GetCommandParameter_t;
+/*------- Define -------*/
+#define MAX_DATA_LEN	64
 
-typedef struct{
-	uint8_t CommandCode;
-	uint8_t HandlingSteps;
-	GetCommandParameter_t get_command_parameter;
-} UartBootloaderProtocolDepeHost_t;
+/*------- Initialize variable -------*/
+extern uint8_t TransmittedDataToDevice[MAX_DATA_LEN];
+extern uint8_t ReceivedDataFromDevice[MAX_DATA_LEN];
+extern UartBootloaderProtocolHost_t mUartBootloader;
 
 /* ------- Interface ------- */
-StatusResult ParseGetCommand(UartBootloaderProtocolDepeHost_t* uart_bootloader_prtcl_depe_host, uint8_t received_data[]);
+void InitializeDataBuffer(void);
+void ResetReceivedDataBuffer(void);
+void DelayMs(uint32_t delay_time);
+
 
 #endif /* DEPENDENCIES_INCLUDE_UARTBOOTLOADERPROTOCOLDEPEHOST_H_ */

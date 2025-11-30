@@ -6,22 +6,26 @@
  */
 
 #include "UartBootloaderProtocolDepeHost.h"
-#include "UartBootloaderProtocolState.h"
 
-StatusResult ParseGetCommand(UartBootloaderProtocolDepeHost_t* uart_bootloader_prtcl_depe_host, uint8_t received_data[])
+/*------- Declare variable -------*/
+uint8_t TransmittedDataToDevice[MAX_DATA_LEN];
+uint8_t ReceivedDataFromDevice[MAX_DATA_LEN];
+UartBootloaderProtocolHost_t mUartBootloader;
+
+/*------- Implement Interface -------*/
+void InitializeDataBuffer(void)
 {
-	if(received_data[1] == 0x07)
-	{
-		uart_bootloader_prtcl_depe_host->get_command_parameter.SupportVersion = received_data[4];
-		uart_bootloader_prtcl_depe_host->get_command_parameter.SupportId = received_data[5];
-		uart_bootloader_prtcl_depe_host->get_command_parameter.SupportReadMem = received_data[6];
-		uart_bootloader_prtcl_depe_host->get_command_parameter.SupportGo = received_data[7];
-		uart_bootloader_prtcl_depe_host->get_command_parameter.SupportWriteMem = received_data[8];
-		uart_bootloader_prtcl_depe_host->get_command_parameter.SupportEraseMem = received_data[9];
-		uart_bootloader_prtcl_depe_host->get_command_parameter.SupportGetChecksum = received_data[10];
-		
-		return STATUS_OK;
-	}
-	
-	return STATUS_FAIL;
+	memset(TransmittedDataToDevice, 0, 64);
+	memset(ReceivedDataFromDevice, 0, 64);
 }
+
+void ResetReceivedDataBuffer(void)
+{
+	memset(ReceivedDataFromDevice, 0, 64);
+}
+
+void DelayMs(uint32_t delay_time)
+{
+	vTaskDelay(delay_time / portTICK_PERIOD_MS);
+}
+

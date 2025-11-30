@@ -19,18 +19,14 @@
 
 static const int RX_BUF_SIZE = 1024;
 
-#define MAX_DATA_LEN	64
+
 #define UART_NUM		UART_NUM_1
 #define TXD_PIN 		(GPIO_NUM_21)
 #define RXD_PIN 		(GPIO_NUM_20)
 
-uint8_t TransmittedDataToDevice[MAX_DATA_LEN] = { 0 };
-uint8_t ReceivedDataFromDevice[MAX_DATA_LEN] = { 0 };
-UartBootloaderProtocolDepeHost_t uart_bootloader;
 QueueHandle_t uart_queue;
 TaskHandle_t HandleGetCommandTask_handle;
 
-void DelayMs(uint32_t delay_time);
 void InitializeUart(void);
 void UartReceptionTask(void* args);
 void UartTransmissionTask(void* args);
@@ -39,20 +35,13 @@ void HandleGetCommandTask(void* args);
 void app_main(void)
 {
     InitializeUart();
-    uart_bootloader.CommandCode = GET_CMD;
-    uart_bootloader.HandlingSteps = STEP_1;
+    InitializeUartBootloaderProtocol(&mUartBootloader);
     
-	memset(TransmittedDataToDevice, 0, 64);
-	memset(ReceivedDataFromDevice, 0, 64);
+	InitializeDataBuffer();
 	
 	xTaskCreate(UartReceptionTask, "Uart Rx", 8192, NULL, configMAX_PRIORITIES - 1, NULL);
 	xTaskCreate(UartTransmissionTask, "Uart Tx", 8192, NULL, configMAX_PRIORITIES - 2, NULL);
 	xTaskCreate(HandleGetCommandTask, "Handle GC", 8192, NULL, configMAX_PRIORITIES - 3, &HandleGetCommandTask_handle);
-}
-
-void DelayMs(uint32_t delay_time)
-{
-	vTaskDelay(delay_time / portTICK_PERIOD_MS);
 }
 
 void InitializeUart(void)
@@ -76,13 +65,11 @@ void UartTransmissionTask(void* args)
 	DelayMs(5000);
 	
 	while (1) {
-		switch (uart_bootloader.CommandCode) {
+		switch (mUartBootloader.CommandCode) {
 			case GET_CMD:
-				TransmittedDataToDevice[0] = 2;
-				TransmittedDataToDevice[1] = uart_bootloader.CommandCode;
-				TransmittedDataToDevice[2] = 0xFF - uart_bootloader.CommandCode;
+				HandleBeginingProcessData(TransmittedDataToDevice, mUartBootloader);
 				uart_write_bytes(UART_NUM, TransmittedDataToDevice, 64);
-								
+				
 				break;
 		}
 		
@@ -101,7 +88,7 @@ void UartReceptionTask(void* args)
 				uart_read_bytes(UART_NUM, ReceivedDataFromDevice, UartEvent.size, 5);
 				
 				if (ReceivedDataFromDevice[1] == ACK) {
-					switch (uart_bootloader.CommandCode) {
+					switch (GetCommandCode(mUartBootloader)) {
 						case GET_CMD:
 							xTaskNotifyGive(HandleGetCommandTask_handle);
 							break;
@@ -124,27 +111,27 @@ void HandleGetCommandTask(void* args)
 		// pdTRUE: Reset counter notify to 0 after get signal
 		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 		
-		switch (uart_bootloader.HandlingSteps) {
+		switch (mUartBootloader.HandlingSteps) {
 			case STEP_1:
-				uart_bootloader.HandlingSteps = STEP_2;
+				SetHandlingStep(&mUartBootloader, STEP_2);
 
 				break;
 			
 			case STEP_2:
-				if(ParseGetCommand(&uart_bootloader, ReceivedDataFromDevice) == STATUS_OK)
+				if(ParseGetCommand(&mUartBootloader, ReceivedDataFromDevice) == STATUS_OK)
 				{					
-					uart_bootloader.CommandCode = GET_VERSION;
-					
-					uart_bootloader.HandlingSteps = STEP_3;
+					//uart_bootloader.CommandCode = GET_VERSION;
+					SetHandlingStep(&mUartBootloader, STEP_3);
 				}
 				
 				break;
 			
 			case STEP_3:
-				uart_bootloader.HandlingSteps = STEP_1;
+				SetHandlingStep(&mUartBootloader, STEP_1);
+				ESP_LOGI("Tx", "%d", STEP_1);
 				break;
 		}
 		
-		memset(ReceivedDataFromDevice, 0, sizeof(ReceivedDataFromDevice));
+		ResetReceivedDataBuffer();
 	}
 }
