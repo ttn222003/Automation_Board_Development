@@ -4,9 +4,49 @@
 static unsigned int polynomial_crc32 = 0x04C11DB7;
 /*----------------*/
 
-uint8_t CheckCommandCode(uint8_t received_data[])
+/*------- Implement Interface -------*/
+void InitializeUartBootloaderProtocol(UartBootloaderProtocolDevice_t* uart_bootloader)
 {
-    return received_data[1];
+	uart_bootloader->CommandCode = NOT_CODE;
+	uart_bootloader->HandlingSteps = STEP_1;
+	uart_bootloader->ProcessStatus = NOT_IN_PROCESS;
+}
+
+void ResetUartBootloaderProtocol(UartBootloaderProtocolDevice_t* uart_bootloader)
+{
+	uart_bootloader->CommandCode = NOT_CODE;
+	uart_bootloader->HandlingSteps = STEP_1;
+	uart_bootloader->ProcessStatus = NOT_IN_PROCESS;
+}
+
+uint8_t GetCommandCode(UartBootloaderProtocolDevice_t uart_bootloader)
+{
+	return uart_bootloader.CommandCode;
+}
+
+void SetCommandCode(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t cmd_code)
+{
+	uart_bootloader->CommandCode = cmd_code;
+}
+
+uint8_t GetHandlingStep(UartBootloaderProtocolDevice_t uart_bootloader)
+{
+	return uart_bootloader.HandlingSteps;
+}
+
+void SetHandlingStep(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t step)
+{
+	uart_bootloader->HandlingSteps = step;
+}
+
+uint8_t GetProcessStatus(UartBootloaderProtocolDevice_t uart_bootloader)
+{
+	return uart_bootloader.ProcessStatus;
+}
+
+void SetProcessStatus(UartBootloaderProtocolDevice_t* uart_bootloader, ProcessingStatus_t status)
+{
+	uart_bootloader->ProcessStatus = status;
 }
 
 static uint32_t CalculateCrc32(uint8_t data[], uint8_t data_length)
@@ -42,23 +82,6 @@ static uint32_t CalculateCrc32(uint8_t data[], uint8_t data_length)
 static uint8_t ChecksumXOR(uint8_t data)
 {
     return data ^ 0xFF;
-}
-
-void GetCommand(uint8_t* data_cmds, uint8_t protocol_version)
-{
-    if(protocol_version == PROTOCOL_VER_10)
-    {
-        data_cmds[1] = 0x07;
-        data_cmds[2] = ((protocol_version / 10) << 4) | (protocol_version % 10);
-        data_cmds[3] = GET_CMD;
-        data_cmds[4] = GET_VERSION;
-        data_cmds[5] = GET_ID;
-        data_cmds[6] = READ_MEM;
-        data_cmds[7] = GO_CMD;
-        data_cmds[8] = WRITE_MEM;
-        data_cmds[9] = ERASE_MEM;
-        data_cmds[10] = GET_CHECKSUM;
-    }
 }
 
 void GetVersion(uint8_t* data_version, uint8_t protocol_version)

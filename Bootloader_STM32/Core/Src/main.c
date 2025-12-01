@@ -49,9 +49,6 @@ I2C_HandleTypeDef hi2c1;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-uint8_t ReceivedDataFromHost[MAX_DATA_LEN] = { 0 };
-uint8_t TransmittedDataToHost[MAX_DATA_LEN] = { 0 };
-UartBootloaderProtocolDepeDevice_t uart_bootloader;
 
 bool update_screen = false;
 /* USER CODE END PV */
@@ -109,12 +106,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   // Initialize
-
-  memset(TransmittedDataToHost, 0, 64);
-  memset(ReceivedDataFromHost, 0, 64);
-
-  uart_bootloader.CommandCode = NOT_CODE;
-  uart_bootloader.ProcessStatus = NOT_IN_PROCESS;
+  InitializeDataBuffer();
+  InitializeUartBootloaderProtocol(&mUartBootloader);
 
   HAL_UART_Receive_IT(&huart1, ReceivedDataFromHost, 64);
 
@@ -147,40 +140,34 @@ int main(void)
 //		 update_screen = false;
 //	 }
 //
-	 if(uart_bootloader.ProcessStatus == IN_PROCESS)
+	 if(GetProcessStatus(mUartBootloader) == IN_PROCESS)
 	 {
-		 if(uart_bootloader.CommandCode == GET_CMD)
+		 if(GetCommandCode(mUartBootloader) == GET_CMD)
 		 {
-			 switch(uart_bootloader.HandlingSteps)
+			 switch(GetHandlingStep(mUartBootloader))
 			 {
 			 case STEP_1:
-				 TransmittedDataToHost[0] = 1;
-				 TransmittedDataToHost[1] = ACK;
+				 HandleAckForTransmission();
 
-				 uart_bootloader.HandlingSteps = STEP_2;
+				 SetHandlingStep(&mUartBootloader, STEP_2);
 				 break;
 
 			 case STEP_2:
-				 TransmittedDataToHost[0] = 10;
-				 GetCommand(TransmittedDataToHost, 10);
+				 HandleGetCommandForTransmission(10);
 
-				 uart_bootloader.HandlingSteps = STEP_3;
+				 SetHandlingStep(&mUartBootloader, STEP_3);
 				 break;
 
 			 case STEP_3:
-				 TransmittedDataToHost[0] = 1;
-				 TransmittedDataToHost[1] = ACK;
+				 HandleAckForTransmission();
 
-				 // End process and reset all status
-				 uart_bootloader.ProcessStatus = NOT_IN_PROCESS;
-				 uart_bootloader.CommandCode = NOT_CODE;
-				 uart_bootloader.HandlingSteps = STEP_1;
-
+				 ResetUartBootloaderProtocol(&mUartBootloader);
 				 break;
 			 }
 
 			 HAL_UART_Transmit(&huart1, TransmittedDataToHost, 64, 5);
-			 memset(TransmittedDataToHost, 0, 64);
+
+			 ResetDataBuffer();
 		 }
 
 		 HAL_Delay(1);
@@ -317,11 +304,11 @@ void HAL_UART_RxCpltCallback (UART_HandleTypeDef* huart)
 {
 	if(huart->Instance == huart1.Instance)
 	{
-		if (uart_bootloader.ProcessStatus == NOT_IN_PROCESS)
+		if (GetProcessStatus(mUartBootloader) == NOT_IN_PROCESS)
 		{
-			uart_bootloader.ProcessStatus = IsInProcessCommand(ReceivedDataFromHost);
-			uart_bootloader.CommandCode = CheckCommandCode(ReceivedDataFromHost);
-			uart_bootloader.HandlingSteps = STEP_1;
+			SetCommandCode(&mUartBootloader, CheckCommandCode());
+			SetHandlingStep(&mUartBootloader, STEP_1);
+			SetProcessStatus(&mUartBootloader, IsInProcessCommand());
 		}
 
 		HAL_UART_Receive_IT(&huart1, ReceivedDataFromHost, 64);

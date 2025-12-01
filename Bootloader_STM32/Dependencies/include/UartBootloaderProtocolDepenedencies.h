@@ -11,15 +11,25 @@
 #include "ssd1306.h"
 #include "fonts.h"
 #include "UartBootloaderProtocolCore.h"
-#include "UartBootloaderProtocolState.h"
 
-typedef struct {
-	uint8_t CommandCode;
-	ProcessingStatus_t ProcessStatus;
-	uint8_t HandlingSteps;
-} UartBootloaderProtocolDepeDevice_t;
+/*------- Define -------*/
+#define MAX_DATA_LEN	64
+
+/*------- Initialize variable -------*/
+extern uint8_t ReceivedDataFromHost[MAX_DATA_LEN];
+extern uint8_t TransmittedDataToHost[MAX_DATA_LEN];
+extern UartBootloaderProtocolDevice_t mUartBootloader;
 
 /*------- Interface -------*/
-ProcessingStatus_t IsInProcessCommand(uint8_t received_data[]);
+void ResetReceivedDataBuffer(void);
+void ResetTransmittedDataBuffer(void);
+void InitializeDataBuffer(void);
+void ResetDataBuffer(void);
+void HandleAckForTransmission(void);
+void HandleGetCommandForTransmission(uint8_t protocol_version);
+/*------- Protocol Dependencies -------*/
+uint8_t CheckCommandCode(void);
+void GetCommand(uint8_t protocol_version);
+ProcessingStatus_t IsInProcessCommand(void);
 
 #endif /* DEPENDENCIES_INCLUDE_UARTBOOTLOADERPROTOCOLDEPENEDENCIES_H_ */
