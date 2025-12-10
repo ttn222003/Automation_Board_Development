@@ -306,9 +306,16 @@ void HAL_UART_RxCpltCallback (UART_HandleTypeDef* huart)
 	{
 		if (GetProcessStatus(mUartBootloader) == NOT_IN_PROCESS)
 		{
-			SetCommandCode(&mUartBootloader, CheckCommandCode());
-			SetHandlingStep(&mUartBootloader, STEP_1);
-			SetProcessStatus(&mUartBootloader, IsInProcessCommand());
+			if(IsInProcessCommand() == IN_PROCESS)
+			{
+				SetCommandCode(&mUartBootloader, CheckCommandCode());
+				SetHandlingStep(&mUartBootloader, STEP_1);
+				SetProcessStatus(&mUartBootloader, IsInProcessCommand());
+			}
+			else if(IsInProcessCommand() == NOT_IN_PROCESS)
+			{
+				HandleNackForTransmission();
+			}
 		}
 
 		HAL_UART_Receive_IT(&huart1, ReceivedDataFromHost, 64);

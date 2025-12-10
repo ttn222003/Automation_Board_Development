@@ -47,6 +47,12 @@ void HandleGetCommandForTransmission(uint8_t protocol_version)
 	GetCommand(protocol_version);
 }
 
+void HandleNackForTransmission(void)
+{
+	TransmittedDataToHost[0] = 1;
+	TransmittedDataToHost[1] = NACK;
+}
+
 /*------- Implement Protocol Dependencies -------*/
 void GetCommand(uint8_t protocol_version)
 {
@@ -70,6 +76,10 @@ uint8_t CheckCommandCode(void)
     return ReceivedDataFromHost[1];
 }
 
+/*
+@ brief:
+
+*/
 ProcessingStatus_t IsInProcessCommand(void)
 {
 	if ((ReceivedDataFromHost[0] == 2) && (ReceivedDataFromHost[1] != NOT_CODE) && (ReceivedDataFromHost[2] == 0xFF - ReceivedDataFromHost[1]))

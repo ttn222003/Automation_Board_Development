@@ -8,8 +8,8 @@
 #ifndef DEPENDENCIES_INCLUDE_UARTBOOTLOADERPROTOCOLDEPENEDENCIES_H_
 #define DEPENDENCIES_INCLUDE_UARTBOOTLOADERPROTOCOLDEPENEDENCIES_H_
 
-#include "ssd1306.h"
-#include "fonts.h"
+// #include "ssd1306.h"
+// #include "fonts.h"
 #include "UartBootloaderProtocolCore.h"
 
 /*------- Define -------*/
@@ -27,6 +27,7 @@ void InitializeDataBuffer(void);
 void ResetDataBuffer(void);
 void HandleAckForTransmission(void);
 void HandleGetCommandForTransmission(uint8_t protocol_version);
+void HandleNackForTransmission(void);
 /*------- Protocol Dependencies -------*/
 uint8_t CheckCommandCode(void);
 void GetCommand(uint8_t protocol_version);
