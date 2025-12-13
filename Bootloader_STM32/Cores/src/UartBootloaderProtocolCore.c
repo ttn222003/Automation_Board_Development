@@ -84,6 +84,27 @@ static uint8_t ChecksumXOR(uint8_t data)
     return data ^ 0xFF;
 }
 
+bool IsFrameCorrect(uint8_t data_buffer[], uint8_t data_length)
+{
+	uint32_t crc32_result = CalculateCrc32(data_buffer, 4);
+
+	if(crc32_result == 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+void ParseFrame(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[])
+{
+	uart_bootloader->CommandCode = data_buffer[2];
+}
+
+
+
+
+/*
 void GetVersion(uint8_t* data_version, uint8_t protocol_version)
 {
     data_version[0] = ACK;
@@ -143,3 +164,4 @@ void GotoApplication(uint32_t start_address)
     void (*application_reset_handler)(void) = (void*)(*((volatile uint32_t*)(start_address + 4U)));
     application_reset_handler();
 }
+*/

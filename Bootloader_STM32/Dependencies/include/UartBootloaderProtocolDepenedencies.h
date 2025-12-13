@@ -16,7 +16,7 @@
 #define MAX_DATA_LEN	64
 
 /*------- Initialize variable -------*/
-extern uint8_t ReceivedDataFromHost[MAX_DATA_LEN];
+extern uint8_t ReceivedDataBuffer[MAX_DATA_LEN];
 extern uint8_t TransmittedDataToHost[MAX_DATA_LEN];
 extern UartBootloaderProtocolDevice_t mUartBootloader;
 
@@ -28,6 +28,7 @@ void ResetDataBuffer(void);
 void HandleAckForTransmission(void);
 void HandleGetCommandForTransmission(uint8_t protocol_version);
 void HandleNackForTransmission(void);
+FrameStatus_t ReceiveDataAndProcessBuffer(uint8_t received_data);
 /*------- Protocol Dependencies -------*/
 uint8_t CheckCommandCode(void);
 void GetCommand(uint8_t protocol_version);

@@ -23,13 +23,15 @@ typedef struct {
 } GetCommandParameter_t;
 
 typedef struct{
+	uint8_t PreviousCommandCode;
 	uint8_t CommandCode;
 	uint8_t HandlingSteps;
 	GetCommandParameter_t get_command_parameter;
 } UartBootloaderProtocolHost_t;
 
-/*-------   Interface   -------*/
 /*------- Setter Getter -------*/
+void SetPreviousCommandCode(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t cmd_code);
+uint8_t GetPreviousCommandCode(UartBootloaderProtocolHost_t uart_bootloader);
 void SetCommandCode(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t cmd_code);
 uint8_t GetCommandCode(UartBootloaderProtocolHost_t uart_bootloader);
 void SetHandlingStep(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t step);

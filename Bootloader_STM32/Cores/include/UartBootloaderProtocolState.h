@@ -55,6 +55,11 @@ typedef enum {
 	IN_PROCESS			= 1,
 	NOT_IN_PROCESS
 } ProcessingStatus_t;
+
+typedef enum {
+	CORRECT				= 1,
+	WRONG
+} FrameStatus_t;
 /*----------------*/
 
 #endif /* CORES_INCLUDE_UARTBOOTLOADERPROTOCOLSTATE_H_ */

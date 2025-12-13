@@ -8,14 +8,14 @@
 #include "UartBootloaderProtocolDepenedencies.h"
 
 /*------- Declare variable -------*/
-uint8_t ReceivedDataFromHost[MAX_DATA_LEN];
+uint8_t ReceivedDataBuffer[MAX_DATA_LEN];
 uint8_t TransmittedDataToHost[MAX_DATA_LEN];
 UartBootloaderProtocolDevice_t mUartBootloader;
 
 /*------- Implement Interface -------*/
 void ResetReceivedDataBuffer(void)
 {
-	memset(ReceivedDataFromHost, 0, 64);
+	memset(ReceivedDataBuffer, 0, 64);
 }
 
 void ResetTransmittedDataBuffer(void)
@@ -53,6 +53,83 @@ void HandleNackForTransmission(void)
 	TransmittedDataToHost[1] = NACK;
 }
 
+FrameStatus_t ReceiveDataAndProcessBuffer(uint8_t received_data)
+{
+	static uint8_t rx_state = 0;
+	static uint8_t rx_buffer_index = 0;
+
+	switch(rx_state)
+	{
+	case 0:
+		if(received_data == 0x77)
+		{
+			ReceivedDataBuffer[rx_buffer_index++] = received_data;
+			rx_state = 1;
+		}
+		break;
+
+	case 1:
+		if(received_data == 8)
+		{
+			ReceivedDataBuffer[rx_buffer_index++] = received_data;
+			rx_state = 2;
+		}
+		break;
+
+	case 2:
+		ReceivedDataBuffer[rx_buffer_index++] = received_data;
+		rx_state = 3;
+
+		break;
+
+	case 3:
+		ReceivedDataBuffer[rx_buffer_index++] = received_data;
+		rx_state = 4;
+
+		break;
+
+	case 4:
+		ReceivedDataBuffer[rx_buffer_index++] = received_data;
+		rx_state = 5;
+
+		break;
+
+	case 5:
+		ReceivedDataBuffer[rx_buffer_index++] = received_data;
+		rx_state = 6;
+
+		break;
+
+	case 6:
+		ReceivedDataBuffer[rx_buffer_index++] = received_data;
+		rx_state = 7;
+
+		break;
+
+	case 7:
+		ReceivedDataBuffer[rx_buffer_index++] = received_data;
+
+		if(!IsFrameCorrect(ReceivedDataBuffer, 4))
+		{
+			// HandleNackForTransmission();
+			ResetDataBuffer();
+
+			break;
+		}
+
+		ParseFrame(&mUartBootloader, ReceivedDataBuffer);
+		SetHandlingStep(&mUartBootloader, STEP_1);
+		SetProcessStatus(&mUartBootloader, IN_PROCESS);
+
+		rx_state = 0;
+		rx_buffer_index = 0;
+		break;
+
+	default:
+		break;
+	}
+}
+
 /*------- Implement Protocol Dependencies -------*/
 void GetCommand(uint8_t protocol_version)
 {
@@ -73,7 +150,7 @@ void GetCommand(uint8_t protocol_version)
 
 uint8_t CheckCommandCode(void)
 {
-    return ReceivedDataFromHost[1];
+    return ReceivedDataBuffer[1];
 }
 
 /*
@@ -82,7 +159,7 @@ uint8_t CheckCommandCode(void)
 */
 ProcessingStatus_t IsInProcessCommand(void)
 {
-	if ((ReceivedDataFromHost[0] == 2) && (ReceivedDataFromHost[1] != NOT_CODE) && (ReceivedDataFromHost[2] == 0xFF - ReceivedDataFromHost[1]))
+	if ((ReceivedDataBuffer[0] == 2) && (ReceivedDataBuffer[1] != NOT_CODE) && (ReceivedDataBuffer[2] == 0xFF - ReceivedDataBuffer[1]))
 	{
 		return IN_PROCESS;
 	}

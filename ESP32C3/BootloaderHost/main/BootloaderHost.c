@@ -63,17 +63,21 @@ void InitializeUart(void)
 void UartTransmissionTask(void* args)
 {	
 	DelayMs(5000);
-	
 	while (1) {
+		
 		switch (mUartBootloader.CommandCode) {
 			case GET_CMD:
 				HandleBeginingProcessData(TransmittedDataToDevice, mUartBootloader);
-				uart_write_bytes(UART_NUM, TransmittedDataToDevice, 64);
+				
+				for (uint8_t transmitted_data_index = 0; transmitted_data_index < TransmittedDataToDevice[1]; transmitted_data_index++)
+				{
+					uart_write_bytes(UART_NUM, &TransmittedDataToDevice[transmitted_data_index], 1);
+				}
 				
 				break;
 		}
 		
-		DelayMs(2000);	
+		DelayMs(5000);
 	}
 }
 
@@ -86,6 +90,8 @@ void UartReceptionTask(void* args)
 		if (xQueueReceive(uart_queue, &UartEvent, portMAX_DELAY)) {
 			if (UartEvent.type == UART_DATA) {
 				uart_read_bytes(UART_NUM, ReceivedDataFromDevice, UartEvent.size, 5);
+				
+				ESP_LOGI("Tx", "%d", ReceivedDataFromDevice[1]);
 				
 				if (ReceivedDataFromDevice[1] == ACK) {
 					switch (GetCommandCode(mUartBootloader)) {

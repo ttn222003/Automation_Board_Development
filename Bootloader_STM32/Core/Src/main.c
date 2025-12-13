@@ -49,7 +49,7 @@ I2C_HandleTypeDef hi2c1;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-
+uint8_t received_data_from_host = 0x00;
 bool update_screen = false;
 /* USER CODE END PV */
 
@@ -109,7 +109,7 @@ int main(void)
   InitializeDataBuffer();
   InitializeUartBootloaderProtocol(&mUartBootloader);
 
-  HAL_UART_Receive_IT(&huart1, ReceivedDataFromHost, 64);
+  HAL_UART_Receive_IT(&huart1, &received_data_from_host, 1);
 
   SSD1306_Init();
   SSD1306_GotoXY(0, 0);
@@ -140,38 +140,38 @@ int main(void)
 //		 update_screen = false;
 //	 }
 //
-	 if(GetProcessStatus(mUartBootloader) == IN_PROCESS)
-	 {
-		 if(GetCommandCode(mUartBootloader) == GET_CMD)
-		 {
-			 switch(GetHandlingStep(mUartBootloader))
-			 {
-			 case STEP_1:
-				 HandleAckForTransmission();
-
-				 SetHandlingStep(&mUartBootloader, STEP_2);
-				 break;
-
-			 case STEP_2:
-				 HandleGetCommandForTransmission(10);
-
-				 SetHandlingStep(&mUartBootloader, STEP_3);
-				 break;
-
-			 case STEP_3:
-				 HandleAckForTransmission();
-
-				 ResetUartBootloaderProtocol(&mUartBootloader);
-				 break;
-			 }
-
-			 HAL_UART_Transmit(&huart1, TransmittedDataToHost, 64, 5);
-
-			 ResetDataBuffer();
-		 }
-
-		 HAL_Delay(1);
-	 }
+//	 if(GetProcessStatus(mUartBootloader) == IN_PROCESS)
+//	 {
+//		 if(GetCommandCode(mUartBootloader) == GET_CMD)
+//		 {
+//			 switch(GetHandlingStep(mUartBootloader))
+//			 {
+//			 case STEP_1:
+//				 HandleAckForTransmission();
+//
+//				 SetHandlingStep(&mUartBootloader, STEP_2);
+//				 break;
+//
+//			 case STEP_2:
+//				 HandleGetCommandForTransmission(10);
+//
+//				 SetHandlingStep(&mUartBootloader, STEP_3);
+//				 break;
+//
+//			 case STEP_3:
+//				 HandleAckForTransmission();
+//
+//				 ResetUartBootloaderProtocol(&mUartBootloader);
+//				 break;
+//			 }
+//
+//			 HAL_UART_Transmit(&huart1, TransmittedDataToHost, 64, 5);
+//
+//			 ResetDataBuffer();
+//		 }
+//
+//		 HAL_Delay(1);
+//	 }
   }
   /* USER CODE END 3 */
 }
@@ -304,21 +304,9 @@ void HAL_UART_RxCpltCallback (UART_HandleTypeDef* huart)
 {
 	if(huart->Instance == huart1.Instance)
 	{
-		if (GetProcessStatus(mUartBootloader) == NOT_IN_PROCESS)
-		{
-			if(IsInProcessCommand() == IN_PROCESS)
-			{
-				SetCommandCode(&mUartBootloader, CheckCommandCode());
-				SetHandlingStep(&mUartBootloader, STEP_1);
-				SetProcessStatus(&mUartBootloader, IsInProcessCommand());
-			}
-			else if(IsInProcessCommand() == NOT_IN_PROCESS)
-			{
-				HandleNackForTransmission();
-			}
-		}
+		ReceiveDataAndProcessBuffer(received_data_from_host);
 
-		HAL_UART_Receive_IT(&huart1, ReceivedDataFromHost, 64);
+		HAL_UART_Receive_IT(&huart1, &received_data_from_host, 1);
 	}
 }
 /* USER CODE END 4 */

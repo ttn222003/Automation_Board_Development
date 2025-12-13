@@ -30,7 +30,8 @@ uint8_t GetHandlingStep(UartBootloaderProtocolDevice_t uart_bootloader);
 void SetHandlingStep(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t step);
 uint8_t GetProcessStatus(UartBootloaderProtocolDevice_t uart_bootloader);
 void SetProcessStatus(UartBootloaderProtocolDevice_t* uart_bootloader, ProcessingStatus_t status);
-
+bool IsFrameCorrect(uint8_t data_buffer[], uint8_t data_length);
+void ParseFrame(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[]);
 
 void GetVersion(uint8_t* data_version, uint8_t protocol_version);
 void GetId(uint8_t* data_id, uint8_t id);
