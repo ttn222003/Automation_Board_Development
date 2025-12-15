@@ -35,25 +35,7 @@ void ResetDataBuffer(void)
 	ResetTransmittedDataBuffer();
 }
 
-void HandleAckForTransmission(void)
-{
-	TransmittedDataToHost[0] = 1;
-	TransmittedDataToHost[1] = ACK;
-}
-
-void HandleGetCommandForTransmission(uint8_t protocol_version)
-{
-	TransmittedDataToHost[0] = 10;
-	GetCommand(protocol_version);
-}
-
-void HandleNackForTransmission(void)
-{
-	TransmittedDataToHost[0] = 1;
-	TransmittedDataToHost[1] = NACK;
-}
-
-FrameStatus_t ReceiveDataAndProcessBuffer(uint8_t received_data)
+void ReceiveDataAndProcessBuffer(uint8_t received_data)
 {
 	static uint8_t rx_state = 0;
 	static uint8_t rx_buffer_index = 0;
@@ -129,41 +111,3 @@ FrameStatus_t ReceiveDataAndProcessBuffer(uint8_t received_data)
 		break;
 	}
 }
-
-/*------- Implement Protocol Dependencies -------*/
-void GetCommand(uint8_t protocol_version)
-{
-	if(protocol_version == PROTOCOL_VER_10)
-	{
-		TransmittedDataToHost[1] = 0x07;
-		TransmittedDataToHost[2] = ((protocol_version / 10) << 4) | (protocol_version % 10);
-		TransmittedDataToHost[3] = GET_CMD;
-		TransmittedDataToHost[4] = GET_VERSION;
-		TransmittedDataToHost[5] = GET_ID;
-		TransmittedDataToHost[6] = READ_MEM;
-		TransmittedDataToHost[7] = GO_CMD;
-		TransmittedDataToHost[8] = WRITE_MEM;
-		TransmittedDataToHost[9] = ERASE_MEM;
-		TransmittedDataToHost[10] = GET_CHECKSUM;
-	}
-}
-
-uint8_t CheckCommandCode(void)
-{
-    return ReceivedDataBuffer[1];
-}
-
-/*
-@ brief:
-
-*/
-ProcessingStatus_t IsInProcessCommand(void)
-{
-	if ((ReceivedDataBuffer[0] == 2) && (ReceivedDataBuffer[1] != NOT_CODE) && (ReceivedDataBuffer[2] == 0xFF - ReceivedDataBuffer[1]))
-	{
-		return IN_PROCESS;
-	}
-
-	return NOT_IN_PROCESS;
-}
-

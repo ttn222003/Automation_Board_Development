@@ -16,6 +16,7 @@
 #include "UartBootloaderProtocolCoresHost.h"
 #include "UartBootloaderProtocolState.h"
 #include "UartBootloaderProtocolDepeHost.h"
+#include <stdint.h>
 
 static const int RX_BUF_SIZE = 1024;
 
@@ -67,10 +68,9 @@ void UartTransmissionTask(void* args)
 		
 		switch (mUartBootloader.CommandCode) {
 			case GET_CMD:
-				HandleBeginingProcessData(TransmittedDataToDevice, mUartBootloader);
+				HandleBeginingProcessData(mUartBootloader, TransmittedDataToDevice);
 				
-				for (uint8_t transmitted_data_index = 0; transmitted_data_index < TransmittedDataToDevice[1]; transmitted_data_index++)
-				{
+				for (uint8_t transmitted_data_index = 0; transmitted_data_index < TransmittedDataToDevice[1]; transmitted_data_index++)	{
 					uart_write_bytes(UART_NUM, &TransmittedDataToDevice[transmitted_data_index], 1);
 				}
 				
@@ -84,28 +84,14 @@ void UartTransmissionTask(void* args)
 void UartReceptionTask(void* args)
 {
 	uart_event_t UartEvent;
-	
+	uint8_t received_data_from_device = 0x00;
 	while (1) {
 		// Wait until get data
 		if (xQueueReceive(uart_queue, &UartEvent, portMAX_DELAY)) {
 			if (UartEvent.type == UART_DATA) {
-				uart_read_bytes(UART_NUM, ReceivedDataFromDevice, UartEvent.size, 5);
+				uart_read_bytes(UART_NUM, &received_data_from_device, UartEvent.size, 1);
 				
-				ESP_LOGI("Tx", "%d", ReceivedDataFromDevice[1]);
-				
-				if (ReceivedDataFromDevice[1] == ACK) {
-					switch (GetCommandCode(mUartBootloader)) {
-						case GET_CMD:
-							xTaskNotifyGive(HandleGetCommandTask_handle);
-							break;
-						
-						/*case GET_VERSION:
-							break;*/
-					}
-				}
-				else if (ReceivedDataFromDevice[0] == 10) {
-					xTaskNotifyGive(HandleGetCommandTask_handle);
-				}
+				ReceiveDataAndProcessBuffer(received_data_from_device);
 			}
 		}
 	}
@@ -116,28 +102,5 @@ void HandleGetCommandTask(void* args)
 	while(1) {
 		// pdTRUE: Reset counter notify to 0 after get signal
 		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-		
-		switch (mUartBootloader.HandlingSteps) {
-			case STEP_1:
-				SetHandlingStep(&mUartBootloader, STEP_2);
-
-				break;
-			
-			case STEP_2:
-				if(ParseGetCommand(&mUartBootloader, ReceivedDataFromDevice) == STATUS_OK)
-				{					
-					//uart_bootloader.CommandCode = GET_VERSION;
-					SetHandlingStep(&mUartBootloader, STEP_3);
-				}
-				
-				break;
-			
-			case STEP_3:
-				SetHandlingStep(&mUartBootloader, STEP_1);
-				ESP_LOGI("Tx", "%d", STEP_1);
-				break;
-		}
-		
-		ResetReceivedDataBuffer();
 	}
 }

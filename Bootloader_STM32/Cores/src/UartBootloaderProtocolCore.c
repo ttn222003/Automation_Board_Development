@@ -79,11 +79,6 @@ static uint32_t CalculateCrc32(uint8_t data[], uint8_t data_length)
     return crc;
 }
 
-static uint8_t ChecksumXOR(uint8_t data)
-{
-    return data ^ 0xFF;
-}
-
 bool IsFrameCorrect(uint8_t data_buffer[], uint8_t data_length)
 {
 	uint32_t crc32_result = CalculateCrc32(data_buffer, 4);
@@ -101,67 +96,24 @@ void ParseFrame(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_bu
 	uart_bootloader->CommandCode = data_buffer[2];
 }
 
-
-
-
-/*
-void GetVersion(uint8_t* data_version, uint8_t protocol_version)
+void HandleAckForTransmission(uint8_t* transmitted_data)
 {
-    data_version[0] = ACK;
-    data_version[1] = ((protocol_version / 10) << 4) | (protocol_version % 10);
-    data_version[2] = 0x00;
-    data_version[3] = 0x00;
-    data_version[4] = ACK;
+	transmitted_data[0] = 0x77;
+	transmitted_data[1] = 4 + 4;
+	transmitted_data[2] = ACK;
+	transmitted_data[3] = ACK;
+
+	uint8_t data_to_calculate_crc[4];
+	data_to_calculate_crc[0] = 0x77;
+	data_to_calculate_crc[1] = 0x04 + 0x04;
+	data_to_calculate_crc[2] = ACK;
+	data_to_calculate_crc[3] = ACK;
+
+	uint32_t crc32 = CalculateCrc32(data_to_calculate_crc, 4);
+
+	transmitted_data[4] = (uint8_t)((crc32 << 24) & 0xFF);
+	transmitted_data[5] = (uint8_t)((crc32 << 16) & 0xFF);
+
+	transmitted_data[6] = (uint8_t)((crc32 << 8) & 0xFF);
+	transmitted_data[7] = (uint8_t)((crc32 << 0) & 0xFF);
 }
-
-void GetId(uint8_t* data_id, uint8_t id)
-{
-    data_id[0] = ACK;
-    data_id[1] = 0x01;
-    data_id[2] = 0x04;
-    data_id[3] = id;
-    data_id[4] = ACK;
-}
-
-uint32_t ProcessAddressAndChecksum(uint8_t* received_data)
-{
-    uint32_t crc = CalculateCrc32(received_data, 8);
-    uint32_t address;
-
-    if(crc == 0x00000000) {
-        address = (received_data[0] << 24) | (received_data[1] << 16) | (received_data[2] << 8) | received_data[3];
-    }
-    else {
-        return 0;
-    }
-    
-    if((address < 0x08004400) && (address > 0x08010000)) {
-        return 0;
-    }
-
-    return address;
-}
-
-bool CheckNumberOfByteAndChecksum(uint8_t received_data[])
-{
-    uint8_t checksum = ChecksumXOR(received_data[1]);
-    
-    if(received_data[0] == checksum)
-    {
-        return true;
-    }
-
-    return false;
-}
-
-void PrepareDataToSendToHost(uint8_t* prepared_data, uint32_t start_address, uint8_t number_of_bytes)
-{
-   memcpy(prepared_data, (uint8_t*)start_address, number_of_bytes); 
-}
-
-void GotoApplication(uint32_t start_address)
-{
-    void (*application_reset_handler)(void) = (void*)(*((volatile uint32_t*)(start_address + 4U)));
-    application_reset_handler();
-}
-*/

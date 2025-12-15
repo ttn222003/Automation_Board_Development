@@ -80,7 +80,7 @@ void InitializeUartBootloaderProtocol(UartBootloaderProtocolHost_t* uart_bootloa
 	SetHandlingStep(uart_bootloader, STEP_1);
 }
 
-void HandleBeginingProcessData(uint8_t* transmitted_data, UartBootloaderProtocolHost_t uart_bootloader)
+void HandleBeginingProcessData(UartBootloaderProtocolHost_t uart_bootloader, uint8_t* transmitted_data)
 {
 	transmitted_data[0] = 0x77;
 	transmitted_data[1] = 4 + 4;
@@ -101,22 +101,3 @@ void HandleBeginingProcessData(uint8_t* transmitted_data, UartBootloaderProtocol
 	transmitted_data[6] = (uint8_t)((crc32 << 8) & 0xFF);
 	transmitted_data[7] = (uint8_t)((crc32 << 0) & 0xFF);
 }
-
-StatusResult ParseGetCommand(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t received_data[])
-{
-	if(received_data[1] == 0x07)
-	{
-		uart_bootloader->get_command_parameter.SupportVersion = received_data[4];
-		uart_bootloader->get_command_parameter.SupportId = received_data[5];
-		uart_bootloader->get_command_parameter.SupportReadMem = received_data[6];
-		uart_bootloader->get_command_parameter.SupportGo = received_data[7];
-		uart_bootloader->get_command_parameter.SupportWriteMem = received_data[8];
-		uart_bootloader->get_command_parameter.SupportEraseMem = received_data[9];
-		uart_bootloader->get_command_parameter.SupportGetChecksum = received_data[10];
-		
-		return STATUS_OK;
-	}
-	
-	return STATUS_FAIL;
-}
-

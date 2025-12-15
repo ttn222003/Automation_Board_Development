@@ -25,13 +25,6 @@ void ResetReceivedDataBuffer(void);
 void ResetTransmittedDataBuffer(void);
 void InitializeDataBuffer(void);
 void ResetDataBuffer(void);
-void HandleAckForTransmission(void);
-void HandleGetCommandForTransmission(uint8_t protocol_version);
-void HandleNackForTransmission(void);
-FrameStatus_t ReceiveDataAndProcessBuffer(uint8_t received_data);
-/*------- Protocol Dependencies -------*/
-uint8_t CheckCommandCode(void);
-void GetCommand(uint8_t protocol_version);
-ProcessingStatus_t IsInProcessCommand(void);
+void ReceiveDataAndProcessBuffer(uint8_t received_data);
 
 #endif /* DEPENDENCIES_INCLUDE_UARTBOOTLOADERPROTOCOLDEPENEDENCIES_H_ */

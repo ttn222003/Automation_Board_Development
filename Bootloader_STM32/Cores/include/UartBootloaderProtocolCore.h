@@ -32,13 +32,7 @@ uint8_t GetProcessStatus(UartBootloaderProtocolDevice_t uart_bootloader);
 void SetProcessStatus(UartBootloaderProtocolDevice_t* uart_bootloader, ProcessingStatus_t status);
 bool IsFrameCorrect(uint8_t data_buffer[], uint8_t data_length);
 void ParseFrame(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[]);
-
-void GetVersion(uint8_t* data_version, uint8_t protocol_version);
-void GetId(uint8_t* data_id, uint8_t id);
-uint32_t ProcessAddressAndChecksum(uint8_t* received_data);
-bool CheckNumberOfByteAndChecksum(uint8_t received_data[]);
-void PrepareDataToSendToHost(uint8_t* prepared_data, uint32_t start_address, uint8_t number_of_bytes);
-void GotoApplication(uint32_t start_address);
+void HandleAckForTransmission(uint8_t* transmitted_data);
 /*----------------*/
 
 #endif

@@ -24,6 +24,6 @@ extern UartBootloaderProtocolHost_t mUartBootloader;
 void InitializeDataBuffer(void);
 void ResetReceivedDataBuffer(void);
 void DelayMs(uint32_t delay_time);
-
+void ReceiveDataAndProcessBuffer(uint8_t received_data);
 
 #endif /* DEPENDENCIES_INCLUDE_UARTBOOTLOADERPROTOCOLDEPEHOST_H_ */

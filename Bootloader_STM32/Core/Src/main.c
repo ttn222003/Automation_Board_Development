@@ -124,54 +124,27 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-//	 if(update_screen == true)
-//	 {
-//		 switch (CmdCode)
-//		  {
-//		  case GET_CMD:
-//			  BootloaderCommandType = GET_CMD;
-//			  HandlingSteps = STEP_1;
-//			  break;
-//		  case GET_VERSION:
-//			  BootloaderCommandType = GET_VERSION;
-//			  break;
-//		  }
-//
-//		 update_screen = false;
-//	 }
-//
-//	 if(GetProcessStatus(mUartBootloader) == IN_PROCESS)
-//	 {
-//		 if(GetCommandCode(mUartBootloader) == GET_CMD)
-//		 {
-//			 switch(GetHandlingStep(mUartBootloader))
-//			 {
-//			 case STEP_1:
-//				 HandleAckForTransmission();
-//
-//				 SetHandlingStep(&mUartBootloader, STEP_2);
-//				 break;
-//
-//			 case STEP_2:
-//				 HandleGetCommandForTransmission(10);
-//
-//				 SetHandlingStep(&mUartBootloader, STEP_3);
-//				 break;
-//
-//			 case STEP_3:
-//				 HandleAckForTransmission();
-//
-//				 ResetUartBootloaderProtocol(&mUartBootloader);
-//				 break;
-//			 }
-//
-//			 HAL_UART_Transmit(&huart1, TransmittedDataToHost, 64, 5);
-//
-//			 ResetDataBuffer();
-//		 }
-//
-//		 HAL_Delay(1);
-//	 }
+	 if(GetProcessStatus(mUartBootloader) == IN_PROCESS)
+	 {
+		 if(GetCommandCode(mUartBootloader) == GET_CMD)
+		 {
+			 switch(GetHandlingStep(mUartBootloader))
+			 {
+			 case STEP_1:
+				 HandleAckForTransmission(TransmittedDataToHost);
+
+				 SetHandlingStep(&mUartBootloader, STEP_2);
+
+				 for (uint8_t transmitted_data_index = 0; transmitted_data_index < TransmittedDataToHost[1]; transmitted_data_index++)
+				 {
+					 HAL_UART_Transmit(&huart1, TransmittedDataToHost, 1, 1);
+				 }
+				 break;
+			 }
+		 }
+
+		 HAL_Delay(1);
+	 }
   }
   /* USER CODE END 3 */
 }
