@@ -34,8 +34,11 @@ enum CommandCode
 	NOT_CODE			= 0xFF,
 };
 
-enum OtherCodes
+enum CommunicationCode
 {
+    REQUEST_HANDSHAKE   = 0x77,
+    RESPONE_HANDSHAKE   = 0x78,
+	REQUEST_DATA		= 0xFE,
     ACK                 = 0x79,
     NACK                = 0X1F
 };

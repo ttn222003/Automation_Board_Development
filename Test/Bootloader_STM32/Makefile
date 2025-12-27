@@ -2,7 +2,7 @@
 
 CC := gcc
 
-CFLAGS ?= -DTEST
+CFLAGS ?= -DTEST -DUNITY_COLOR
 
 INCLUDES := -I./../../Unity									\
 			-I./../../Bootloader_STM32/Cores/include		\
