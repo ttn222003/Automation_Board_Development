@@ -34,8 +34,10 @@ void SetProcessStatus(UartBootloaderProtocolDevice_t* uart_bootloader, Processin
 /*------- API -------*/
 void ParseFrameHandshakeRequestGetCommandFromHost(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[]);
 void ParseFrameDataRequestGetCommandFromHost(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[]);
+void ParseFrameEndHandshakeGetCommandFromHost(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[]);
 void HandleAckForTransmission(uint8_t* transmitted_data);
 void HandleNackForTransmission(uint8_t* transmitted_data);
+void HandleDataGetCommandForTransmission(uint8_t* transmitted_data);
 /*----------------*/
 
 #endif

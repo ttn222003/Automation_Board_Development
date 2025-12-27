@@ -38,7 +38,9 @@ enum CommunicationCode
 {
     REQUEST_HANDSHAKE   = 0x77,
     RESPONE_HANDSHAKE   = 0x78,
+    END_HANDSHAKE       = 0x80,
 	REQUEST_DATA		= 0xFE,
+    RESPONSE_DATA       = 0xFD,
     ACK                 = 0x79,
     NACK                = 0X1F
 };

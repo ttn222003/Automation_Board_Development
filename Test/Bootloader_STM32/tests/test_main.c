@@ -6,6 +6,9 @@ extern void ParseFrameHandshakeRequestOfGetCommandButByteDataLengthIsWrongTest(v
 extern void HandleAckTest(void);
 extern void HandleNackTest(void);
 extern void ParseFrameDataRequestOfGetCommandTest(void);
+extern void ParseFrameDataRequestOfGetCommandButNotBytesTest(void);
+extern void HandleDataGetCmdTest(void);
+extern void ParseFrameEndHandshakeOfGetCommandTest(void);
 
 int main(void)
 {
@@ -16,6 +19,9 @@ int main(void)
     RUN_TEST(HandleAckTest);
     RUN_TEST(HandleNackTest);
     RUN_TEST(ParseFrameDataRequestOfGetCommandTest);
+    RUN_TEST(ParseFrameDataRequestOfGetCommandButNotBytesTest);
+    RUN_TEST(HandleDataGetCmdTest);
+    RUN_TEST(ParseFrameEndHandshakeOfGetCommandTest);
     printf(COL_YELLOW "==== END TEST ====\n" COL_RESET);
     return UNITY_END();
 }

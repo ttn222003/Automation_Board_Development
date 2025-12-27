@@ -38,10 +38,22 @@ static uint32_t CalculateCrc32(uint8_t data[], uint8_t data_length)
 static void ConvertCrcToArray(uint8_t input_data[], uint8_t data_length, uint8_t* output_data)
 {
 	uint32_t crc32 = CalculateCrc32(input_data, data_length);
-	output_data[4] = (uint8_t)((crc32 >> 24) & 0xFF);
-	output_data[5] = (uint8_t)((crc32 >> 16) & 0xFF);
-	output_data[6] = (uint8_t)((crc32 >> 8) & 0xFF);
-	output_data[7] = (uint8_t)((crc32 >> 0) & 0xFF);
+	output_data[data_length + 0] = (uint8_t)((crc32 >> 24) & 0xFF);
+	output_data[data_length + 1] = (uint8_t)((crc32 >> 16) & 0xFF);
+	output_data[data_length + 2] = (uint8_t)((crc32 >> 8) & 0xFF);
+	output_data[data_length + 3] = (uint8_t)((crc32 >> 0) & 0xFF);
+}
+
+static void CheckCrcAndSetCommandCode(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[], uint8_t cmd_code)
+{
+	uint32_t crc32_result = CalculateCrc32(data_buffer, 8);
+
+	if(crc32_result == 0)
+	{
+		SetCommandCode(uart_bootloader, cmd_code);
+		return;
+	}
+	SetCommandCode(uart_bootloader, NOT_CODE);
 }
 
 /*------- Implement Interface -------*/
@@ -92,25 +104,17 @@ void SetProcessStatus(UartBootloaderProtocolDevice_t* uart_bootloader, Processin
 /*------- API -------*/
 void ParseFrameHandshakeRequestGetCommandFromHost(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[])
 {
-	uint32_t crc32_result = CalculateCrc32(data_buffer, 8);
-
-	if(crc32_result == 0)
-	{
-		SetCommandCode(uart_bootloader, GET_CMD);
-		return;
-	}
-	SetCommandCode(uart_bootloader, NOT_CODE);
+	CheckCrcAndSetCommandCode(uart_bootloader, data_buffer, GET_CMD);
 }
 
 void ParseFrameDataRequestGetCommandFromHost(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[])
 {
-	uint32_t crc32_result = CalculateCrc32(data_buffer, 8);
+	CheckCrcAndSetCommandCode(uart_bootloader, data_buffer, GET_CMD);
+}
 
-	if(crc32_result == 0)
-	{
-		SetCommandCode(uart_bootloader, GET_CMD);
-		return;
-	}
+void ParseFrameEndHandshakeGetCommandFromHost(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[])
+{
+	CheckCrcAndSetCommandCode(uart_bootloader, data_buffer, GET_CMD);
 }
 
 void HandleAckForTransmission(uint8_t* transmitted_data)
@@ -131,4 +135,27 @@ void HandleNackForTransmission(uint8_t* transmitted_data)
 	transmitted_data[3] = 0x00;
 
 	ConvertCrcToArray(transmitted_data, 4, transmitted_data);
+}
+
+void HandleDataGetCommandForTransmission(uint8_t* transmitted_data)
+{
+	transmitted_data[0] = RESPONSE_DATA;
+	transmitted_data[1] = 21;
+	transmitted_data[2] = GET_CMD;
+	transmitted_data[3] = GET_VERSION;
+	transmitted_data[4] = GET_ID;
+	transmitted_data[5] = READ_MEM;
+	transmitted_data[6] = GO_CMD;
+	transmitted_data[7] = WRITE_MEM;
+	transmitted_data[8] = ERASE_MEM;
+	transmitted_data[9] = EXT_ERASE_MEM;
+	transmitted_data[10] = WRITE_PROTECT;
+	transmitted_data[11] = WRITE_UNPROTECT;
+	transmitted_data[12] = READOUT_PROTECT;
+	transmitted_data[13] = READOUT_UNPROTECT;
+	transmitted_data[14] = GET_CHECKSUM;
+	transmitted_data[15] = SPECIAL_CMD;
+	transmitted_data[16] = EXT_SPECIAL_CMD;
+
+	ConvertCrcToArray(transmitted_data, 17, transmitted_data);
 }
