@@ -2,15 +2,21 @@
  * UartBootloaderProtocolDepenedencies.h
  *
  *  Created on: Nov 9, 2025
- *      Author: ASUS
+ *      Author: TTN
  */
 
-#ifndef DEPENDENCIES_INCLUDE_UARTBOOTLOADERPROTOCOLDEPENEDENCIES_H_
-#define DEPENDENCIES_INCLUDE_UARTBOOTLOADERPROTOCOLDEPENEDENCIES_H_
+#ifndef _DEPENDENCIES_INCLUDE_UARTBOOTLOADERPROTOCOLDEPENEDENCIES_H_
+#define _DEPENDENCIES_INCLUDE_UARTBOOTLOADERPROTOCOLDEPENEDENCIES_H_
 
 // #include "ssd1306.h"
 // #include "fonts.h"
 #include "UartBootloaderProtocolCore.h"
+
+#ifndef TEST
+#include "UartDriver.h"
+#else
+#include "UartDriverMock.h"
+#endif
 
 /*------- Define -------*/
 #define MAX_DATA_LEN	64
@@ -21,6 +27,7 @@ extern uint8_t TransmittedDataToHost[MAX_DATA_LEN];
 extern UartBootloaderProtocolDevice_t mUartBootloader;
 
 /*------- Interface -------*/
+void TransmittDataToHost(void);
 void ResetReceivedDataBuffer(void);
 void ResetTransmittedDataBuffer(void);
 void InitializeDataBuffer(void);

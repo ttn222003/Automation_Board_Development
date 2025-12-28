@@ -50,6 +50,7 @@ UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
 uint8_t received_data_from_host = 0x00;
+uint8_t check_point = 0;
 bool update_screen = false;
 /* USER CODE END PV */
 
@@ -128,22 +129,14 @@ int main(void)
 	 {
 		 if(GetCommandCode(mUartBootloader) == GET_CMD)
 		 {
-			 switch(GetHandlingStep(mUartBootloader))
-			 {
-			 case STEP_1:
-				 HandleAckForTransmission(TransmittedDataToHost);
-
-				 SetHandlingStep(&mUartBootloader, STEP_2);
-
-				 for (uint8_t transmitted_data_index = 0; transmitted_data_index < TransmittedDataToHost[1]; transmitted_data_index++)
-				 {
-					 HAL_UART_Transmit(&huart1, TransmittedDataToHost, 1, 1);
-				 }
-				 break;
-			 }
+			 HandleAckForTransmission(TransmittedDataToHost);
+			 TransmittDataToHost();
 		 }
-
-		 HAL_Delay(1);
+//		 else if(GetCommandCode(mUartBootloader) == REQUEST_DATA)
+//		 {
+//			 check_point++;
+//		 }
+		 SetCommandCode(&mUartBootloader, NOT_CODE);
 	 }
   }
   /* USER CODE END 3 */

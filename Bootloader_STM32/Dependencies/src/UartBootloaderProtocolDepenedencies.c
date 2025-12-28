@@ -13,6 +13,18 @@ uint8_t TransmittedDataToHost[MAX_DATA_LEN];
 UartBootloaderProtocolDevice_t mUartBootloader;
 
 /*------- Implement Interface -------*/
+void TransmittDataToHost(void)
+{
+	uint8_t transmitted_data_to_host = 0x00;
+
+	for (uint8_t transmitted_data_index = 0; transmitted_data_index < TransmittedDataToHost[1]; transmitted_data_index++)
+	{
+		transmitted_data_to_host = TransmittedDataToHost[transmitted_data_index];
+		DelayMs(1);
+		UartTransmittOneByteData(transmitted_data_to_host);
+	}
+}
+
 void ResetReceivedDataBuffer(void)
 {
 	memset(ReceivedDataBuffer, 0, 64);
@@ -91,16 +103,15 @@ void ReceiveDataAndProcessBuffer(uint8_t received_data)
 	case 7:
 		ReceivedDataBuffer[rx_buffer_index++] = received_data;
 
-		if(!IsFrameCorrect(ReceivedDataBuffer, 4))
-		{
-			// HandleNackForTransmission();
-			ResetDataBuffer();
+		// if(!IsFrameCorrect(ReceivedDataBuffer, 4))
+		// {
+		// 	// HandleNackForTransmission();
+		// 	ResetDataBuffer();
 
-			break;
-		}
+		// 	break;
+		// }
 
-		ParseFrame(&mUartBootloader, ReceivedDataBuffer);
-		SetHandlingStep(&mUartBootloader, STEP_1);
+		// ParseFrame(&mUartBootloader, ReceivedDataBuffer);
 		SetProcessStatus(&mUartBootloader, IN_PROCESS);
 
 		rx_state = 0;
