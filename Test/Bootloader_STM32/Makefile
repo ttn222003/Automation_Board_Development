@@ -1,22 +1,25 @@
-.PHONY: build run clean
+.PHONY: build run clean print
 
 CC := gcc
 
 CFLAGS ?= -DTEST -DUNITY_COLOR
 
-INCLUDES := -I./../../Unity									\
-			-I./../../Bootloader_STM32/Cores/include		\
-			-I./../../Bootloader_STM32/Dependencies/include	\
+INCLUDES := -I./../../Unity											\
+			-I./../../Bootloader_STM32/Cores/include				\
+			-I./../../Bootloader_STM32/Dependencies/include			\
+			-I./../../Bootloader_STM32/Platform/Test_on_PC/include	
 
-SRC_UNITY_DIR := ./../../Unity
-SRC_CORES_DIR := ./../../Bootloader_STM32/Cores/src
-SRC_DEPES_DIR := ./../../Bootloader_STM32/Dependencies/src
-SRC_TESTS_DIR := ./tests
+SRC_UNITY_DIR	 := ./../../Unity
+SRC_CORES_DIR	 := ./../../Bootloader_STM32/Cores/src
+SRC_DEPES_DIR	 := ./../../Bootloader_STM32/Dependencies/src
+SRC_PLATFORM_DIR := ./../../Bootloader_STM32/Platform/Test_on_PC/src
+SRC_TESTS_DIR	 := ./tests
 
 SRC := $(wildcard $(SRC_UNITY_DIR)/*.c)		\
 		$(wildcard $(SRC_CORES_DIR)/*.c)	\
 		$(wildcard $(SRC_DEPES_DIR)/*.c)	\
-		$(wildcard $(SRC_TESTS_DIR)/*.c)	\
+		$(wildcard $(SRC_PLATFORM_DIR)/*.c)	\
+		$(wildcard $(SRC_TESTS_DIR)/*.c)
 
 OBJS_DIR := objs
 OBJS := $(patsubst %.c,$(OBJS_DIR)/%.o,$(SRC))
