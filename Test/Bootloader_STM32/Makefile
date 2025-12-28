@@ -1,4 +1,4 @@
-.PHONY: build run clean print
+.PHONY: build run clean
 
 CC := gcc
 
@@ -18,28 +18,28 @@ SRC_TESTS_DIR	 := ./tests
 SRC := $(wildcard $(SRC_UNITY_DIR)/*.c)		\
 		$(wildcard $(SRC_CORES_DIR)/*.c)	\
 		$(wildcard $(SRC_DEPES_DIR)/*.c)	\
-		$(wildcard $(SRC_PLATFORM_DIR)/*.c)	\
-		$(wildcard $(SRC_TESTS_DIR)/*.c)
+		$(wildcard $(SRC_PLATFORM_DIR)/*.c)
 
-OBJS_DIR := objs
-OBJS := $(patsubst %.c,$(OBJS_DIR)/%.o,$(SRC))
+TEST_SRCS := $(wildcard $(SRC_TESTS_DIR)/*Test.c)
+TEST_NAMES := $(notdir $(basename $(TEST_SRCS)))
 
-$(OBJS_DIR)/%.o: %.c
-	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+$(TEST_NAMES):
+	@echo "======= Build test: $@ ======="
+	$(CC) $(CFLAGS) $(INCLUDES) $(SRC) $(SRC_TESTS_DIR)/$@.c -o $@.exe
 
-build: $(OBJS)
-	@echo "------- Building Test Output -------"
-	$(CC) $(OBJS) -o test.exe
+build: $(TEST_NAMES)
+	@echo "======= Finish Building Test Output ======="
 
 run:
-	./test.exe
+	@for t in $(TEST_NAMES); do \
+		echo "==== Run $$t ===="; \
+		if [ -f $$t.exe ]; then \
+			./$$t.exe || exit 1; \
+		else \
+			echo "Executable $$t.exe not found. Run 'make build' first."; exit 1; \
+		fi \
+	done
 
 clean:
-	@echo "------- Clean all file -------"
-	@echo "====================================================="
-	@echo "======= Do you want to clean all files? (y/n) ======="
-	@echo "====================================================="
-	
-	rm -rf test.exe
-	rm -rf $(OBJS_DIR) test.exe
+	@echo "Cleaning executables..."
+	rm -f *.exe

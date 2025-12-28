@@ -1,4 +1,5 @@
 #include "unity.h"
+#include "unity_color.h"
 #include "UartBootloaderProtocolCore.h"
 #include <stdio.h>
 
@@ -69,4 +70,20 @@ void ParseFrameEndHandshakeOfGetCommandTest(void)
     uint8_t received_data[8] = { END_HANDSHAKE, 0x08, GET_CMD, 0xFF - GET_CMD, 0xE6, 0xFE, 0xF5, 0x86 };
     ParseFrameEndHandshakeGetCommandFromHost(&mUartBootloaderTest, received_data);
     TEST_ASSERT_EQUAL(GET_CMD, GetCommandCode(mUartBootloaderTest));
+}
+
+int main(void)
+{
+    printf(COL_YELLOW "==== START CORE TEST ====\n" COL_RESET);
+    UNITY_BEGIN();
+    RUN_TEST(ParseFrameHandshakeRequestOfGetCommandTest);
+    RUN_TEST(ParseFrameHandshakeRequestOfGetCommandButByteDataLengthIsWrongTest);
+    RUN_TEST(HandleAckTest);
+    RUN_TEST(HandleNackTest);
+    RUN_TEST(ParseFrameDataRequestOfGetCommandTest);
+    RUN_TEST(ParseFrameDataRequestOfGetCommandButNotBytesTest);
+    RUN_TEST(HandleDataGetCmdTest);
+    RUN_TEST(ParseFrameEndHandshakeOfGetCommandTest);
+    printf(COL_YELLOW "==== END CORE TEST ====\n" COL_RESET);
+    return UNITY_END();
 }
