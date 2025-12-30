@@ -4,15 +4,15 @@ CC := gcc
 
 CFLAGS ?= -DTEST -DUNITY_COLOR
 
-INCLUDES := -I./../../Unity											\
+INCLUDES := -I./../../Unity/src										\
 			-I./../../Bootloader_STM32/Cores/include				\
 			-I./../../Bootloader_STM32/Dependencies/include			\
-			-I./../../Bootloader_STM32/Platform/Test_on_PC/include	
+			-I./../../Bootloader_STM32/Platform/include	
 
-SRC_UNITY_DIR	 := ./../../Unity
+SRC_UNITY_DIR	 := ./../../Unity/src
 SRC_CORES_DIR	 := ./../../Bootloader_STM32/Cores/src
 SRC_DEPES_DIR	 := ./../../Bootloader_STM32/Dependencies/src
-SRC_PLATFORM_DIR := ./../../Bootloader_STM32/Platform/Test_on_PC/src
+SRC_PLATFORM_DIR := ./../../Bootloader_STM32/Platform/mocks
 SRC_TESTS_DIR	 := ./tests
 
 SRC := $(wildcard $(SRC_UNITY_DIR)/*.c)		\

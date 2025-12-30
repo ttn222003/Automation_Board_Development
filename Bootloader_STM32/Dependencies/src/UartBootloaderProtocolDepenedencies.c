@@ -13,7 +13,7 @@ uint8_t TransmittedDataToHost[MAX_DATA_LEN];
 UartBootloaderProtocolDevice_t mUartBootloader;
 
 /*------- Implement Interface -------*/
-void TransmittDataToHost(void)
+void TransmittDataToHost(uint8_t data_length)
 {
 	uint8_t transmitted_data_to_host = 0x00;
 

@@ -29,5 +29,5 @@ Core/Startup \
 Cores/src \
 Dependencies/src \
 Drivers/STM32F1xx_HAL_Driver/Src \
-Platform/STM32/src \
+Platform/STM32 \
 
