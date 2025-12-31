@@ -5,17 +5,8 @@
 #include "cmock.h"
 #include "MockUartDriver.h"
 
-static const char* CMockString_DelayMs = "DelayMs";
 static const char* CMockString_UartTransmittOneByteData = "UartTransmittOneByteData";
-static const char* CMockString_time_delay = "time_delay";
 static const char* CMockString_transmitted_data = "transmitted_data";
-
-typedef struct _CMOCK_DelayMs_CALL_INSTANCE
-{
-  UNITY_LINE_TYPE LineNumber;
-  uint32_t Expected_time_delay;
-
-} CMOCK_DelayMs_CALL_INSTANCE;
 
 typedef struct _CMOCK_UartTransmittOneByteData_CALL_INSTANCE
 {
@@ -26,7 +17,6 @@ typedef struct _CMOCK_UartTransmittOneByteData_CALL_INSTANCE
 
 static struct MockUartDriverInstance
 {
-  CMOCK_MEM_INDEX_TYPE DelayMs_CallInstance;
   CMOCK_MEM_INDEX_TYPE UartTransmittOneByteData_CallInstance;
 } Mock;
 
@@ -35,12 +25,6 @@ void MockUartDriver_Verify(void)
 {
   UNITY_LINE_TYPE cmock_line = TEST_LINE_NUM;
   CMOCK_MEM_INDEX_TYPE call_instance;
-  call_instance = Mock.DelayMs_CallInstance;
-  if (CMOCK_GUTS_NONE != call_instance)
-  {
-    UNITY_SET_DETAIL(CMockString_DelayMs);
-    UNITY_TEST_FAIL(cmock_line, CMockStringCalledLess);
-  }
   call_instance = Mock.UartTransmittOneByteData_CallInstance;
   if (CMOCK_GUTS_NONE != call_instance)
   {
@@ -58,39 +42,6 @@ void MockUartDriver_Destroy(void)
 {
   CMock_Guts_MemFreeAll();
   memset(&Mock, 0, sizeof(Mock));
-}
-
-void DelayMs(uint32_t time_delay)
-{
-  UNITY_LINE_TYPE cmock_line = TEST_LINE_NUM;
-  CMOCK_DelayMs_CALL_INSTANCE* cmock_call_instance;
-  UNITY_SET_DETAIL(CMockString_DelayMs);
-  cmock_call_instance = (CMOCK_DelayMs_CALL_INSTANCE*)CMock_Guts_GetAddressFor(Mock.DelayMs_CallInstance);
-  Mock.DelayMs_CallInstance = CMock_Guts_MemNext(Mock.DelayMs_CallInstance);
-  UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringCalledMore);
-  cmock_line = cmock_call_instance->LineNumber;
-  {
-    UNITY_SET_DETAILS(CMockString_DelayMs,CMockString_time_delay);
-    UNITY_TEST_ASSERT_EQUAL_HEX32(cmock_call_instance->Expected_time_delay, time_delay, cmock_line, CMockStringMismatch);
-  }
-  UNITY_CLR_DETAILS();
-}
-
-void CMockExpectParameters_DelayMs(CMOCK_DelayMs_CALL_INSTANCE* cmock_call_instance, uint32_t time_delay);
-void CMockExpectParameters_DelayMs(CMOCK_DelayMs_CALL_INSTANCE* cmock_call_instance, uint32_t time_delay)
-{
-  cmock_call_instance->Expected_time_delay = time_delay;
-}
-
-void DelayMs_CMockExpect(UNITY_LINE_TYPE cmock_line, uint32_t time_delay)
-{
-  CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_DelayMs_CALL_INSTANCE));
-  CMOCK_DelayMs_CALL_INSTANCE* cmock_call_instance = (CMOCK_DelayMs_CALL_INSTANCE*)CMock_Guts_GetAddressFor(cmock_guts_index);
-  UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringOutOfMemory);
-  memset(cmock_call_instance, 0, sizeof(*cmock_call_instance));
-  Mock.DelayMs_CallInstance = CMock_Guts_MemChain(Mock.DelayMs_CallInstance, cmock_guts_index);
-  cmock_call_instance->LineNumber = cmock_line;
-  CMockExpectParameters_DelayMs(cmock_call_instance, time_delay);
 }
 
 void UartTransmittOneByteData(uint8_t transmitted_data)
