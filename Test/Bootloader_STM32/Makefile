@@ -7,7 +7,8 @@ CFLAGS ?= -DTEST -DUNITY_COLOR
 INCLUDES := -I./../../Unity/src										\
 			-I./../../Bootloader_STM32/Cores/include				\
 			-I./../../Bootloader_STM32/Dependencies/include			\
-			-I./../../Bootloader_STM32/Platform/include	
+			-I./../../Bootloader_STM32/Platform/include				\
+			-I./../../Bootloader_STM32/Platform/mocks
 
 SRC_UNITY_DIR	 := ./../../Unity/src
 SRC_CORES_DIR	 := ./../../Bootloader_STM32/Cores/src
@@ -21,23 +22,19 @@ SRC := $(wildcard $(SRC_UNITY_DIR)/*.c)		\
 		$(wildcard $(SRC_PLATFORM_DIR)/*.c)
 
 TEST_SRCS := $(wildcard $(SRC_TESTS_DIR)/*Test.c)
-TEST_NAMES := $(notdir $(basename $(TEST_SRCS)))
+TEST_EXES := $(patsubst %.c,%.exe,$(notdir $(TEST_SRCS)))
 
-$(TEST_NAMES):
-	@echo "======= Build test: $@ ======="
-	$(CC) $(CFLAGS) $(INCLUDES) $(SRC) $(SRC_TESTS_DIR)/$@.c -o $@.exe
+%.exe: $(SRC_TESTS_DIR)/%.c $(SRC)
+	@echo "======= Build test: $* ======="
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@
 
-build: $(TEST_NAMES)
+build: $(TEST_EXES)
 	@echo "======= Finish Building Test Output ======="
 
-run:
-	@for t in $(TEST_NAMES); do \
+run: build
+	@for t in $(TEST_EXES); do \
 		echo "==== Run $$t ===="; \
-		if [ -f $$t.exe ]; then \
-			./$$t.exe || exit 1; \
-		else \
-			echo "Executable $$t.exe not found. Run 'make build' first."; exit 1; \
-		fi \
+		./$$t || exit 1; \
 	done
 
 clean:
