@@ -17,17 +17,21 @@ void tearDown(void)
 }
 
 void ParseFrameHandshakeRequestOfGetCommandTest(void)
-{
+{   
     uint8_t received_data[8] = { REQUEST_HANDSHAKE, 0x08, GET_CMD, 0xFF - GET_CMD, 0x8A, 0xC2, 0xA9, 0xFA };
-    ParseFrameHandshakeRequestGetCommandFromHost(&mUartBootloaderTest, received_data);
+    uint8_t status = ParseFrameHandshakeRequestGetCommandFromHost(&mUartBootloaderTest, received_data);
+
     TEST_ASSERT_EQUAL(GET_CMD, GetCommandCode(mUartBootloaderTest));
+    TEST_ASSERT_EQUAL(FRAME_OK, status);
 }
 
 void ParseFrameHandshakeRequestOfGetCommandButByteDataLengthIsWrongTest(void)
 {
     uint8_t received_data[8] = { REQUEST_HANDSHAKE, 0x07, GET_CMD, 0xFF - GET_CMD, 0x8A, 0xC2, 0xA9, 0xFA };
-    ParseFrameHandshakeRequestGetCommandFromHost(&mUartBootloaderTest, received_data);
+    uint8_t status = ParseFrameHandshakeRequestGetCommandFromHost(&mUartBootloaderTest, received_data);
+
     TEST_ASSERT_EQUAL(NOT_CODE, GetCommandCode(mUartBootloaderTest));
+    TEST_ASSERT_EQUAL(FRAME_ERROR, status);
 }
 
 void HandleAckTest(void)
@@ -47,15 +51,19 @@ void HandleNackTest(void)
 void ParseFrameDataRequestOfGetCommandTest(void)
 {
     uint8_t received_data[8] = { REQUEST_DATA, 0x08, GET_CMD, 0xFF - GET_CMD, 0x6E, 0x2E, 0x0C, 0x64 };
-    ParseFrameDataRequestGetCommandFromHost(&mUartBootloaderTest, received_data);
+    uint8_t status = ParseFrameDataRequestGetCommandFromHost(&mUartBootloaderTest, received_data);
+
     TEST_ASSERT_EQUAL(GET_CMD, GetCommandCode(mUartBootloaderTest));
+    TEST_ASSERT_EQUAL(FRAME_OK, status);
 }
 
-void ParseFrameDataRequestOfGetCommandButNotBytesTest(void)
+void ParseFrameDataRequestOfGetCommandButNotEnoughBytesTest(void)
 {
     uint8_t received_data[8] = { REQUEST_DATA, 0x08, GET_CMD, 0xFF - GET_CMD, 0x6E, 0x2E, 0x0C };
-    ParseFrameDataRequestGetCommandFromHost(&mUartBootloaderTest, received_data);
+    uint8_t status = ParseFrameDataRequestGetCommandFromHost(&mUartBootloaderTest, received_data);
+
     TEST_ASSERT_EQUAL(NOT_CODE, GetCommandCode(mUartBootloaderTest));
+    TEST_ASSERT_EQUAL(FRAME_ERROR, status);
 }
 
 void HandleDataGetCmdTest(void)
@@ -68,8 +76,10 @@ void HandleDataGetCmdTest(void)
 void ParseFrameEndHandshakeOfGetCommandTest(void)
 {
     uint8_t received_data[8] = { END_HANDSHAKE, 0x08, GET_CMD, 0xFF - GET_CMD, 0xE6, 0xFE, 0xF5, 0x86 };
-    ParseFrameEndHandshakeGetCommandFromHost(&mUartBootloaderTest, received_data);
+    uint8_t status = ParseFrameEndHandshakeGetCommandFromHost(&mUartBootloaderTest, received_data);
+
     TEST_ASSERT_EQUAL(GET_CMD, GetCommandCode(mUartBootloaderTest));
+    TEST_ASSERT_EQUAL(FRAME_OK, status);
 }
 
 int main(void)
@@ -81,7 +91,7 @@ int main(void)
     RUN_TEST(HandleAckTest);
     RUN_TEST(HandleNackTest);
     RUN_TEST(ParseFrameDataRequestOfGetCommandTest);
-    RUN_TEST(ParseFrameDataRequestOfGetCommandButNotBytesTest);
+    RUN_TEST(ParseFrameDataRequestOfGetCommandButNotEnoughBytesTest);
     RUN_TEST(HandleDataGetCmdTest);
     RUN_TEST(ParseFrameEndHandshakeOfGetCommandTest);
     printf(COL_YELLOW "==== END CORE TEST ====\n" COL_RESET);
