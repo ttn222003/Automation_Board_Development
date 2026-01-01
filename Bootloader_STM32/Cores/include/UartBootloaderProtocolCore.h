@@ -17,8 +17,8 @@
 /*------- Struct -------*/
 typedef struct {
 	uint8_t CommandCode;
-	uint8_t HandlingSteps;
-	ProcessingStatus_t ProcessStatus;
+	uint8_t Phase;
+	eFrameStatus FrameStatus;
 } UartBootloaderProtocolDevice_t;
 
 /*------- Interface -------*/
@@ -26,15 +26,15 @@ void InitializeUartBootloaderProtocol(UartBootloaderProtocolDevice_t* uart_bootl
 void ResetUartBootloaderProtocol(UartBootloaderProtocolDevice_t* uart_bootloader);
 uint8_t GetCommandCode(UartBootloaderProtocolDevice_t uart_bootloader);
 void SetCommandCode(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t cmd_code);
-uint8_t GetHandlingStep(UartBootloaderProtocolDevice_t uart_bootloader);
-void SetHandlingStep(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t step);
-uint8_t GetProcessStatus(UartBootloaderProtocolDevice_t uart_bootloader);
-void SetProcessStatus(UartBootloaderProtocolDevice_t* uart_bootloader, ProcessingStatus_t status);
+uint8_t GetPhase(UartBootloaderProtocolDevice_t uart_bootloader);
+void SetPhase(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t phase);
+eFrameStatus GetFrameStatus(UartBootloaderProtocolDevice_t uart_bootloader);
+void SetFrameStatus(UartBootloaderProtocolDevice_t* uart_bootloader, eFrameStatus frame_status);
 
 /*------- API -------*/
-void ParseFrameHandshakeRequestGetCommandFromHost(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[]);
-void ParseFrameDataRequestGetCommandFromHost(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[]);
-void ParseFrameEndHandshakeGetCommandFromHost(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[]);
+eFrameStatus ParseFrameHandshakeRequestGetCommandFromHost(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[]);
+eFrameStatus ParseFrameDataRequestGetCommandFromHost(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[]);
+eFrameStatus ParseFrameEndHandshakeGetCommandFromHost(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[]);
 void HandleAckForTransmission(uint8_t* transmitted_data);
 void HandleNackForTransmission(uint8_t* transmitted_data);
 void HandleDataGetCommandForTransmission(uint8_t* transmitted_data);

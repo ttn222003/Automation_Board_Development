@@ -17,7 +17,7 @@ void TransmittDataToHost(uint8_t data_length)
 {
 	uint8_t transmitted_data_to_host = 0x00;
 
-	for (uint8_t transmitted_data_index = 0; transmitted_data_index < TransmittedDataToHost[1]; transmitted_data_index++)
+	for (uint8_t transmitted_data_index = 0; transmitted_data_index < data_length; transmitted_data_index++)
 	{
 		transmitted_data_to_host = TransmittedDataToHost[transmitted_data_index];
 		DelayMs(1);
@@ -47,7 +47,7 @@ void ResetDataBuffer(void)
 	ResetTransmittedDataBuffer();
 }
 
-void ReceiveDataAndProcessBuffer(uint8_t received_data)
+eFrameStatus ReceiveDataAndPutInBuffer(uint8_t received_data)
 {
 	static uint8_t rx_state = 0;
 	static uint8_t rx_buffer_index = 0;
@@ -55,70 +55,32 @@ void ReceiveDataAndProcessBuffer(uint8_t received_data)
 	switch(rx_state)
 	{
 	case 0:
-		if(received_data == 0x77)
+		if((received_data == REQUEST_HANDSHAKE) || (received_data == REQUEST_DATA))
 		{
 			ReceivedDataBuffer[rx_buffer_index++] = received_data;
 			rx_state = 1;
 		}
-		break;
+
+		return FRAME_UNABLE_TO_PROCESS;
 
 	case 1:
-		if(received_data == 8)
-		{
-			ReceivedDataBuffer[rx_buffer_index++] = received_data;
-			rx_state = 2;
-		}
-		break;
-
-	case 2:
 		ReceivedDataBuffer[rx_buffer_index++] = received_data;
-		rx_state = 3;
+		rx_state = 2;
 
-		break;
-
-	case 3:
-		ReceivedDataBuffer[rx_buffer_index++] = received_data;
-		rx_state = 4;
-
-		break;
-
-	case 4:
-		ReceivedDataBuffer[rx_buffer_index++] = received_data;
-		rx_state = 5;
-
-		break;
-
-	case 5:
-		ReceivedDataBuffer[rx_buffer_index++] = received_data;
-		rx_state = 6;
-
-		break;
-
-	case 6:
-		ReceivedDataBuffer[rx_buffer_index++] = received_data;
-		rx_state = 7;
-
-		break;
+		return FRAME_UNABLE_TO_PROCESS;
 
 	case 7:
 		ReceivedDataBuffer[rx_buffer_index++] = received_data;
 
-		// if(!IsFrameCorrect(ReceivedDataBuffer, 4))
-		// {
-		// 	// HandleNackForTransmission();
-		// 	ResetDataBuffer();
-
-		// 	break;
-		// }
-
-		// ParseFrame(&mUartBootloader, ReceivedDataBuffer);
-		SetProcessStatus(&mUartBootloader, IN_PROCESS);
-
 		rx_state = 0;
 		rx_buffer_index = 0;
-		break;
+
+		return FRAME_ABLE_TO_PROCESS;
 
 	default:
-		break;
+		ReceivedDataBuffer[rx_buffer_index++] = received_data;
+		rx_state++;
+
+		return FRAME_UNABLE_TO_PROCESS;
 	}
 }

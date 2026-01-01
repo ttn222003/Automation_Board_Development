@@ -29,6 +29,6 @@ void ResetReceivedDataBuffer(void);
 void ResetTransmittedDataBuffer(void);
 void InitializeDataBuffer(void);
 void ResetDataBuffer(void);
-void ReceiveDataAndProcessBuffer(uint8_t received_data);
+eFrameStatus ReceiveDataAndPutInBuffer(uint8_t received_data);
 
 #endif /* DEPENDENCIES_INCLUDE_UARTBOOTLOADERPROTOCOLDEPENEDENCIES_H_ */

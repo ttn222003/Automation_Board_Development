@@ -125,19 +125,48 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	 if(GetProcessStatus(mUartBootloader) == IN_PROCESS)
-	 {
-		 if(GetCommandCode(mUartBootloader) == GET_CMD)
-		 {
-			 HandleAckForTransmission(TransmittedDataToHost);
-			 TransmittDataToHost();
-		 }
-//		 else if(GetCommandCode(mUartBootloader) == REQUEST_DATA)
-//		 {
-//			 check_point++;
-//		 }
-		 SetCommandCode(&mUartBootloader, NOT_CODE);
-	 }
+	  if(GetFrameStatus(mUartBootloader) == FRAME_ABLE_TO_PROCESS)
+	  {
+		  SetPhase(&mUartBootloader, ReceivedDataBuffer[0]);
+		  SetCommandCode(&mUartBootloader, ReceivedDataBuffer[2]);
+
+		  // Can add test case for TDD?
+		  if((GetCommandCode(mUartBootloader) == GET_CMD) && (GetPhase(mUartBootloader) == REQUEST_HANDSHAKE))
+		  {
+			  if(ParseFrameHandshakeRequestGetCommandFromHost(&mUartBootloader, ReceivedDataBuffer) == FRAME_OK)
+			  {
+				  HandleAckForTransmission(TransmittedDataToHost);
+			  }
+			  else if(ParseFrameHandshakeRequestGetCommandFromHost(&mUartBootloader, ReceivedDataBuffer) == FRAME_ERROR)
+			  {
+				  HandleNackForTransmission(TransmittedDataToHost);
+			  }
+		  }
+		  else if((GetCommandCode(mUartBootloader) == GET_CMD) && (GetPhase(mUartBootloader) == REQUEST_DATA))
+		  {
+			  if(ParseFrameDataRequestGetCommandFromHost(&mUartBootloader, ReceivedDataBuffer) == FRAME_OK)
+			  {
+				  HandleDataGetCommandForTransmission(TransmittedDataToHost);
+			  }
+			  else if(ParseFrameDataRequestGetCommandFromHost(&mUartBootloader, ReceivedDataBuffer) == FRAME_ERROR)
+			  {
+				  HandleNackForTransmission(TransmittedDataToHost);
+			  }
+		  }
+		  else if((GetCommandCode(mUartBootloader) == GET_CMD) && (GetPhase(mUartBootloader) == END_HANDSHAKE))
+		  {
+			  if(ParseFrameEndHandshakeGetCommandFromHost(&mUartBootloader, ReceivedDataBuffer) == FRAME_OK)
+			  {
+				  HandleAckForTransmission(TransmittedDataToHost);
+			  }
+			  else if(ParseFrameEndHandshakeGetCommandFromHost(&mUartBootloader, ReceivedDataBuffer) == FRAME_ERROR)
+			  {
+				  HandleNackForTransmission(TransmittedDataToHost);
+			  }
+		  }
+
+		  TransmittDataToHost(TransmittedDataToHost[1]);
+	  }
   }
   /* USER CODE END 3 */
 }
@@ -270,7 +299,8 @@ void HAL_UART_RxCpltCallback (UART_HandleTypeDef* huart)
 {
 	if(huart->Instance == huart1.Instance)
 	{
-		ReceiveDataAndProcessBuffer(received_data_from_host);
+		uint8_t frame_status = ReceiveDataAndPutInBuffer(received_data_from_host);
+		SetFrameStatus(&mUartBootloader, frame_status);
 
 		HAL_UART_Receive_IT(&huart1, &received_data_from_host, 1);
 	}

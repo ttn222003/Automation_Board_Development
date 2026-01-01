@@ -45,21 +45,13 @@ enum CommunicationCode
     NACK                = 0X1F
 };
 
-enum HandlingProtocolSteps
+typedef enum
 {
-	STEP_1				= 1,
-	STEP_2,
-	STEP_3,
-	STEP_4,
-	STEP_5,
-	STEP_6,
-	STEP_7
-};
-
-typedef enum {
-	IN_PROCESS			= 1,
-	NOT_IN_PROCESS
-} ProcessingStatus_t;
+    FRAME_ERROR             = 0,
+    FRAME_OK                = 1,
+    FRAME_ABLE_TO_PROCESS   = 2,
+    FRAME_UNABLE_TO_PROCESS = 3
+} eFrameStatus;
 
 /*----------------*/
 

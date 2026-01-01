@@ -44,31 +44,31 @@ static void ConvertCrcToArray(uint8_t input_data[], uint8_t data_length, uint8_t
 	output_data[data_length + 3] = (uint8_t)((crc32 >> 0) & 0xFF);
 }
 
-static void CheckCrcAndSetCommandCode(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[], uint8_t cmd_code)
+static eFrameStatus CheckCrcAndSetCommandCode(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[], uint8_t cmd_code)
 {
 	uint32_t crc32_result = CalculateCrc32(data_buffer, 8);
 
 	if(crc32_result == 0)
 	{
 		SetCommandCode(uart_bootloader, cmd_code);
-		return;
+		return FRAME_OK;
 	}
+
 	SetCommandCode(uart_bootloader, NOT_CODE);
+	return FRAME_ERROR;
 }
 
 /*------- Implement Interface -------*/
 void InitializeUartBootloaderProtocol(UartBootloaderProtocolDevice_t* uart_bootloader)
 {
 	uart_bootloader->CommandCode = NOT_CODE;
-	uart_bootloader->HandlingSteps = STEP_1;
-	uart_bootloader->ProcessStatus = NOT_IN_PROCESS;
+	uart_bootloader->FrameStatus = FRAME_UNABLE_TO_PROCESS;
 }
 
 void ResetUartBootloaderProtocol(UartBootloaderProtocolDevice_t* uart_bootloader)
 {
 	uart_bootloader->CommandCode = NOT_CODE;
-	uart_bootloader->HandlingSteps = STEP_1;
-	uart_bootloader->ProcessStatus = NOT_IN_PROCESS;
+	uart_bootloader->FrameStatus = FRAME_UNABLE_TO_PROCESS;
 }
 
 uint8_t GetCommandCode(UartBootloaderProtocolDevice_t uart_bootloader)
@@ -81,40 +81,40 @@ void SetCommandCode(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t cmd
 	uart_bootloader->CommandCode = cmd_code;
 }
 
-uint8_t GetHandlingStep(UartBootloaderProtocolDevice_t uart_bootloader)
+uint8_t GetPhase(UartBootloaderProtocolDevice_t uart_bootloader)
 {
-	return uart_bootloader.HandlingSteps;
+	return uart_bootloader.Phase;
 }
 
-void SetHandlingStep(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t step)
+void SetPhase(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t phase)
 {
-	uart_bootloader->HandlingSteps = step;
+	uart_bootloader->Phase = phase;
 }
 
-uint8_t GetProcessStatus(UartBootloaderProtocolDevice_t uart_bootloader)
+eFrameStatus GetFrameStatus(UartBootloaderProtocolDevice_t uart_bootloader)
 {
-	return uart_bootloader.ProcessStatus;
+	return uart_bootloader.FrameStatus;
 }
 
-void SetProcessStatus(UartBootloaderProtocolDevice_t* uart_bootloader, ProcessingStatus_t status)
+void SetFrameStatus(UartBootloaderProtocolDevice_t* uart_bootloader, eFrameStatus frame_status)
 {
-	uart_bootloader->ProcessStatus = status;
+	uart_bootloader->FrameStatus = frame_status;
 }
 
 /*------- API -------*/
-void ParseFrameHandshakeRequestGetCommandFromHost(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[])
+eFrameStatus ParseFrameHandshakeRequestGetCommandFromHost(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[])
 {
-	CheckCrcAndSetCommandCode(uart_bootloader, data_buffer, GET_CMD);
+	return CheckCrcAndSetCommandCode(uart_bootloader, data_buffer, GET_CMD);
 }
 
-void ParseFrameDataRequestGetCommandFromHost(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[])
+eFrameStatus ParseFrameDataRequestGetCommandFromHost(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[])
 {
-	CheckCrcAndSetCommandCode(uart_bootloader, data_buffer, GET_CMD);
+	return CheckCrcAndSetCommandCode(uart_bootloader, data_buffer, GET_CMD);
 }
 
-void ParseFrameEndHandshakeGetCommandFromHost(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[])
+eFrameStatus ParseFrameEndHandshakeGetCommandFromHost(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[])
 {
-	CheckCrcAndSetCommandCode(uart_bootloader, data_buffer, GET_CMD);
+	return CheckCrcAndSetCommandCode(uart_bootloader, data_buffer, GET_CMD);
 }
 
 void HandleAckForTransmission(uint8_t* transmitted_data)
