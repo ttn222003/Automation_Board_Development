@@ -9,9 +9,6 @@
 #define CORES_INCLUDE_UARTBOOTLOADERPROTOCOLSTATE_H_
 
 /* Private define */
-#include "rom/ets_sys.h"
-#include "freertos/FreeRTOS.h"
-
 #define MAX_DATA_LEN            64
 #define PROTOCOL_VER_10         10
 /*----------------*/
@@ -34,31 +31,15 @@ enum CommandCode
     GET_CHECKSUM        = 0xA1,
     SPECIAL_CMD         = 0x50,
     EXT_SPECIAL_CMD     = 0x51,
-    REQUEST_DATA		= 0xFE,
 	NOT_CODE			= 0xFF,
 };
 
-enum OtherCodes
+enum CommunicationCodes
 {
+    REQUEST_HANDSHAKE   = 0x77,
     ACK                 = 0x79,
     NACK                = 0X1F
 };
-
-enum HandlingProtocolSteps
-{
-	STEP_1				= 1,
-	STEP_2,
-	STEP_3,
-	STEP_4,
-	STEP_5,
-	STEP_6,
-	STEP_7
-};
-
-typedef enum {
-	IN_PROCESS			= 1,
-	NOT_IN_PROCESS
-} ProcessingStatus_t;
 /*----------------*/
 
 #endif /* CORES_INCLUDE_UARTBOOTLOADERPROTOCOLSTATE_H_ */
