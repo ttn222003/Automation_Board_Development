@@ -26,6 +26,7 @@ static const int RX_BUF_SIZE = 1024;
 #define RXD_PIN 		(GPIO_NUM_20)
 
 QueueHandle_t uart_queue;
+TaskHandle_t HandleTransmissionTask_handle;
 TaskHandle_t HandleGetCommandTask_handle;
 
 void InitializeUart(void);
@@ -41,7 +42,7 @@ void app_main(void)
 	InitializeDataBuffer();
 	
 	xTaskCreate(UartReceptionTask, "Uart Rx", 8192, NULL, configMAX_PRIORITIES - 1, NULL);
-	xTaskCreate(UartTransmissionTask, "Uart Tx", 8192, NULL, configMAX_PRIORITIES - 2, NULL);
+	xTaskCreate(UartTransmissionTask, "Uart Tx", 8192, NULL, configMAX_PRIORITIES - 2, &HandleTransmissionTask_handle);
 	xTaskCreate(HandleGetCommandTask, "Handle GC", 8192, NULL, configMAX_PRIORITIES - 3, &HandleGetCommandTask_handle);
 }
 
@@ -77,7 +78,7 @@ void UartTransmissionTask(void* args)
 				break;
 		}
 		
-		DelayMs(5000);
+		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 	}
 }
 
@@ -92,6 +93,12 @@ void UartReceptionTask(void* args)
 				uart_read_bytes(UART_NUM, &received_data_from_device, UartEvent.size, 1);
 				
 				ReceiveDataAndProcessBuffer(received_data_from_device);
+				
+				
+				if(GetProcessStatus(mUartBootloader) == IN_PROCESS)
+				{
+					xTaskNotifyGive(HandleGetCommandTask_handle);
+				}
 			}
 		}
 	}
@@ -102,5 +109,19 @@ void HandleGetCommandTask(void* args)
 	while(1) {
 		// pdTRUE: Reset counter notify to 0 after get signal
 		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+		
+		
+		switch (GetHandlingStep(mUartBootloader)) {
+			case STEP_1:
+				if(ReceivedDataFromDevice[2] == ACK)
+				{
+					ESP_LOGI("Rx", "%d", ACK);
+				}
+				
+				SetHandlingStep(&mUartBootloader, STEP_2);
+				SetProcessStatus(&mUartBootloader, NOT_IN_PROCESS);
+				
+				
+		}
 	}
 }

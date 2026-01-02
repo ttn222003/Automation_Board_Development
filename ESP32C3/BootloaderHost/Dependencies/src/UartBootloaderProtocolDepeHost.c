@@ -4,8 +4,10 @@
  *  Created on: Nov 20, 2025
  *      Author: TTN
  */
-
+#include "esp_log.h"
 #include "UartBootloaderProtocolDepeHost.h"
+#include "UartBootloaderProtocolCoresHost.h"
+#include "UartBootloaderProtocolState.h"
 
 /*------- Declare variable -------*/
 uint8_t TransmittedDataToDevice[MAX_DATA_LEN];
@@ -84,7 +86,9 @@ void ReceiveDataAndProcessBuffer(uint8_t received_data)
 
 	case 7:
 		ReceivedDataFromDevice[rx_buffer_index++] = received_data;
-
+		
+		SetProcessStatus(&mUartBootloader, IN_PROCESS);
+		
 		rx_state = 0;
 		rx_buffer_index = 0;
 		break;

@@ -73,14 +73,47 @@ uint8_t GetHandlingStep(UartBootloaderProtocolHost_t uart_bootloader)
 	return uart_bootloader.HandlingSteps;
 }
 
+void SetProcessStatus(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t status)
+{
+	uart_bootloader->ProcessStatus = status;
+}
+
+ProcessingStatus_t GetProcessStatus(UartBootloaderProtocolHost_t uart_bootloader)
+{
+	return uart_bootloader.ProcessStatus;
+}
+
 void InitializeUartBootloaderProtocol(UartBootloaderProtocolHost_t* uart_bootloader)
 {
 	SetPreviousCommandCode(uart_bootloader, NOT_CODE);
 	SetCommandCode(uart_bootloader, GET_CMD);
 	SetHandlingStep(uart_bootloader, STEP_1);
+	SetProcessStatus(uart_bootloader, NOT_IN_PROCESS);
 }
 
 void HandleBeginingProcessData(UartBootloaderProtocolHost_t uart_bootloader, uint8_t* transmitted_data)
+{
+	transmitted_data[0] = 0x77;
+	transmitted_data[1] = 4 + 4;
+	transmitted_data[2] = uart_bootloader.CommandCode;
+	transmitted_data[3] = 0xFF - uart_bootloader.CommandCode;
+	
+	uint8_t data_to_calculate_crc[4];
+	data_to_calculate_crc[0] = 0x77;
+	data_to_calculate_crc[1] = 0x04 + 0x04;
+	data_to_calculate_crc[2] = uart_bootloader.CommandCode;
+	data_to_calculate_crc[3] = 0xFF - uart_bootloader.CommandCode;
+	
+	uint32_t crc32 = CalculateCrc32(data_to_calculate_crc, 4);
+	
+	transmitted_data[4] = (uint8_t)((crc32 << 24) & 0xFF);
+	transmitted_data[5] = (uint8_t)((crc32 << 16) & 0xFF);
+	
+	transmitted_data[6] = (uint8_t)((crc32 << 8) & 0xFF);
+	transmitted_data[7] = (uint8_t)((crc32 << 0) & 0xFF);
+}
+
+void HandleRequestData(UartBootloaderProtocolHost_t uart_bootloader, uint8_t* transmitted_data)
 {
 	transmitted_data[0] = 0x77;
 	transmitted_data[1] = 4 + 4;

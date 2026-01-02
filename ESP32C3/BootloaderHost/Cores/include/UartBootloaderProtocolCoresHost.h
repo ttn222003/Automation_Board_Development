@@ -16,6 +16,7 @@ typedef struct{
 	uint8_t PreviousCommandCode;
 	uint8_t CommandCode;
 	uint8_t HandlingSteps;
+	ProcessingStatus_t ProcessStatus;
 } UartBootloaderProtocolHost_t;
 
 /*------- Setter Getter -------*/
@@ -25,8 +26,11 @@ void SetCommandCode(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t cmd_c
 uint8_t GetCommandCode(UartBootloaderProtocolHost_t uart_bootloader);
 void SetHandlingStep(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t step);
 uint8_t GetHandlingStep(UartBootloaderProtocolHost_t uart_bootloader);
+void SetProcessStatus(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t status);
+ProcessingStatus_t GetProcessStatus(UartBootloaderProtocolHost_t uart_bootloader);
 
 /*------- API -------*/
 void InitializeUartBootloaderProtocol(UartBootloaderProtocolHost_t* uart_bootloader);
 void HandleBeginingProcessData(UartBootloaderProtocolHost_t uart_bootloader, uint8_t* transmitted_data);
+void HandleRequestData(UartBootloaderProtocolHost_t uart_bootloader, uint8_t* transmitted_data);
 #endif /* CORES_INCLUDE_UARTBOOTLOADERPROTOCOLCORESHOST_H_ */

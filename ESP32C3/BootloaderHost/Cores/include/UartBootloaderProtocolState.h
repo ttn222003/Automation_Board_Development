@@ -34,6 +34,7 @@ enum CommandCode
     GET_CHECKSUM        = 0xA1,
     SPECIAL_CMD         = 0x50,
     EXT_SPECIAL_CMD     = 0x51,
+    REQUEST_DATA		= 0xFE,
 	NOT_CODE			= 0xFF,
 };
 
@@ -54,11 +55,10 @@ enum HandlingProtocolSteps
 	STEP_7
 };
 
-typedef enum
-{
-	STATUS_OK					= 1,
-	STATUS_FAIL					= 0
-} StatusResult;
+typedef enum {
+	IN_PROCESS			= 1,
+	NOT_IN_PROCESS
+} ProcessingStatus_t;
 /*----------------*/
 
 #endif /* CORES_INCLUDE_UARTBOOTLOADERPROTOCOLSTATE_H_ */
