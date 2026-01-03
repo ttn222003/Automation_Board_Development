@@ -3,6 +3,7 @@
 #include <string.h>
 #include "UartBootloaderProtocolCoresHost.h"
 
+UartBootloaderProtocolHost_t mUartBootloaderTest;
 uint8_t transmitt_data[64];
 
 void setUp(void)
@@ -22,11 +23,65 @@ void HandleHandshakeRequestOfGetCommandTest(void)
     TEST_ASSERT_EQUAL_UINT8_ARRAY(expected_data, transmitt_data, 8);
 }
 
+void ParseFrameAckForRequestHandshakePhaseTest(void)
+{
+    uint8_t received_data[8] = { RESPONE_HANDSHAKE, 0x08, ACK, 0x00, 0x69,0x0D, 0xDF, 0x72 };
+    uint8_t status = ParseFrameAck(&mUartBootloaderTest, received_data);
+
+    TEST_ASSERT_EQUAL(FRAME_OK, status);
+}
+
+void ParseFrameNackForRequestHandshakePhaseTest(void)
+{
+    uint8_t received_data[8] = { RESPONE_HANDSHAKE, 0x08, NACK, 0x00, 0x88, 0x9E, 0x7F, 0x1A };
+    uint8_t status = ParseFrameNack(&mUartBootloaderTest, received_data);
+
+    TEST_ASSERT_EQUAL(FRAME_OK, status);
+}
+
+void HandleDataRequestOfGetCommandTest(void)
+{
+    uint8_t expected_data[8] = { REQUEST_DATA, 0x08, GET_CMD, 0xFF - GET_CMD, 0x6E, 0x2E, 0x0C, 0x64 };
+    HandleDataRequestOfGetCommandForTransmission(transmitt_data);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(expected_data, transmitt_data, 8);
+}
+
+void ParseFrameDataResponeOfGetCommandTest(void)
+{
+    uint8_t received_data[21] = { RESPONSE_DATA, 21, GET_CMD, GET_VERSION, GET_ID, READ_MEM, GO_CMD, WRITE_MEM, ERASE_MEM, EXT_ERASE_MEM, WRITE_PROTECT, WRITE_UNPROTECT, READOUT_PROTECT, READOUT_UNPROTECT, GET_CHECKSUM, SPECIAL_CMD, EXT_SPECIAL_CMD, 0x4B, 0xA5, 0x3E, 0x9C };
+    uint8_t status = ParseFrameDataGetCommand(&mUartBootloaderTest, received_data);
+
+    TEST_ASSERT_EQUAL(FRAME_OK, status);
+}
+
+void ParseFrameDataResponeOfGetCommandButLackTwoBytesTest(void)
+{
+    uint8_t received_data[21] = { RESPONSE_DATA, 21, GET_CMD, GET_ID, READ_MEM, GO_CMD, WRITE_MEM, ERASE_MEM, EXT_ERASE_MEM, WRITE_PROTECT, WRITE_UNPROTECT, READOUT_PROTECT, GET_CHECKSUM, SPECIAL_CMD, EXT_SPECIAL_CMD, 0x4B, 0xA5, 0x3E, 0x9C };
+    uint8_t status = ParseFrameDataGetCommand(&mUartBootloaderTest, received_data);
+
+    TEST_ASSERT_EQUAL(FRAME_ERROR, status);
+}
+
+// @attention: Add struct to store information of supported command
+
+void HandleEndHandshakeOfGetCommandTest(void)
+{
+    uint8_t expected_data[8] = { END_HANDSHAKE, 0x08, GET_CMD, 0xFF - GET_CMD, 0xE6, 0xFE, 0xF5, 0x86 };
+    HandleEndHandshakeOfGetCommandForTransmission(transmitt_data);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(expected_data, transmitt_data, 8);
+}
+
 int main(void)
 {
     printf(COL_YELLOW "==== START CORE TEST ====\n" COL_RESET);
     UNITY_BEGIN();
     RUN_TEST(HandleHandshakeRequestOfGetCommandTest);
+    RUN_TEST(ParseFrameAckForRequestHandshakePhaseTest);
+    RUN_TEST(ParseFrameNackForRequestHandshakePhaseTest);
+    RUN_TEST(HandleDataRequestOfGetCommandTest);
+    RUN_TEST(ParseFrameDataResponeOfGetCommandTest);
+    RUN_TEST(ParseFrameDataResponeOfGetCommandButLackTwoBytesTest);
+    RUN_TEST(HandleEndHandshakeOfGetCommandTest);
     printf(COL_YELLOW "==== END CORE TEST ====\n" COL_RESET);
     return UNITY_END();
 }

@@ -37,9 +37,21 @@ enum CommandCode
 enum CommunicationCodes
 {
     REQUEST_HANDSHAKE   = 0x77,
+    RESPONE_HANDSHAKE   = 0x78,
+    END_HANDSHAKE       = 0x80,
+    REQUEST_DATA        = 0xFE,
+    RESPONSE_DATA       = 0xFD,
     ACK                 = 0x79,
     NACK                = 0X1F
 };
+
+typedef enum
+{
+    FRAME_ERROR             = 0,
+    FRAME_OK                = 1,
+    FRAME_ABLE_TO_PROCESS   = 2,
+    FRAME_UNABLE_TO_PROCESS = 3
+} eFrameStatus;
 /*----------------*/
 
 #endif /* CORES_INCLUDE_UARTBOOTLOADERPROTOCOLSTATE_H_ */

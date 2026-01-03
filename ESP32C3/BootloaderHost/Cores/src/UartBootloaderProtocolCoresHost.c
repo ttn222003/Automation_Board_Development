@@ -41,17 +41,16 @@ static uint32_t CalculateCrc32(uint8_t data[], uint8_t data_length)
     return crc;
 }
 
+static void ConvertCrcToArray(uint8_t input_data[], uint8_t data_length, uint8_t* output_data)
+{
+	uint32_t crc32 = CalculateCrc32(input_data, data_length);
+	output_data[data_length + 0] = (uint8_t)((crc32 >> 24) & 0xFF);
+	output_data[data_length + 1] = (uint8_t)((crc32 >> 16) & 0xFF);
+	output_data[data_length + 2] = (uint8_t)((crc32 >> 8) & 0xFF);
+	output_data[data_length + 3] = (uint8_t)((crc32 >> 0) & 0xFF);
+}
+
 /*------- Implement Interface -------*/
-void SetPreviousCommandCode(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t cmd_code)
-{
-	uart_bootloader->PreviousCommandCode = cmd_code;
-}
-
-uint8_t GetPreviousCommandCode(UartBootloaderProtocolHost_t uart_bootloader)
-{
-	return uart_bootloader.PreviousCommandCode;
-}
-
 void SetCommandCode(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t cmd_code)
 {
 	uart_bootloader->CommandCode = cmd_code;
@@ -64,7 +63,6 @@ uint8_t GetCommandCode(UartBootloaderProtocolHost_t uart_bootloader)
 
 void InitializeUartBootloaderProtocol(UartBootloaderProtocolHost_t* uart_bootloader)
 {
-	SetPreviousCommandCode(uart_bootloader, NOT_CODE);
 	SetCommandCode(uart_bootloader, GET_CMD);
 }
 
@@ -75,10 +73,61 @@ void HandleHandshakeRequestOfGetCommandForTransmission(uint8_t* transmitted_data
 	transmitted_data[2] = GET_CMD;
 	transmitted_data[3] = 0xFF - GET_CMD;
 
-	uint32_t crc32_result = CalculateCrc32(transmitted_data, 4);
+    ConvertCrcToArray(transmitted_data, 4, transmitted_data);
+}
 
-	transmitted_data[4] = (uint8_t)((crc32_result >> 24) & 0xFF);
-	transmitted_data[5] = (uint8_t)((crc32_result >> 16) & 0xFF);
-	transmitted_data[6] = (uint8_t)((crc32_result >> 8) & 0xFF);
-	transmitted_data[7] = (uint8_t)((crc32_result >> 0) & 0xFF);
+void HandleDataRequestOfGetCommandForTransmission(uint8_t* transmitted_data)
+{
+    transmitted_data[0] = REQUEST_DATA;
+	transmitted_data[1] = 4 + 4;
+	transmitted_data[2] = GET_CMD;
+	transmitted_data[3] = 0xFF - GET_CMD;
+
+	ConvertCrcToArray(transmitted_data, 4, transmitted_data);
+}
+
+void HandleEndHandshakeOfGetCommandForTransmission(uint8_t* transmitted_data)
+{
+    transmitted_data[0] = END_HANDSHAKE;
+	transmitted_data[1] = 4 + 4;
+	transmitted_data[2] = GET_CMD;
+	transmitted_data[3] = 0xFF - GET_CMD;
+
+	ConvertCrcToArray(transmitted_data, 4, transmitted_data);
+}
+
+eFrameStatus ParseFrameAck(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t data_buffer[])
+{
+    uint32_t crc32_result = CalculateCrc32(data_buffer, 8);
+
+    if(crc32_result == 0)
+	{
+		return FRAME_OK;
+	}
+
+    return FRAME_ERROR;
+}
+
+eFrameStatus ParseFrameNack(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t data_buffer[])
+{
+    uint32_t crc32_result = CalculateCrc32(data_buffer, 8);
+
+    if(crc32_result == 0)
+	{
+		return FRAME_OK;
+	}
+
+    return FRAME_ERROR;
+}
+
+eFrameStatus ParseFrameDataGetCommand(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t data_buffer[])
+{
+    uint32_t crc32_result = CalculateCrc32(data_buffer, 21);
+
+    if(crc32_result == 0)
+	{
+		return FRAME_OK;
+	}
+
+    return FRAME_ERROR;
 }

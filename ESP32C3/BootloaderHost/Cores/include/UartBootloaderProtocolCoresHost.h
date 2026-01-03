@@ -13,18 +13,20 @@
 
 /*------- Struct -------*/
 typedef struct{
-	uint8_t PreviousCommandCode;
 	uint8_t CommandCode;
 } UartBootloaderProtocolHost_t;
 
 /*------- Setter Getter -------*/
-void SetPreviousCommandCode(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t cmd_code);
-uint8_t GetPreviousCommandCode(UartBootloaderProtocolHost_t uart_bootloader);
 void SetCommandCode(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t cmd_code);
 uint8_t GetCommandCode(UartBootloaderProtocolHost_t uart_bootloader);
 
 /*------- API -------*/
 void InitializeUartBootloaderProtocol(UartBootloaderProtocolHost_t* uart_bootloader);
 void HandleHandshakeRequestOfGetCommandForTransmission(uint8_t* transmitted_data);
+void HandleDataRequestOfGetCommandForTransmission(uint8_t* transmitted_data);
+void HandleEndHandshakeOfGetCommandForTransmission(uint8_t* transmitted_data);
+eFrameStatus ParseFrameAck(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t data_buffer[]);
+eFrameStatus ParseFrameNack(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t data_buffer[]);
+eFrameStatus ParseFrameDataGetCommand(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t data_buffer[]);
 
 #endif /* CORES_INCLUDE_UARTBOOTLOADERPROTOCOLCORESHOST_H_ */
