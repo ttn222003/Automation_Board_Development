@@ -28,6 +28,9 @@ void MockUartDriver_Verify(void);
 
 
 
+#define UartTransmittOneByteData_ExpectAndReturn(transmitted_data, cmock_retval) TEST_FAIL_MESSAGE("UartTransmittOneByteData requires _Expect (not AndReturn)");
+#define UartTransmittOneByteData_Expect(transmitted_data) UartTransmittOneByteData_CMockExpect(__LINE__, transmitted_data)
+void UartTransmittOneByteData_CMockExpect(UNITY_LINE_TYPE cmock_line, uint8_t transmitted_data);
 
 #ifdef __cplusplus
 }

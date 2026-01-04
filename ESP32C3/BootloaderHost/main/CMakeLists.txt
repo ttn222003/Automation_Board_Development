@@ -5,6 +5,7 @@ SRCS
 	"../Dependencies/src/UartBootloaderProtocolDepeHost.c"
 	"../Platform/ESP32/UartDriver.c"
 	"../Platform/ESP32/TimerDriver.c"
+	"../Platform/ESP32/GpioDriver.c"
 	
 INCLUDE_DIRS 
 	"."

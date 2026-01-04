@@ -7,8 +7,8 @@ CFLAGS ?= -DTEST -DUNITY_COLOR
 INCLUDES := -I./../../Unity/src										\
 			-I./../../ESP32C3/BootloaderHost/Cores/include			\
 			-I./../../ESP32C3/BootloaderHost/Dependencies/include	\
-			-I./../../ESP32C3/Platform/include						\
-			-I./../../ESP32C3/Platform/mocks
+			-I./../../ESP32C3/BootloaderHost/Platform/include		\
+			-I./../../ESP32C3/BootloaderHost/Platform/mocks
 
 SRC_UNITY_DIR	 := ./../../Unity/src
 SRC_CORES_DIR	 := ./../../ESP32C3/BootloaderHost/Cores/src

@@ -6,85 +6,92 @@
  */
 
 #include "UartBootloaderProtocolDepeHost.h"
+#include "stdio.h"
 
 /*------- Declare variable -------*/
 uint8_t TransmittedDataToDevice[MAX_DATA_LEN];
-uint8_t ReceivedDataFromDevice[MAX_DATA_LEN];
+uint8_t ReceivedDataBuffer[MAX_DATA_LEN];
 UartBootloaderProtocolHost_t mUartBootloader;
 
 /*------- Implement Interface -------*/
 void InitializeDataBuffer(void)
 {
 	memset(TransmittedDataToDevice, 0, 64);
-	memset(ReceivedDataFromDevice, 0, 64);
+	memset(ReceivedDataBuffer, 0, 64);
 }
 
 void ResetReceivedDataBuffer(void)
 {
-	memset(ReceivedDataFromDevice, 0, 64);
+	memset(ReceivedDataBuffer, 0, 64);
 }
 
-void ReceiveDataAndProcessBuffer(uint8_t received_data)
+void ResetDataBuffer(void)
+{
+	memset(TransmittedDataToDevice, 0, 64);
+	memset(ReceivedDataBuffer, 0, 64);
+}
+
+void TransmittDataToDevice(uint8_t data_length)
+{
+	uint8_t transmitted_data_to_device = 0x00;
+
+	for (uint8_t transmitted_data_index = 0; transmitted_data_index < data_length; transmitted_data_index++)
+	{
+		transmitted_data_to_device = TransmittedDataToDevice[transmitted_data_index];
+		DelayMs(1);
+		UartTransmittOneByteData(transmitted_data_to_device);
+	}
+}
+
+static eFrameStatus PutDataInBufferFollowByLimitState(uint8_t* buffer_state, uint8_t* buffer_index, uint8_t received_data, uint8_t limit_state)
+{
+	uint8_t index = *buffer_index;
+	uint8_t state = *buffer_state;
+
+	if(state == limit_state)
+	{
+		ReceivedDataBuffer[index] = received_data;
+		
+		*buffer_state = 0;
+		*buffer_index = 0;
+
+		return FRAME_ABLE_TO_PROCESS;
+	}
+
+	else
+	{
+		ReceivedDataBuffer[index] = received_data;
+		*buffer_state += 1;
+		*buffer_index += 1;
+
+		return FRAME_UNABLE_TO_PROCESS;
+	}
+}
+
+eFrameStatus ReceiveDataAndPutInBuffer(uint8_t received_data)
 {
 	static uint8_t rx_state = 0;
+	static uint8_t rx_limit_state = 0;
 	static uint8_t rx_buffer_index = 0;
 
-	switch(rx_state)
+	if(rx_state == 0)
 	{
-	case 0:
-		if(received_data == 0x77)
+		if(received_data == RESPONE_HANDSHAKE)
 		{
-			ReceivedDataFromDevice[rx_buffer_index++] = received_data;
+			ReceivedDataBuffer[rx_buffer_index++] = received_data;
 			rx_state = 1;
+			rx_limit_state = 7;
 		}
-		break;
 
-	case 1:
-		if(received_data == 8)
+		else if(received_data == RESPONSE_DATA)
 		{
-			ReceivedDataFromDevice[rx_buffer_index++] = received_data;
-			rx_state = 2;
+			ReceivedDataBuffer[rx_buffer_index++] = received_data;
+			rx_state = 1;
+			rx_limit_state = 20;
 		}
-		break;
 
-	case 2:
-		ReceivedDataFromDevice[rx_buffer_index++] = received_data;
-		rx_state = 3;
-
-		break;
-
-	case 3:
-		ReceivedDataFromDevice[rx_buffer_index++] = received_data;
-		rx_state = 4;
-
-		break;
-
-	case 4:
-		ReceivedDataFromDevice[rx_buffer_index++] = received_data;
-		rx_state = 5;
-
-		break;
-
-	case 5:
-		ReceivedDataFromDevice[rx_buffer_index++] = received_data;
-		rx_state = 6;
-
-		break;
-
-	case 6:
-		ReceivedDataFromDevice[rx_buffer_index++] = received_data;
-		rx_state = 7;
-
-		break;
-
-	case 7:
-		ReceivedDataFromDevice[rx_buffer_index++] = received_data;
-		
-		rx_state = 0;
-		rx_buffer_index = 0;
-		break;
-
-	default:
-		break;
+		return FRAME_UNABLE_TO_PROCESS;
 	}
+
+	return PutDataInBufferFollowByLimitState(&rx_state, &rx_buffer_index, received_data, rx_limit_state);
 }

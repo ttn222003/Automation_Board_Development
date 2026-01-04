@@ -11,19 +11,23 @@
 #include <stdint.h>
 #include <string.h>
 #include "UartBootloaderProtocolCoresHost.h"
+#include "TimerDriver.h"
+#include "UartDriver.h"
 
 /*------- Define -------*/
 #define MAX_DATA_LEN	64
 
 /*------- Initialize variable -------*/
 extern uint8_t TransmittedDataToDevice[MAX_DATA_LEN];
-extern uint8_t ReceivedDataFromDevice[MAX_DATA_LEN];
+extern uint8_t ReceivedDataBuffer[MAX_DATA_LEN];
 extern UartBootloaderProtocolHost_t mUartBootloader;
 
 /* ------- Interface ------- */
-void InitializeDataBuffer(void);
 void ResetReceivedDataBuffer(void);
-void DelayMs(uint32_t delay_time);
-void ReceiveDataAndProcessBuffer(uint8_t received_data);
+void ResetTransmittedDataBuffer(void);
+void InitializeDataBuffer(void);
+void ResetDataBuffer(void);
+void TransmittDataToDevice(uint8_t data_length);
+eFrameStatus ReceiveDataAndPutInBuffer(uint8_t received_data);
 
 #endif /* DEPENDENCIES_INCLUDE_UARTBOOTLOADERPROTOCOLDEPEHOST_H_ */

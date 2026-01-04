@@ -28,6 +28,9 @@ void MockTimerDriver_Verify(void);
 
 
 
+#define DelayMs_ExpectAndReturn(time_delay, cmock_retval) TEST_FAIL_MESSAGE("DelayMs requires _Expect (not AndReturn)");
+#define DelayMs_Expect(time_delay) DelayMs_CMockExpect(__LINE__, time_delay)
+void DelayMs_CMockExpect(UNITY_LINE_TYPE cmock_line, uint32_t time_delay);
 
 #ifdef __cplusplus
 }
