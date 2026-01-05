@@ -22,7 +22,7 @@ static void IRAM_ATTR gpio_isr_handler(void* arg)
 }
 
 /*------- Interface -------*/
-uint8_t GpioReadInit(uint8_t pin_number, uint8_t pull_mode, uint8_t edge_mode)
+uint8_t GpioReadInit(uint8_t pin_number, uint8_t pull_mode, uint8_t edge_mode, void* isr_handler)
 {
 	uint8_t pull_up = GPIO_PULLUP_DISABLE;
 	uint8_t pull_down = GPIO_PULLDOWN_DISABLE;
@@ -75,8 +75,12 @@ uint8_t GpioReadInit(uint8_t pin_number, uint8_t pull_mode, uint8_t edge_mode)
 	
 	gpio_context[pin_number] = pin_number;
 
+	if(isr_handler == NULL)
+	{
+		isr_handler = gpio_isr_handler;
+	}
 	
-    gpio_isr_handler_add(pin_number, gpio_isr_handler, &gpio_context[pin_number]);
+    gpio_isr_handler_add(pin_number, isr_handler, &gpio_context[pin_number]);
     
     return 1;
 }

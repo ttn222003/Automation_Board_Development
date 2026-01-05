@@ -32,6 +32,6 @@
 extern QueueHandle_t mGpioEventQueue;
 
 /*------- API -------*/
-uint8_t GpioReadInit(uint8_t pin_number, uint8_t pull_mode, uint8_t edge_mode);
+uint8_t GpioReadInit(uint8_t pin_number, uint8_t pull_mode, uint8_t edge_mode, void* isr_handler);
 
 #endif /* PLATFORM_INCLUDE_GPIODRIVER_H_ */

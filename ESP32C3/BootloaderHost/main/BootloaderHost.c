@@ -5,6 +5,7 @@
  *      Author: TTN
  */
  
+#include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_system.h"
@@ -30,20 +31,18 @@ QueueHandle_t uart_queue;
 TaskHandle_t HandleTransmissionTask_handle;
 TaskHandle_t HandleGetCommandTask_handle;
 
-void read_input_task(void* arg);
+void IRAM_ATTR button_isr_handler(void* arg);
+void debounce_timer_callback(void* arg);
 
-void InitializeUart(void);
+/*void InitializeUart(void);
 void UartReceptionTask(void* args);
 void UartTransmissionTask(void* args);
-void HandleGetCommandTask(void* args);
+void HandleGetCommandTask(void* args);*/
 
 void app_main(void)
 {
-	GpioReadInit(GPIO_NUM_1, PULL_UP, NEG_EDGE);
-	
-	xTaskCreate(read_input_task, "read input task", 8192, NULL, configMAX_PRIORITIES - 1, NULL);
-	
-	
+	GpioReadInit(GPIO_NUM_1, PULL_UP, NEG_EDGE, button_isr_handler);
+	IimerInit("Button_debounce",  debounce_timer_callback, &mDebounceTimer);
 	
     /*InitializeUart();
     InitializeUartBootloaderProtocol(&mUartBootloader);
@@ -55,26 +54,21 @@ void app_main(void)
 	xTaskCreate(HandleGetCommandTask, "Handle GC", 8192, NULL, configMAX_PRIORITIES - 3, &HandleGetCommandTask_handle);*/
 }
 
-void read_input_task(void* arg)
+void button_isr_handler(void* arg)
 {
-    uint32_t pin_num;
-    while (1) {
-        if (xQueueReceive(mGpioEventQueue, &pin_num, portMAX_DELAY)) {
-			switch (pin_num) {
-				case GPIO_NUM_1:
-					// @TODO: Handle to jump to send GET_CMD here
-					// @TODO 2: Handle debounce button
-					ESP_LOGI("Test GPIO", "Interrupt on pin 1");
-					break;
-			}
-        }
-    }
+	gpio_intr_disable(GPIO_NUM_1);
+	esp_timer_start_once(mDebounceTimer, 40 * 1000);
 }
 
-
-
-
-
+void debounce_timer_callback(void* arg)
+{
+	if(gpio_get_level(GPIO_NUM_1) == 0)
+	{
+		ESP_LOGI("Test GPIO", "Interrupt on pin 1");
+	}
+	
+	gpio_intr_enable(GPIO_NUM_1);
+}
 
 
 
