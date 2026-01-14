@@ -7,9 +7,7 @@
 
 #include "TimerDriver.h"
 
-esp_timer_handle_t mDebounceTimer;
-
-void IimerInit(char* name_timer, void* callback_func, esp_timer_handle_t* timer_handle)
+void InitializeIimer(char* name_timer, TimerDriver_t* timer_driver, void* callback_func)
 {
 	esp_timer_create_args_t timer_config = {
 		.callback = callback_func,
@@ -17,7 +15,7 @@ void IimerInit(char* name_timer, void* callback_func, esp_timer_handle_t* timer_
 		.arg = NULL
 	};
 	
-	esp_timer_create(&timer_config, timer_handle);
+	esp_timer_create(&timer_config, &timer_driver->mTimerHandle);
 }
 
 void DelayMs(uint32_t time_delay)

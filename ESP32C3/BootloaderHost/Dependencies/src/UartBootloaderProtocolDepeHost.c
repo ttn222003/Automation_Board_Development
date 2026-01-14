@@ -6,7 +6,9 @@
  */
 
 #include "UartBootloaderProtocolDepeHost.h"
-#include "stdio.h"
+#include "UartBootloaderProtocolStateHost.h"
+#include "UartDriver.h"
+#include "esp_log.h"
 
 /*------- Declare variable -------*/
 uint8_t TransmittedDataToDevice[MAX_DATA_LEN];
@@ -31,7 +33,7 @@ void ResetDataBuffer(void)
 	memset(ReceivedDataBuffer, 0, 64);
 }
 
-void TransmittDataToDevice(uint8_t data_length)
+void TransmittDataToDevice(UartHandle_t uart_handle, uint8_t data_length)
 {
 	uint8_t transmitted_data_to_device = 0x00;
 
@@ -39,7 +41,7 @@ void TransmittDataToDevice(uint8_t data_length)
 	{
 		transmitted_data_to_device = TransmittedDataToDevice[transmitted_data_index];
 		DelayMs(1);
-		UartTransmittOneByteData(transmitted_data_to_device);
+		UartTransmittOneByteData(uart_handle, transmitted_data_to_device);
 	}
 }
 
@@ -54,7 +56,7 @@ static eFrameStatus PutDataInBufferFollowByLimitState(uint8_t* buffer_state, uin
 		
 		*buffer_state = 0;
 		*buffer_index = 0;
-
+		
 		return FRAME_ABLE_TO_PROCESS;
 	}
 
@@ -76,7 +78,7 @@ eFrameStatus ReceiveDataAndPutInBuffer(uint8_t received_data)
 
 	if(rx_state == 0)
 	{
-		if(received_data == RESPONE_HANDSHAKE)
+		if((received_data == RESPONE_HANDSHAKE) || (received_data == END_HANDSHAKE))
 		{
 			ReceivedDataBuffer[rx_buffer_index++] = received_data;
 			rx_state = 1;

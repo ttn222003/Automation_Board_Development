@@ -8,21 +8,15 @@
 #include "GpioDriver.h"
 
 /*------- Member variable -------*/
-QueueHandle_t mGpioEventQueue = NULL;
 
 /*------- Private variable -------*/
 static uint32_t gpio_context[GPIO_NUM_MAX];
 static bool isr_installed = false;
 
 /*------- Private function -------*/
-static void IRAM_ATTR gpio_isr_handler(void* arg)
-{
-    uint32_t pin_num = *(uint32_t*) arg;
-    xQueueSendFromISR(mGpioEventQueue, &pin_num, NULL);
-}
 
 /*------- Interface -------*/
-uint8_t GpioReadInit(uint8_t pin_number, uint8_t pull_mode, uint8_t edge_mode, void* isr_handler)
+uint8_t InitializeGpioRead(GpioDriver_t gpio_driver, uint8_t pin_number, uint8_t pull_mode, uint8_t edge_mode, void* isr_handler)
 {
 	uint8_t pull_up = GPIO_PULLUP_DISABLE;
 	uint8_t pull_down = GPIO_PULLDOWN_DISABLE;
@@ -64,8 +58,8 @@ uint8_t GpioReadInit(uint8_t pin_number, uint8_t pull_mode, uint8_t edge_mode, v
     
     gpio_config(&input_config);
     
-    if (mGpioEventQueue == NULL) {
-	    mGpioEventQueue = xQueueCreate(32, sizeof(uint32_t));
+    if (gpio_driver.mGpioEventQueue == NULL) {
+	    gpio_driver.mGpioEventQueue = xQueueCreate(32, sizeof(uint32_t));
 	}
     
     if (!isr_installed) {
@@ -74,11 +68,6 @@ uint8_t GpioReadInit(uint8_t pin_number, uint8_t pull_mode, uint8_t edge_mode, v
 	}
 	
 	gpio_context[pin_number] = pin_number;
-
-	if(isr_handler == NULL)
-	{
-		isr_handler = gpio_isr_handler;
-	}
 	
     gpio_isr_handler_add(pin_number, isr_handler, &gpio_context[pin_number]);
     

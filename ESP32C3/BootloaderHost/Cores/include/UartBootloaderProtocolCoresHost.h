@@ -14,11 +14,17 @@
 /*------- Struct -------*/
 typedef struct{
 	uint8_t CommandCode;
+	uint8_t Phase;
+	eFrameStatus FrameStatus;
 } UartBootloaderProtocolHost_t;
 
 /*------- Setter Getter -------*/
 void SetCommandCode(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t cmd_code);
 uint8_t GetCommandCode(UartBootloaderProtocolHost_t uart_bootloader);
+void SetPhase(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t phase);
+uint8_t GetPhase(UartBootloaderProtocolHost_t uart_bootloader);
+void SetFrameStatus(UartBootloaderProtocolHost_t* uart_bootloader, eFrameStatus frame_status);
+eFrameStatus GetFrameStatus(UartBootloaderProtocolHost_t uart_bootloader); 
 
 /*------- API -------*/
 void InitializeUartBootloaderProtocol(UartBootloaderProtocolHost_t* uart_bootloader);

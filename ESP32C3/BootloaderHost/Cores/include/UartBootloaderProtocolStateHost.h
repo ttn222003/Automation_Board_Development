@@ -36,6 +36,7 @@ enum CommandCode
 
 enum CommunicationCodes
 {
+	IDLE				= 0x76,
     REQUEST_HANDSHAKE   = 0x77,
     RESPONE_HANDSHAKE   = 0x78,
     END_HANDSHAKE       = 0x80,

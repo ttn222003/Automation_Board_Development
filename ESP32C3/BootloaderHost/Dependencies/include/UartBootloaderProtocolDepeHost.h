@@ -27,7 +27,7 @@ void ResetReceivedDataBuffer(void);
 void ResetTransmittedDataBuffer(void);
 void InitializeDataBuffer(void);
 void ResetDataBuffer(void);
-void TransmittDataToDevice(uint8_t data_length);
+void TransmittDataToDevice(UartHandle_t uart_handle, uint8_t data_length);
 eFrameStatus ReceiveDataAndPutInBuffer(uint8_t received_data);
 
 #endif /* DEPENDENCIES_INCLUDE_UARTBOOTLOADERPROTOCOLDEPEHOST_H_ */

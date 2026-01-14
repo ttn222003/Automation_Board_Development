@@ -6,6 +6,8 @@
  */
 
 #include "UartBootloaderProtocolCoresHost.h"
+#include "UartBootloaderProtocolDepeHost.h"
+#include "UartBootloaderProtocolStateHost.h"
 #include <stdint.h>
 /* Private variable */
 static unsigned int polynomial_crc32 = 0x04C11DB7;
@@ -61,9 +63,31 @@ uint8_t GetCommandCode(UartBootloaderProtocolHost_t uart_bootloader)
 	return uart_bootloader.CommandCode;
 }
 
+void SetPhase(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t phase)
+{
+	uart_bootloader->Phase = phase;
+}
+
+uint8_t GetPhase(UartBootloaderProtocolHost_t uart_bootloader)
+{
+	return uart_bootloader.Phase;
+}
+
+void SetFrameStatus(UartBootloaderProtocolHost_t* uart_bootloader, eFrameStatus frame_status)
+{
+	uart_bootloader->FrameStatus = frame_status;	
+}
+
+eFrameStatus GetFrameStatus(UartBootloaderProtocolHost_t uart_bootloader)
+{
+	return uart_bootloader.FrameStatus;
+}
+
 void InitializeUartBootloaderProtocol(UartBootloaderProtocolHost_t* uart_bootloader)
 {
 	SetCommandCode(uart_bootloader, GET_CMD);
+	SetPhase(uart_bootloader, IDLE);
+	SetFrameStatus(uart_bootloader, FRAME_UNABLE_TO_PROCESS);
 }
 
 void HandleHandshakeRequestOfGetCommandForTransmission(uint8_t* transmitted_data)

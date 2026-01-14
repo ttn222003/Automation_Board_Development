@@ -18,9 +18,12 @@
 #endif
 
 /*------- Member variable -------*/
-extern esp_timer_handle_t mDebounceTimer;
+typedef struct
+{
+	esp_timer_handle_t mTimerHandle;
+} TimerDriver_t;
 
-void IimerInit(char* name_timer, void* callback_func, esp_timer_handle_t* timer_handle);
+void InitializeIimer(char* name_timer, TimerDriver_t* timer_driver, void* callback_func);
 void DelayMs(uint32_t time_delay);
 
 #endif /* PLATFORM_INCLUDE_TIMERDRIVER_H_ */

@@ -71,6 +71,7 @@ void goto_application( void )
   void (*app_reset_handler)(void) = (void*)(*((volatile uint32_t*)(0x08004400 + 4U)));
   app_reset_handler();
 }
+uint8_t phase = 0;
 /* USER CODE END 0 */
 
 /**
@@ -130,6 +131,7 @@ int main(void)
 		  SetPhase(&mUartBootloader, ReceivedDataBuffer[0]);
 		  SetCommandCode(&mUartBootloader, ReceivedDataBuffer[2]);
 
+		  phase = GetPhase(mUartBootloader);
 		  // Can add test case for TDD?
 		  if((GetCommandCode(mUartBootloader) == GET_CMD) && (GetPhase(mUartBootloader) == REQUEST_HANDSHAKE))
 		  {
@@ -146,6 +148,7 @@ int main(void)
 		  {
 			  if(ParseFrameDataRequestGetCommandFromHost(&mUartBootloader, ReceivedDataBuffer) == FRAME_OK)
 			  {
+
 				  HandleDataGetCommandForTransmission(TransmittedDataToHost);
 			  }
 			  else if(ParseFrameDataRequestGetCommandFromHost(&mUartBootloader, ReceivedDataBuffer) == FRAME_ERROR)
@@ -166,6 +169,9 @@ int main(void)
 		  }
 
 		  TransmittDataToHost(TransmittedDataToHost[1]);
+
+		  ResetDataBuffer();
+		  SetFrameStatus(&mUartBootloader, FRAME_UNABLE_TO_PROCESS);
 	  }
   }
   /* USER CODE END 3 */

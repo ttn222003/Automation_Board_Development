@@ -55,7 +55,7 @@ eFrameStatus ReceiveDataAndPutInBuffer(uint8_t received_data)
 	switch(rx_state)
 	{
 	case 0:
-		if((received_data == REQUEST_HANDSHAKE) || (received_data == REQUEST_DATA))
+		if((received_data == REQUEST_HANDSHAKE) || (received_data == REQUEST_DATA) || (received_data == END_HANDSHAKE))
 		{
 			ReceivedDataBuffer[rx_buffer_index++] = received_data;
 			rx_state = 1;

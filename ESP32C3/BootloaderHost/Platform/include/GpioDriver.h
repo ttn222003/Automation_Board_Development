@@ -29,9 +29,12 @@
 #define NO_EDGE			3
 
 /*------- Variable -------*/
-extern QueueHandle_t mGpioEventQueue;
+typedef struct
+{
+	QueueHandle_t mGpioEventQueue;
+} GpioDriver_t;
 
 /*------- API -------*/
-uint8_t GpioReadInit(uint8_t pin_number, uint8_t pull_mode, uint8_t edge_mode, void* isr_handler);
+uint8_t InitializeGpioRead(GpioDriver_t gpio_driver, uint8_t pin_number, uint8_t pull_mode, uint8_t edge_mode, void* isr_handler);
 
 #endif /* PLATFORM_INCLUDE_GPIODRIVER_H_ */

@@ -5,66 +5,70 @@
  *      Author: TTN
  */
  
-#include "esp_timer.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "esp_system.h"
+#include "UartBootloaderProtocolStateHost.h"
 #include "esp_log.h"
-#include "driver/uart.h"
-#include "portmacro.h"
-#include "soc/gpio_num.h"
 #include "string.h"
-#include "driver/gpio.h"
 #include "UartBootloaderProtocolCoresHost.h"
 #include "UartBootloaderProtocolDepeHost.h"
 #include <stdint.h>
 #include "GpioDriver.h"
+#include "TimerDriver.h"
+#include "UartDriver.h"
 
-/*static const int RX_BUF_SIZE = 1024;*/
+GpioDriver_t ButtonDriver;
+TimerDriver_t DebounceTimer;
 
-
-#define UART_NUM		UART_NUM_1
-#define TXD_PIN 		(GPIO_NUM_21)
-#define RXD_PIN 		(GPIO_NUM_20)
+UartHandle_t uart1;
 
 QueueHandle_t uart_queue;
 TaskHandle_t HandleTransmissionTask_handle;
-TaskHandle_t HandleGetCommandTask_handle;
+TaskHandle_t HandleAckTask_handle;
+TaskHandle_t HandleGetCmdTask_handle;
 
 void IRAM_ATTR button_isr_handler(void* arg);
 void debounce_timer_callback(void* arg);
 
-/*void InitializeUart(void);
-void UartReceptionTask(void* args);
 void UartTransmissionTask(void* args);
-void HandleGetCommandTask(void* args);*/
+void UartReceptionTask(void* args);
+void HandleAckTask(void* args);
+void HandleGetCmdTask(void* args);
 
+
+uint8_t checkpoint = 0;
 void app_main(void)
 {
-	GpioReadInit(GPIO_NUM_1, PULL_UP, NEG_EDGE, button_isr_handler);
-	IimerInit("Button_debounce",  debounce_timer_callback, &mDebounceTimer);
+	ButtonDriver.mGpioEventQueue = NULL;
+	InitializeGpioRead(ButtonDriver, GPIO_NUM_1, PULL_UP, NEG_EDGE, button_isr_handler);
+	InitializeIimer("Button_debounce", &DebounceTimer, debounce_timer_callback);
 	
-    /*InitializeUart();
+	uart1 = UartCreate();
+	
+	InitializeUartParameter(uart1, 115200, UART_DATA_8_BITS, UART_PARITY_DISABLE, UART_STOP_BITS_1, UART_HW_FLOWCTRL_DISABLE, UART_SCLK_DEFAULT);
+	InitializeUartPin(uart1, UART_NUM_1, GPIO_NUM_21, GPIO_NUM_20, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+	InitializeUart(uart1, 0, 1024, 10, &uart_queue, 0);
+	
     InitializeUartBootloaderProtocol(&mUartBootloader);
     
 	InitializeDataBuffer();
 	
 	xTaskCreate(UartReceptionTask, "Uart Rx", 8192, NULL, configMAX_PRIORITIES - 1, NULL);
 	xTaskCreate(UartTransmissionTask, "Uart Tx", 8192, NULL, configMAX_PRIORITIES - 2, &HandleTransmissionTask_handle);
-	xTaskCreate(HandleGetCommandTask, "Handle GC", 8192, NULL, configMAX_PRIORITIES - 3, &HandleGetCommandTask_handle);*/
+	xTaskCreate(HandleAckTask, "Handle ACK", 8192, NULL, configMAX_PRIORITIES - 3, &HandleAckTask_handle);
+	xTaskCreate(HandleGetCmdTask, "Get Command Task", 8192, NULL, configMAX_PRIORITIES - 5, &HandleGetCmdTask_handle);
 }
 
 void button_isr_handler(void* arg)
 {
 	gpio_intr_disable(GPIO_NUM_1);
-	esp_timer_start_once(mDebounceTimer, 40 * 1000);
+	esp_timer_start_once(DebounceTimer.mTimerHandle, 40 * 1000);
 }
 
 void debounce_timer_callback(void* arg)
 {
 	if(gpio_get_level(GPIO_NUM_1) == 0)
 	{
-		ESP_LOGI("Test GPIO", "Interrupt on pin 1");
+		SetPhase(&mUartBootloader, REQUEST_HANDSHAKE);
+		xTaskNotifyGive(HandleTransmissionTask_handle);
 	}
 	
 	gpio_intr_enable(GPIO_NUM_1);
@@ -72,46 +76,28 @@ void debounce_timer_callback(void* arg)
 
 
 
-
-
-
-
-
-
-
-/*void InitializeUart(void)
-{
-    const uart_config_t uart_config = {
-        .baud_rate = 115200,
-        .data_bits = UART_DATA_8_BITS,
-        .parity = UART_PARITY_DISABLE,
-        .stop_bits = UART_STOP_BITS_1,
-        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
-        .source_clk = UART_SCLK_DEFAULT,
-    };
-    // We won't use a buffer for sending data.
-    uart_driver_install(UART_NUM, RX_BUF_SIZE * 2, 0, 10, &uart_queue, 0);
-    uart_param_config(UART_NUM, &uart_config);
-    uart_set_pin(UART_NUM, TXD_PIN, RXD_PIN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-}
-
 void UartTransmissionTask(void* args)
 {	
-	DelayMs(5000);
 	while (1) {
-		
-		switch (mUartBootloader.CommandCode) {
-			case GET_CMD:
-//				HandleBeginingProcessData(mUartBootloader, TransmittedDataToDevice);
-				
-				for (uint8_t transmitted_data_index = 0; transmitted_data_index < TransmittedDataToDevice[1]; transmitted_data_index++)	{
-					uart_write_bytes(UART_NUM, &TransmittedDataToDevice[transmitted_data_index], 1);
-				}
-				
-				break;
-		}
-		
 		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+		
+		
+		if((GetCommandCode(mUartBootloader) == GET_CMD) && (GetPhase(mUartBootloader) == REQUEST_HANDSHAKE))
+		{
+			HandleHandshakeRequestOfGetCommandForTransmission(TransmittedDataToDevice);
+			TransmittDataToDevice(uart1, TransmittedDataToDevice[1]);
+		}
+		else if((GetCommandCode(mUartBootloader) == GET_CMD) && (GetPhase(mUartBootloader) == REQUEST_DATA))
+		{
+			HandleDataRequestOfGetCommandForTransmission(TransmittedDataToDevice);
+			TransmittDataToDevice(uart1, TransmittedDataToDevice[1]);
+		}
+		else if((GetCommandCode(mUartBootloader) == GET_CMD) && (GetPhase(mUartBootloader) == END_HANDSHAKE))
+		{
+			
+			HandleEndHandshakeOfGetCommandForTransmission(TransmittedDataToDevice);
+			TransmittDataToDevice(uart1, TransmittedDataToDevice[1]);
+		}
 	}
 }
 
@@ -123,38 +109,55 @@ void UartReceptionTask(void* args)
 		// Wait until get data
 		if (xQueueReceive(uart_queue, &UartEvent, portMAX_DELAY)) {
 			if (UartEvent.type == UART_DATA) {
-				uart_read_bytes(UART_NUM, &received_data_from_device, UartEvent.size, 1);
+				UartReceiveOneByteData(uart1, &received_data_from_device);
 				
-				ReceiveDataAndPutInBuffer(received_data_from_device);
+				uint8_t frame_status = ReceiveDataAndPutInBuffer(received_data_from_device);
+				SetFrameStatus(&mUartBootloader, frame_status);
 				
-				
-				if(GetProcessStatus(mUartBootloader) == IN_PROCESS)
+				if(GetFrameStatus(mUartBootloader) == FRAME_ABLE_TO_PROCESS)
 				{
-					xTaskNotifyGive(HandleGetCommandTask_handle);
+					if(ParseFrameAck(&mUartBootloader, ReceivedDataBuffer) == FRAME_OK)
+					{
+						xTaskNotifyGive(HandleAckTask_handle);
+					}
+					else if(ParseFrameDataGetCommand(&mUartBootloader, ReceivedDataBuffer) == FRAME_OK)
+					{
+						xTaskNotifyGive(HandleGetCmdTask_handle);
+					}
 				}
 			}
 		}
 	}
 }
 
-void HandleGetCommandTask(void* args)
+void HandleAckTask(void* args)
 {
 	while(1) {
 		// pdTRUE: Reset counter notify to 0 after get signal
 		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 		
-		
-		switch (GetHandlingStep(mUartBootloader)) {
-			case STEP_1:
-				if(ReceivedDataFromDevice[2] == ACK)
-				{
-					ESP_LOGI("Rx", "%d", ACK);
-				}
-				
-				SetHandlingStep(&mUartBootloader, STEP_2);
-				SetProcessStatus(&mUartBootloader, NOT_IN_PROCESS);
-				
-				
+		if(GetPhase(mUartBootloader) == REQUEST_HANDSHAKE)
+		{
+			SetPhase(&mUartBootloader, REQUEST_DATA);
+			xTaskNotifyGive(HandleTransmissionTask_handle);
+		}
+		else if (GetPhase(mUartBootloader) == END_HANDSHAKE)
+		{
+			ESP_LOGI("Debug", "Have got in here");
+			SetPhase(&mUartBootloader, IDLE);
+			SetCommandCode(&mUartBootloader, NOT_CODE);
+			xTaskNotifyGive(HandleTransmissionTask_handle);
 		}
 	}
-}*/
+}
+
+void HandleGetCmdTask(void* args)
+{
+	while(1)
+	{
+		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+		
+		SetPhase(&mUartBootloader, END_HANDSHAKE);
+		xTaskNotifyGive(HandleTransmissionTask_handle);
+	}
+}
