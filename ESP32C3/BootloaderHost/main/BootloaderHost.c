@@ -7,6 +7,7 @@
  
 #include "UartBootloaderProtocolStateHost.h"
 #include "esp_log.h"
+#include "portmacro.h"
 #include "string.h"
 #include "UartBootloaderProtocolCoresHost.h"
 #include "UartBootloaderProtocolDepeHost.h"
@@ -16,11 +17,10 @@
 #include "UartDriver.h"
 
 GpioDriver_t ButtonDriver;
-TimerDriver_t DebounceTimer;
+TimerDriverHandle_t DebounceTimer;
 
 UartHandle_t uart1;
 
-QueueHandle_t uart_queue;
 TaskHandle_t HandleTransmissionTask_handle;
 TaskHandle_t HandleAckTask_handle;
 TaskHandle_t HandleGetCmdTask_handle;
@@ -39,13 +39,15 @@ void app_main(void)
 {
 	ButtonDriver.mGpioEventQueue = NULL;
 	InitializeGpioRead(ButtonDriver, GPIO_NUM_1, PULL_UP, NEG_EDGE, button_isr_handler);
-	InitializeIimer("Button_debounce", &DebounceTimer, debounce_timer_callback);
+	
+	DebounceTimer = TimerCreate();
+	InitializeIimer("Button_debounce", DebounceTimer, debounce_timer_callback);
 	
 	uart1 = UartCreate();
 	
 	InitializeUartParameter(uart1, 115200, UART_DATA_8_BITS, UART_PARITY_DISABLE, UART_STOP_BITS_1, UART_HW_FLOWCTRL_DISABLE, UART_SCLK_DEFAULT);
 	InitializeUartPin(uart1, UART_NUM_1, GPIO_NUM_21, GPIO_NUM_20, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-	InitializeUart(uart1, 0, 1024, 10, &uart_queue, 0);
+	InitializeUart(uart1, 0, 1024, 10, 0);
 	
     InitializeUartBootloaderProtocol(&mUartBootloader);
     
@@ -60,7 +62,7 @@ void app_main(void)
 void button_isr_handler(void* arg)
 {
 	gpio_intr_disable(GPIO_NUM_1);
-	esp_timer_start_once(DebounceTimer.mTimerHandle, 40 * 1000);
+	TimerStartOnceMs(DebounceTimer, 40*1000);
 }
 
 void debounce_timer_callback(void* arg)
@@ -68,6 +70,7 @@ void debounce_timer_callback(void* arg)
 	if(gpio_get_level(GPIO_NUM_1) == 0)
 	{
 		SetPhase(&mUartBootloader, REQUEST_HANDSHAKE);
+		SetCommandCode(&mUartBootloader, GET_CMD);
 		xTaskNotifyGive(HandleTransmissionTask_handle);
 	}
 	
@@ -103,12 +106,11 @@ void UartTransmissionTask(void* args)
 
 void UartReceptionTask(void* args)
 {
-	uart_event_t UartEvent;
 	uint8_t received_data_from_device = 0x00;
 	while (1) {
 		// Wait until get data
-		if (xQueueReceive(uart_queue, &UartEvent, portMAX_DELAY)) {
-			if (UartEvent.type == UART_DATA) {
+		if (UartQueueReceive(uart1, portMAX_DELAY)) {
+			if (GetUartEventType(uart1) == UART_DATA) {
 				UartReceiveOneByteData(uart1, &received_data_from_device);
 				
 				uint8_t frame_status = ReceiveDataAndPutInBuffer(received_data_from_device);

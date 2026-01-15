@@ -22,21 +22,12 @@
 typedef void* UartHandle_t;
 
 UartHandle_t UartCreate(void);
-void InitializeUartParameter(UartHandle_t uart_handle,\
-							uint32_t baudrate,\
-							uart_word_length_t uart_data_bits,\
-							uart_parity_t uart_parity,\
-							uart_stop_bits_t uart_stop_bits,\
-							uart_hw_flowcontrol_t uart_hw_flowcontrol,\
-							soc_periph_uart_clk_src_legacy_t uart_src_clock);
-void InitializeUartPin(UartHandle_t uart_handle, uart_port_t port_num, gpio_num_t tx_pin, gpio_num_t rx_pin, int rts_pin, int cts_pin);
-void InitializeUart(UartHandle_t uart_handle,\
-					uint16_t tx_buffer_size,\
-					uint16_t rx_buffer_size,\
-					uint8_t queue_size,\
-					QueueHandle_t* queue_handle,\
-					uint8_t interrupt_allocate_flag);
+void InitializeUartParameter(UartHandle_t uart_handle, uint32_t baudrate, uint8_t uart_data_bits, uint8_t uart_parity, uint8_t uart_stop_bits, uint8_t uart_hw_flowcontrol, uint8_t uart_src_clock);
+void InitializeUartPin(UartHandle_t uart_handle, uint8_t port_num, uint8_t tx_pin, uint8_t rx_pin, int rts_pin, int cts_pin);
+void InitializeUart(UartHandle_t uart_handle, uint16_t tx_buffer_size, uint16_t rx_buffer_size, uint8_t queue_size, uint8_t interrupt_allocate_flag);
 void UartTransmittOneByteData(UartHandle_t uart_handle, uint8_t transmitted_data);
+int UartQueueReceive(UartHandle_t uart_handle, uint32_t delay_timeout);
+uint8_t GetUartEventType(UartHandle_t uart_handle);
 void UartReceiveOneByteData(UartHandle_t uart_handle, uint8_t* received_data);
 
 #endif /* PLATFORM_INCLUDE_UARTDRIVER_H_ */

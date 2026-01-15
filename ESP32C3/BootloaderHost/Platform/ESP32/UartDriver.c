@@ -22,6 +22,8 @@ typedef struct
 typedef struct
 {
 	uart_config_t mUartConfig;
+	QueueHandle_t mQueueHandle;
+	uart_event_t mUartEvent;
 	uart_pin_t mUartPin;
 } UartDriver_t;
 /*--------------*/
@@ -44,13 +46,7 @@ UartHandle_t UartCreate(void)
 	return NULL;
 }
 
-void InitializeUartParameter(UartHandle_t uart_handle,\
-							uint32_t baudrate,\
-							uart_word_length_t uart_data_bits,\
-							uart_parity_t uart_parity,\
-							uart_stop_bits_t uart_stop_bits,\
-							uart_hw_flowcontrol_t uart_hw_flowcontrol,\
-							soc_periph_uart_clk_src_legacy_t uart_src_clock)
+void InitializeUartParameter(UartHandle_t uart_handle, uint32_t baudrate, uint8_t uart_data_bits, uint8_t uart_parity, uint8_t uart_stop_bits, uint8_t uart_hw_flowcontrol, uint8_t uart_src_clock)
 {
 	UartDriver_t* uart_driver = (UartDriver_t*)uart_handle;
 	
@@ -60,14 +56,14 @@ void InitializeUartParameter(UartHandle_t uart_handle,\
 	}
 	
 	uart_driver->mUartConfig.baud_rate = baudrate;
-	uart_driver->mUartConfig.data_bits = uart_data_bits;
-	uart_driver->mUartConfig.parity = uart_parity;
-	uart_driver->mUartConfig.stop_bits = uart_stop_bits;
-	uart_driver->mUartConfig.flow_ctrl = uart_hw_flowcontrol;
-	uart_driver->mUartConfig.source_clk = uart_src_clock;
+	uart_driver->mUartConfig.data_bits = (uart_word_length_t)uart_data_bits;
+	uart_driver->mUartConfig.parity = (uart_parity_t)uart_parity;
+	uart_driver->mUartConfig.stop_bits = (uart_stop_bits_t)uart_stop_bits;
+	uart_driver->mUartConfig.flow_ctrl = (uart_hw_flowcontrol_t)uart_hw_flowcontrol;
+	uart_driver->mUartConfig.source_clk = (soc_periph_uart_clk_src_legacy_t)uart_src_clock;
 }
 
-void InitializeUartPin(UartHandle_t uart_handle, uart_port_t port_num, gpio_num_t tx_pin, gpio_num_t rx_pin, int rts_pin, int cts_pin)
+void InitializeUartPin(UartHandle_t uart_handle, uint8_t port_num, uint8_t tx_pin, uint8_t rx_pin, int rts_pin, int cts_pin)
 {
 	UartDriver_t* uart_driver = (UartDriver_t*)uart_handle;
 	
@@ -76,19 +72,14 @@ void InitializeUartPin(UartHandle_t uart_handle, uart_port_t port_num, gpio_num_
 		return;
 	}
 	
-	uart_driver->mUartPin.port_num = port_num;
-	uart_driver->mUartPin.txd = tx_pin;
-	uart_driver->mUartPin.rxd = rx_pin;
+	uart_driver->mUartPin.port_num = (uart_port_t)port_num;
+	uart_driver->mUartPin.txd = (gpio_num_t)tx_pin;
+	uart_driver->mUartPin.rxd = (gpio_num_t)rx_pin;
 	uart_driver->mUartPin.rts = rts_pin;
 	uart_driver->mUartPin.cts = cts_pin;
 }
 
-void InitializeUart(UartHandle_t uart_handle,\
-					uint16_t tx_buffer_size,\
-					uint16_t rx_buffer_size,\
-					uint8_t queue_size,\
-					QueueHandle_t* queue_handle,\
-					uint8_t interrupt_allocate_flag)
+void InitializeUart(UartHandle_t uart_handle, uint16_t tx_buffer_size, uint16_t rx_buffer_size, uint8_t queue_size, uint8_t interrupt_allocate_flag)
 {
 	UartDriver_t* uart_driver = (UartDriver_t*)uart_handle;
 	
@@ -97,7 +88,7 @@ void InitializeUart(UartHandle_t uart_handle,\
 		return;
 	}
 	
-    uart_driver_install(uart_driver->mUartPin.port_num, rx_buffer_size, tx_buffer_size, queue_size, queue_handle, interrupt_allocate_flag);
+    uart_driver_install(uart_driver->mUartPin.port_num, rx_buffer_size, tx_buffer_size, queue_size, &uart_driver->mQueueHandle, interrupt_allocate_flag);
     uart_param_config(uart_driver->mUartPin.port_num, &uart_driver->mUartConfig);
     uart_set_pin(uart_driver->mUartPin.port_num, uart_driver->mUartPin.txd, uart_driver->mUartPin.rxd, uart_driver->mUartPin.rts, uart_driver->mUartPin.cts);
 }
@@ -112,6 +103,30 @@ void UartTransmittOneByteData(UartHandle_t uart_handle, uint8_t transmitted_data
 	}
 	
 	uart_write_bytes(uart_driver->mUartPin.port_num, &transmitted_data, 1);
+}
+
+int UartQueueReceive(UartHandle_t uart_handle, uint32_t delay_timeout)
+{
+	UartDriver_t* uart_driver = (UartDriver_t*)uart_handle;
+	
+	if(uart_driver == NULL)
+	{
+		return -1;
+	}
+	
+	return xQueueReceive(uart_driver->mQueueHandle, &uart_driver->mUartEvent, delay_timeout);
+}
+
+uint8_t GetUartEventType(UartHandle_t uart_handle)
+{
+	UartDriver_t* uart_driver = (UartDriver_t*)uart_handle;
+	
+	if(uart_driver == NULL)
+	{
+		return 0;
+	}
+	
+	return uart_driver->mUartEvent.type;
 }
 
 void UartReceiveOneByteData(UartHandle_t uart_handle, uint8_t* received_data)

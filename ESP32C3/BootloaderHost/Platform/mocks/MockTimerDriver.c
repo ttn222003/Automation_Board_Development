@@ -6,7 +6,37 @@
 #include "MockTimerDriver.h"
 
 static const char* CMockString_DelayMs = "DelayMs";
+static const char* CMockString_InitializeIimer = "InitializeIimer";
+static const char* CMockString_TimerCreate = "TimerCreate";
+static const char* CMockString_TimerStartOnceMs = "TimerStartOnceMs";
+static const char* CMockString_callback_func = "callback_func";
+static const char* CMockString_name_timer = "name_timer";
 static const char* CMockString_time_delay = "time_delay";
+static const char* CMockString_timer_driver_handle = "timer_driver_handle";
+
+typedef struct _CMOCK_TimerCreate_CALL_INSTANCE
+{
+  UNITY_LINE_TYPE LineNumber;
+  TimerDriverHandle_t ReturnVal;
+
+} CMOCK_TimerCreate_CALL_INSTANCE;
+
+typedef struct _CMOCK_InitializeIimer_CALL_INSTANCE
+{
+  UNITY_LINE_TYPE LineNumber;
+  char* Expected_name_timer;
+  TimerDriverHandle_t Expected_timer_driver_handle;
+  void* Expected_callback_func;
+
+} CMOCK_InitializeIimer_CALL_INSTANCE;
+
+typedef struct _CMOCK_TimerStartOnceMs_CALL_INSTANCE
+{
+  UNITY_LINE_TYPE LineNumber;
+  TimerDriverHandle_t Expected_timer_driver_handle;
+  uint32_t Expected_time_delay;
+
+} CMOCK_TimerStartOnceMs_CALL_INSTANCE;
 
 typedef struct _CMOCK_DelayMs_CALL_INSTANCE
 {
@@ -17,6 +47,9 @@ typedef struct _CMOCK_DelayMs_CALL_INSTANCE
 
 static struct MockTimerDriverInstance
 {
+  CMOCK_MEM_INDEX_TYPE TimerCreate_CallInstance;
+  CMOCK_MEM_INDEX_TYPE InitializeIimer_CallInstance;
+  CMOCK_MEM_INDEX_TYPE TimerStartOnceMs_CallInstance;
   CMOCK_MEM_INDEX_TYPE DelayMs_CallInstance;
 } Mock;
 
@@ -25,6 +58,24 @@ void MockTimerDriver_Verify(void)
 {
   UNITY_LINE_TYPE cmock_line = TEST_LINE_NUM;
   CMOCK_MEM_INDEX_TYPE call_instance;
+  call_instance = Mock.TimerCreate_CallInstance;
+  if (CMOCK_GUTS_NONE != call_instance)
+  {
+    UNITY_SET_DETAIL(CMockString_TimerCreate);
+    UNITY_TEST_FAIL(cmock_line, CMockStringCalledLess);
+  }
+  call_instance = Mock.InitializeIimer_CallInstance;
+  if (CMOCK_GUTS_NONE != call_instance)
+  {
+    UNITY_SET_DETAIL(CMockString_InitializeIimer);
+    UNITY_TEST_FAIL(cmock_line, CMockStringCalledLess);
+  }
+  call_instance = Mock.TimerStartOnceMs_CallInstance;
+  if (CMOCK_GUTS_NONE != call_instance)
+  {
+    UNITY_SET_DETAIL(CMockString_TimerStartOnceMs);
+    UNITY_TEST_FAIL(cmock_line, CMockStringCalledLess);
+  }
   call_instance = Mock.DelayMs_CallInstance;
   if (CMOCK_GUTS_NONE != call_instance)
   {
@@ -42,6 +93,117 @@ void MockTimerDriver_Destroy(void)
 {
   CMock_Guts_MemFreeAll();
   memset(&Mock, 0, sizeof(Mock));
+}
+
+TimerDriverHandle_t TimerCreate(void)
+{
+  UNITY_LINE_TYPE cmock_line = TEST_LINE_NUM;
+  CMOCK_TimerCreate_CALL_INSTANCE* cmock_call_instance;
+  UNITY_SET_DETAIL(CMockString_TimerCreate);
+  cmock_call_instance = (CMOCK_TimerCreate_CALL_INSTANCE*)CMock_Guts_GetAddressFor(Mock.TimerCreate_CallInstance);
+  Mock.TimerCreate_CallInstance = CMock_Guts_MemNext(Mock.TimerCreate_CallInstance);
+  UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringCalledMore);
+  cmock_line = cmock_call_instance->LineNumber;
+  UNITY_CLR_DETAILS();
+  return cmock_call_instance->ReturnVal;
+}
+
+void TimerCreate_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, TimerDriverHandle_t cmock_to_return)
+{
+  CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_TimerCreate_CALL_INSTANCE));
+  CMOCK_TimerCreate_CALL_INSTANCE* cmock_call_instance = (CMOCK_TimerCreate_CALL_INSTANCE*)CMock_Guts_GetAddressFor(cmock_guts_index);
+  UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringOutOfMemory);
+  memset(cmock_call_instance, 0, sizeof(*cmock_call_instance));
+  Mock.TimerCreate_CallInstance = CMock_Guts_MemChain(Mock.TimerCreate_CallInstance, cmock_guts_index);
+  cmock_call_instance->LineNumber = cmock_line;
+  memcpy((void*)(&cmock_call_instance->ReturnVal), (const void*)(&cmock_to_return),
+         sizeof(TimerDriverHandle_t[sizeof(cmock_to_return) == sizeof(TimerDriverHandle_t) ? 1 : -1])); /* add TimerDriverHandle_t to :treat_as_array if this causes an error */
+}
+
+void InitializeIimer(char* name_timer, TimerDriverHandle_t timer_driver_handle, void* callback_func)
+{
+  UNITY_LINE_TYPE cmock_line = TEST_LINE_NUM;
+  CMOCK_InitializeIimer_CALL_INSTANCE* cmock_call_instance;
+  UNITY_SET_DETAIL(CMockString_InitializeIimer);
+  cmock_call_instance = (CMOCK_InitializeIimer_CALL_INSTANCE*)CMock_Guts_GetAddressFor(Mock.InitializeIimer_CallInstance);
+  Mock.InitializeIimer_CallInstance = CMock_Guts_MemNext(Mock.InitializeIimer_CallInstance);
+  UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringCalledMore);
+  cmock_line = cmock_call_instance->LineNumber;
+  {
+    UNITY_SET_DETAILS(CMockString_InitializeIimer,CMockString_name_timer);
+    UNITY_TEST_ASSERT_EQUAL_STRING(cmock_call_instance->Expected_name_timer, name_timer, cmock_line, CMockStringMismatch);
+  }
+  {
+    UNITY_SET_DETAILS(CMockString_InitializeIimer,CMockString_timer_driver_handle);
+    UNITY_TEST_ASSERT_EQUAL_MEMORY(&cmock_call_instance->Expected_timer_driver_handle, &timer_driver_handle, sizeof(TimerDriverHandle_t), cmock_line, CMockStringMismatch);
+  }
+  {
+    UNITY_SET_DETAILS(CMockString_InitializeIimer,CMockString_callback_func);
+    if (cmock_call_instance->Expected_callback_func == NULL)
+      { UNITY_TEST_ASSERT_NULL(callback_func, cmock_line, CMockStringExpNULL); }
+    else
+      { UNITY_TEST_ASSERT_EQUAL_HEX8_ARRAY(cmock_call_instance->Expected_callback_func, callback_func, 1, cmock_line, CMockStringMismatch); }
+  }
+  UNITY_CLR_DETAILS();
+}
+
+void CMockExpectParameters_InitializeIimer(CMOCK_InitializeIimer_CALL_INSTANCE* cmock_call_instance, char* name_timer, TimerDriverHandle_t timer_driver_handle, void* callback_func);
+void CMockExpectParameters_InitializeIimer(CMOCK_InitializeIimer_CALL_INSTANCE* cmock_call_instance, char* name_timer, TimerDriverHandle_t timer_driver_handle, void* callback_func)
+{
+  cmock_call_instance->Expected_name_timer = name_timer;
+  memcpy((void*)(&cmock_call_instance->Expected_timer_driver_handle), (const void*)(&timer_driver_handle),
+         sizeof(TimerDriverHandle_t[sizeof(timer_driver_handle) == sizeof(TimerDriverHandle_t) ? 1 : -1])); /* add TimerDriverHandle_t to :treat_as_array if this causes an error */
+  cmock_call_instance->Expected_callback_func = callback_func;
+}
+
+void InitializeIimer_CMockExpect(UNITY_LINE_TYPE cmock_line, char* name_timer, TimerDriverHandle_t timer_driver_handle, void* callback_func)
+{
+  CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_InitializeIimer_CALL_INSTANCE));
+  CMOCK_InitializeIimer_CALL_INSTANCE* cmock_call_instance = (CMOCK_InitializeIimer_CALL_INSTANCE*)CMock_Guts_GetAddressFor(cmock_guts_index);
+  UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringOutOfMemory);
+  memset(cmock_call_instance, 0, sizeof(*cmock_call_instance));
+  Mock.InitializeIimer_CallInstance = CMock_Guts_MemChain(Mock.InitializeIimer_CallInstance, cmock_guts_index);
+  cmock_call_instance->LineNumber = cmock_line;
+  CMockExpectParameters_InitializeIimer(cmock_call_instance, name_timer, timer_driver_handle, callback_func);
+}
+
+void TimerStartOnceMs(TimerDriverHandle_t timer_driver_handle, uint32_t time_delay)
+{
+  UNITY_LINE_TYPE cmock_line = TEST_LINE_NUM;
+  CMOCK_TimerStartOnceMs_CALL_INSTANCE* cmock_call_instance;
+  UNITY_SET_DETAIL(CMockString_TimerStartOnceMs);
+  cmock_call_instance = (CMOCK_TimerStartOnceMs_CALL_INSTANCE*)CMock_Guts_GetAddressFor(Mock.TimerStartOnceMs_CallInstance);
+  Mock.TimerStartOnceMs_CallInstance = CMock_Guts_MemNext(Mock.TimerStartOnceMs_CallInstance);
+  UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringCalledMore);
+  cmock_line = cmock_call_instance->LineNumber;
+  {
+    UNITY_SET_DETAILS(CMockString_TimerStartOnceMs,CMockString_timer_driver_handle);
+    UNITY_TEST_ASSERT_EQUAL_MEMORY(&cmock_call_instance->Expected_timer_driver_handle, &timer_driver_handle, sizeof(TimerDriverHandle_t), cmock_line, CMockStringMismatch);
+  }
+  {
+    UNITY_SET_DETAILS(CMockString_TimerStartOnceMs,CMockString_time_delay);
+    UNITY_TEST_ASSERT_EQUAL_HEX32(cmock_call_instance->Expected_time_delay, time_delay, cmock_line, CMockStringMismatch);
+  }
+  UNITY_CLR_DETAILS();
+}
+
+void CMockExpectParameters_TimerStartOnceMs(CMOCK_TimerStartOnceMs_CALL_INSTANCE* cmock_call_instance, TimerDriverHandle_t timer_driver_handle, uint32_t time_delay);
+void CMockExpectParameters_TimerStartOnceMs(CMOCK_TimerStartOnceMs_CALL_INSTANCE* cmock_call_instance, TimerDriverHandle_t timer_driver_handle, uint32_t time_delay)
+{
+  memcpy((void*)(&cmock_call_instance->Expected_timer_driver_handle), (const void*)(&timer_driver_handle),
+         sizeof(TimerDriverHandle_t[sizeof(timer_driver_handle) == sizeof(TimerDriverHandle_t) ? 1 : -1])); /* add TimerDriverHandle_t to :treat_as_array if this causes an error */
+  cmock_call_instance->Expected_time_delay = time_delay;
+}
+
+void TimerStartOnceMs_CMockExpect(UNITY_LINE_TYPE cmock_line, TimerDriverHandle_t timer_driver_handle, uint32_t time_delay)
+{
+  CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_TimerStartOnceMs_CALL_INSTANCE));
+  CMOCK_TimerStartOnceMs_CALL_INSTANCE* cmock_call_instance = (CMOCK_TimerStartOnceMs_CALL_INSTANCE*)CMock_Guts_GetAddressFor(cmock_guts_index);
+  UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringOutOfMemory);
+  memset(cmock_call_instance, 0, sizeof(*cmock_call_instance));
+  Mock.TimerStartOnceMs_CallInstance = CMock_Guts_MemChain(Mock.TimerStartOnceMs_CallInstance, cmock_guts_index);
+  cmock_call_instance->LineNumber = cmock_line;
+  CMockExpectParameters_TimerStartOnceMs(cmock_call_instance, timer_driver_handle, time_delay);
 }
 
 void DelayMs(uint32_t time_delay)

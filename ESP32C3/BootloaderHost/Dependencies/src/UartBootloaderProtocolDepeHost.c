@@ -8,7 +8,6 @@
 #include "UartBootloaderProtocolDepeHost.h"
 #include "UartBootloaderProtocolStateHost.h"
 #include "UartDriver.h"
-#include "esp_log.h"
 
 /*------- Declare variable -------*/
 uint8_t TransmittedDataToDevice[MAX_DATA_LEN];

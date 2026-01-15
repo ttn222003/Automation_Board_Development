@@ -17,13 +17,14 @@
 #include "esp_timer.h"
 #endif
 
-/*------- Member variable -------*/
-typedef struct
-{
-	esp_timer_handle_t mTimerHandle;
-} TimerDriver_t;
+#define TIMER_MAX_INSTANCE   2
 
-void InitializeIimer(char* name_timer, TimerDriver_t* timer_driver, void* callback_func);
+/*------- Member variable -------*/
+typedef void* TimerDriverHandle_t;
+
+TimerDriverHandle_t TimerCreate(void);
+void InitializeIimer(char* name_timer, TimerDriverHandle_t timer_driver_handle, void* callback_func);
+void TimerStartOnceMs(TimerDriverHandle_t timer_driver_handle, uint32_t time_delay);
 void DelayMs(uint32_t time_delay);
 
 #endif /* PLATFORM_INCLUDE_TIMERDRIVER_H_ */
