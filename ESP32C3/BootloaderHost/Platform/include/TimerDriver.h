@@ -20,11 +20,11 @@
 #define TIMER_MAX_INSTANCE   2
 
 /*------- Member variable -------*/
-typedef void* TimerDriverHandle_t;
+typedef void* TimerHandleType;
 
-TimerDriverHandle_t TimerCreate(void);
-void InitializeIimer(char* name_timer, TimerDriverHandle_t timer_driver_handle, void* callback_func);
-void TimerStartOnceMs(TimerDriverHandle_t timer_driver_handle, uint32_t time_delay);
+TimerHandleType TimerCreate(void);
+void InitializeIimer(char* name_timer, TimerHandleType timer_driver_handle, void* callback_func);
+void TimerStartOnceMs(TimerHandleType timer_driver_handle, uint32_t time_delay);
 void DelayMs(uint32_t time_delay);
 
 #endif /* PLATFORM_INCLUDE_TIMERDRIVER_H_ */

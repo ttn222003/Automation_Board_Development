@@ -30,13 +30,13 @@ void MockTimerDriver_Verify(void);
 
 #define TimerCreate_Expect() TEST_FAIL_MESSAGE("TimerCreate requires _ExpectAndReturn");
 #define TimerCreate_ExpectAndReturn(cmock_retval) TimerCreate_CMockExpectAndReturn(__LINE__, cmock_retval)
-void TimerCreate_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, TimerDriverHandle_t cmock_to_return);
+void TimerCreate_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, TimerHandleType cmock_to_return);
 #define InitializeIimer_ExpectAndReturn(name_timer, timer_driver_handle, callback_func, cmock_retval) TEST_FAIL_MESSAGE("InitializeIimer requires _Expect (not AndReturn)");
 #define InitializeIimer_Expect(name_timer, timer_driver_handle, callback_func) InitializeIimer_CMockExpect(__LINE__, name_timer, timer_driver_handle, callback_func)
-void InitializeIimer_CMockExpect(UNITY_LINE_TYPE cmock_line, char* name_timer, TimerDriverHandle_t timer_driver_handle, void* callback_func);
+void InitializeIimer_CMockExpect(UNITY_LINE_TYPE cmock_line, char* name_timer, TimerHandleType timer_driver_handle, void* callback_func);
 #define TimerStartOnceMs_ExpectAndReturn(timer_driver_handle, time_delay, cmock_retval) TEST_FAIL_MESSAGE("TimerStartOnceMs requires _Expect (not AndReturn)");
 #define TimerStartOnceMs_Expect(timer_driver_handle, time_delay) TimerStartOnceMs_CMockExpect(__LINE__, timer_driver_handle, time_delay)
-void TimerStartOnceMs_CMockExpect(UNITY_LINE_TYPE cmock_line, TimerDriverHandle_t timer_driver_handle, uint32_t time_delay);
+void TimerStartOnceMs_CMockExpect(UNITY_LINE_TYPE cmock_line, TimerHandleType timer_driver_handle, uint32_t time_delay);
 #define DelayMs_ExpectAndReturn(time_delay, cmock_retval) TEST_FAIL_MESSAGE("DelayMs requires _Expect (not AndReturn)");
 #define DelayMs_Expect(time_delay) DelayMs_CMockExpect(__LINE__, time_delay)
 void DelayMs_CMockExpect(UNITY_LINE_TYPE cmock_line, uint32_t time_delay);

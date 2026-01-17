@@ -17,7 +17,7 @@ typedef struct
 static TimerDriver_t mTimerDriverArray[TIMER_MAX_INSTANCE];
 static uint8_t mTimerUsed[TIMER_MAX_INSTANCE];
 
-TimerDriverHandle_t TimerCreate(void)
+TimerHandleType TimerCreate(void)
 {
 	for (uint8_t i = 0; i < TIMER_MAX_INSTANCE; i++)
 	{
@@ -31,7 +31,7 @@ TimerDriverHandle_t TimerCreate(void)
 	return NULL;
 }
 
-void InitializeIimer(char* name_timer, TimerDriverHandle_t timer_driver_handle, void* callback_func)
+void InitializeIimer(char* name_timer, TimerHandleType timer_driver_handle, void* callback_func)
 {
 	TimerDriver_t* timer_driver = (TimerDriver_t*)timer_driver_handle;
 	
@@ -50,7 +50,7 @@ void InitializeIimer(char* name_timer, TimerDriverHandle_t timer_driver_handle, 
 }
 
 
-void TimerStartOnceMs(TimerDriverHandle_t timer_driver_handle, uint32_t time_delay)
+void TimerStartOnceMs(TimerHandleType timer_driver_handle, uint32_t time_delay)
 {
 	TimerDriver_t* timer_driver = (TimerDriver_t*)timer_driver_handle;
 	

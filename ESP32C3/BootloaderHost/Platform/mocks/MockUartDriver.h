@@ -30,28 +30,28 @@ void MockUartDriver_Verify(void);
 
 #define UartCreate_Expect() TEST_FAIL_MESSAGE("UartCreate requires _ExpectAndReturn");
 #define UartCreate_ExpectAndReturn(cmock_retval) UartCreate_CMockExpectAndReturn(__LINE__, cmock_retval)
-void UartCreate_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, UartHandle_t cmock_to_return);
+void UartCreate_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, UartHandleType cmock_to_return);
 #define InitializeUartParameter_ExpectAndReturn(uart_handle, baudrate, uart_data_bits, uart_parity, uart_stop_bits, uart_hw_flowcontrol, uart_src_clock, cmock_retval) TEST_FAIL_MESSAGE("InitializeUartParameter requires _Expect (not AndReturn)");
 #define InitializeUartParameter_Expect(uart_handle, baudrate, uart_data_bits, uart_parity, uart_stop_bits, uart_hw_flowcontrol, uart_src_clock) InitializeUartParameter_CMockExpect(__LINE__, uart_handle, baudrate, uart_data_bits, uart_parity, uart_stop_bits, uart_hw_flowcontrol, uart_src_clock)
-void InitializeUartParameter_CMockExpect(UNITY_LINE_TYPE cmock_line, UartHandle_t uart_handle, uint32_t baudrate, uint8_t uart_data_bits, uint8_t uart_parity, uint8_t uart_stop_bits, uint8_t uart_hw_flowcontrol, uint8_t uart_src_clock);
+void InitializeUartParameter_CMockExpect(UNITY_LINE_TYPE cmock_line, UartHandleType uart_handle, uint32_t baudrate, uint8_t uart_data_bits, uint8_t uart_parity, uint8_t uart_stop_bits, uint8_t uart_hw_flowcontrol, uint8_t uart_src_clock);
 #define InitializeUartPin_ExpectAndReturn(uart_handle, port_num, tx_pin, rx_pin, rts_pin, cts_pin, cmock_retval) TEST_FAIL_MESSAGE("InitializeUartPin requires _Expect (not AndReturn)");
 #define InitializeUartPin_Expect(uart_handle, port_num, tx_pin, rx_pin, rts_pin, cts_pin) InitializeUartPin_CMockExpect(__LINE__, uart_handle, port_num, tx_pin, rx_pin, rts_pin, cts_pin)
-void InitializeUartPin_CMockExpect(UNITY_LINE_TYPE cmock_line, UartHandle_t uart_handle, uint8_t port_num, uint8_t tx_pin, uint8_t rx_pin, int rts_pin, int cts_pin);
+void InitializeUartPin_CMockExpect(UNITY_LINE_TYPE cmock_line, UartHandleType uart_handle, uint8_t port_num, uint8_t tx_pin, uint8_t rx_pin, int rts_pin, int cts_pin);
 #define InitializeUart_ExpectAndReturn(uart_handle, tx_buffer_size, rx_buffer_size, queue_size, interrupt_allocate_flag, cmock_retval) TEST_FAIL_MESSAGE("InitializeUart requires _Expect (not AndReturn)");
 #define InitializeUart_Expect(uart_handle, tx_buffer_size, rx_buffer_size, queue_size, interrupt_allocate_flag) InitializeUart_CMockExpect(__LINE__, uart_handle, tx_buffer_size, rx_buffer_size, queue_size, interrupt_allocate_flag)
-void InitializeUart_CMockExpect(UNITY_LINE_TYPE cmock_line, UartHandle_t uart_handle, uint16_t tx_buffer_size, uint16_t rx_buffer_size, uint8_t queue_size, uint8_t interrupt_allocate_flag);
+void InitializeUart_CMockExpect(UNITY_LINE_TYPE cmock_line, UartHandleType uart_handle, uint16_t tx_buffer_size, uint16_t rx_buffer_size, uint8_t queue_size, uint8_t interrupt_allocate_flag);
 #define UartTransmittOneByteData_ExpectAndReturn(uart_handle, transmitted_data, cmock_retval) TEST_FAIL_MESSAGE("UartTransmittOneByteData requires _Expect (not AndReturn)");
 #define UartTransmittOneByteData_Expect(uart_handle, transmitted_data) UartTransmittOneByteData_CMockExpect(__LINE__, uart_handle, transmitted_data)
-void UartTransmittOneByteData_CMockExpect(UNITY_LINE_TYPE cmock_line, UartHandle_t uart_handle, uint8_t transmitted_data);
+void UartTransmittOneByteData_CMockExpect(UNITY_LINE_TYPE cmock_line, UartHandleType uart_handle, uint8_t transmitted_data);
 #define UartQueueReceive_Expect(uart_handle, delay_timeout) TEST_FAIL_MESSAGE("UartQueueReceive requires _ExpectAndReturn");
 #define UartQueueReceive_ExpectAndReturn(uart_handle, delay_timeout, cmock_retval) UartQueueReceive_CMockExpectAndReturn(__LINE__, uart_handle, delay_timeout, cmock_retval)
-void UartQueueReceive_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, UartHandle_t uart_handle, uint32_t delay_timeout, int cmock_to_return);
+void UartQueueReceive_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, UartHandleType uart_handle, uint32_t delay_timeout, int cmock_to_return);
 #define GetUartEventType_Expect(uart_handle) TEST_FAIL_MESSAGE("GetUartEventType requires _ExpectAndReturn");
 #define GetUartEventType_ExpectAndReturn(uart_handle, cmock_retval) GetUartEventType_CMockExpectAndReturn(__LINE__, uart_handle, cmock_retval)
-void GetUartEventType_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, UartHandle_t uart_handle, uint8_t cmock_to_return);
+void GetUartEventType_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, UartHandleType uart_handle, uint8_t cmock_to_return);
 #define UartReceiveOneByteData_ExpectAndReturn(uart_handle, received_data, cmock_retval) TEST_FAIL_MESSAGE("UartReceiveOneByteData requires _Expect (not AndReturn)");
 #define UartReceiveOneByteData_Expect(uart_handle, received_data) UartReceiveOneByteData_CMockExpect(__LINE__, uart_handle, received_data)
-void UartReceiveOneByteData_CMockExpect(UNITY_LINE_TYPE cmock_line, UartHandle_t uart_handle, uint8_t* received_data);
+void UartReceiveOneByteData_CMockExpect(UNITY_LINE_TYPE cmock_line, UartHandleType uart_handle, uint8_t* received_data);
 
 #ifdef __cplusplus
 }

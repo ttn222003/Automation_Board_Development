@@ -4,6 +4,8 @@
 #include "MockTimerDriver.h"
 #include "MockUartDriver.h"
 
+UartHandleType uart1;
+
 void setUp(void)
 {
     ResetDataBuffer();
@@ -22,23 +24,23 @@ void TransmittEightDataToDeviceTest(void)
     HandleHandshakeRequestOfGetCommandForTransmission(TransmittedDataToDevice);
     // Expect
     DelayMs_Expect(1);
-    UartTransmittOneByteData_Expect(REQUEST_HANDSHAKE);
+    UartTransmittOneByteData_Expect(uart1, REQUEST_HANDSHAKE);
     DelayMs_Expect(1);
-    UartTransmittOneByteData_Expect(8);
+    UartTransmittOneByteData_Expect(uart1, 8);
     DelayMs_Expect(1);
-    UartTransmittOneByteData_Expect(GET_CMD);
+    UartTransmittOneByteData_Expect(uart1, GET_CMD);
     DelayMs_Expect(1);
-    UartTransmittOneByteData_Expect(0xFF);
+    UartTransmittOneByteData_Expect(uart1, 0xFF);
     DelayMs_Expect(1);
-    UartTransmittOneByteData_Expect(0x8A);
+    UartTransmittOneByteData_Expect(uart1, 0x8A);
     DelayMs_Expect(1);
-    UartTransmittOneByteData_Expect(0xC2);
+    UartTransmittOneByteData_Expect(uart1, 0xC2);
     DelayMs_Expect(1);
-    UartTransmittOneByteData_Expect(0xA9);
+    UartTransmittOneByteData_Expect(uart1, 0xA9);
     DelayMs_Expect(1);
-    UartTransmittOneByteData_Expect(0xFA);
+    UartTransmittOneByteData_Expect(uart1, 0xFA);
 
-    TransmittDataToDevice(8);
+    TransmittDataToDevice(uart1, 8);
 }
 
 /*

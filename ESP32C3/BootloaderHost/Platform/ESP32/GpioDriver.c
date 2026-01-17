@@ -6,18 +6,46 @@
  */
 
 #include "GpioDriver.h"
+#include "driver/gpio.h"
+#include "soc/gpio_num.h"
+#include <stdint.h>
 
 /*------- Member variable -------*/
+typedef struct
+{
+	QueueHandle_t mGpioEventQueue;
+} GpioDriver_t;
 
 /*------- Private variable -------*/
 static uint32_t gpio_context[GPIO_NUM_MAX];
 static bool isr_installed = false;
 
+static GpioDriver_t mGpioDriverArray[GPIO_MAX_INSTANCE];
+static uint8_t mGpioUsed[GPIO_MAX_INSTANCE];
+
 /*------- Private function -------*/
 
 /*------- Interface -------*/
-uint8_t InitializeGpioRead(GpioDriver_t gpio_driver, uint8_t pin_number, uint8_t pull_mode, uint8_t edge_mode, void* isr_handler)
+GpioHandleType CreateGpio(uint8_t pin_number)
+{	
+	if(!mGpioUsed[pin_number])
+	{
+		mGpioUsed[pin_number] = 1;
+		return &mGpioDriverArray[pin_number];
+	}
+	
+	return NULL;
+}
+
+int8_t InitializeGpioRead(GpioHandleType gpio_handle, uint8_t pin_number, uint8_t pull_mode, uint8_t edge_mode, void* isr_handler)
 {
+	GpioDriver_t* gpio_driver = (GpioHandleType)gpio_handle;
+	
+	if(gpio_driver == NULL)
+	{
+		return 0;
+	}
+	
 	uint8_t pull_up = GPIO_PULLUP_DISABLE;
 	uint8_t pull_down = GPIO_PULLDOWN_DISABLE;
 	
@@ -58,8 +86,8 @@ uint8_t InitializeGpioRead(GpioDriver_t gpio_driver, uint8_t pin_number, uint8_t
     
     gpio_config(&input_config);
     
-    if (gpio_driver.mGpioEventQueue == NULL) {
-	    gpio_driver.mGpioEventQueue = xQueueCreate(32, sizeof(uint32_t));
+    if (gpio_driver->mGpioEventQueue == NULL) {
+	    gpio_driver->mGpioEventQueue = xQueueCreate(32, sizeof(uint32_t));
 	}
     
     if (!isr_installed) {
@@ -72,4 +100,40 @@ uint8_t InitializeGpioRead(GpioDriver_t gpio_driver, uint8_t pin_number, uint8_t
     gpio_isr_handler_add(pin_number, isr_handler, &gpio_context[pin_number]);
     
     return 1;
+}
+
+int DisableInterruptGpio(GpioHandleType gpio_handle, uint8_t pin_num)
+{
+	GpioDriver_t* gpio_driver = (GpioHandleType)gpio_handle;
+	
+	if(gpio_driver == NULL)
+	{
+		return 0;
+	}
+	
+	return gpio_intr_disable((gpio_num_t)pin_num);
+}
+
+int EnableInterruptGpio(GpioHandleType gpio_handle, uint8_t pin_num)
+{
+	GpioDriver_t* gpio_driver = (GpioHandleType)gpio_handle;
+	
+	if(gpio_driver == NULL)
+	{
+		return 0;
+	}
+	
+	return gpio_intr_enable((gpio_num_t)pin_num);
+}
+
+int ReadGpio(GpioHandleType gpio_handle, uint8_t pin_num)
+{
+	GpioDriver_t* gpio_driver = (GpioHandleType)gpio_handle;
+	
+	if(gpio_driver == NULL)
+	{
+		return 0;
+	}
+	
+	return gpio_get_level((gpio_num_t)pin_num);
 }

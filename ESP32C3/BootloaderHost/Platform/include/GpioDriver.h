@@ -18,23 +18,64 @@
 #endif
 
 /*------- Define -------*/
-#define PULL_UP			0
-#define PULL_DOWN		1
-#define PULL_UP_DOWN	2
-#define NO_PULL			3
+/*------- Pull mode -------*/
+#define PULL_UP				0
+#define PULL_DOWN			1
+#define PULL_UP_DOWN		2
+#define NO_PULL				3
 
-#define POS_EDGE		0
-#define NEG_EDGE		1
-#define BOTH_EDGE		2
-#define NO_EDGE			3
+/*------- Edge mode -------*/
+#define POS_EDGE			0
+#define NEG_EDGE			1
+#define BOTH_EDGE			2
+#define NO_EDGE				3
 
-/*------- Variable -------*/
-typedef struct
-{
-	QueueHandle_t mGpioEventQueue;
-} GpioDriver_t;
+#define GPIO_MAX_INSTANCE   22
+
+typedef void* GpioHandleType;
 
 /*------- API -------*/
-uint8_t InitializeGpioRead(GpioDriver_t gpio_driver, uint8_t pin_number, uint8_t pull_mode, uint8_t edge_mode, void* isr_handler);
+
+/*
+@brief: Create GPIO Handle
+@param: pin_number - Pin number
+@return: GpioHandleType
+*/
+GpioHandleType CreateGpio(uint8_t pin_number);
+
+/*
+@brief: Initialize GPIO for reading
+@param: gpio_handle - GPIO Handle
+@param: pin_number - Pin number
+@param: pull_mode - Pull mode
+@param: edge_mode - Edge mode
+@param: isr_handler - ISR callback function
+@return: int8_t
+*/
+int8_t InitializeGpioRead(GpioHandleType gpio_handle, uint8_t pin_number, uint8_t pull_mode, uint8_t edge_mode, void* isr_handler);
+
+/*
+@brief: Disable Interrupt of GPIO
+@param: gpio_handle - GPIO Handle
+@param: pin_number - Pin number
+@return: int
+*/
+int DisableInterruptGpio(GpioHandleType gpio_handle, uint8_t pin_num);
+
+/*
+@brief: Enable Interrupt of GPIO
+@param: gpio_handle - GPIO Handle
+@param: pin_number - Pin number
+@return: int
+*/
+int EnableInterruptGpio(GpioHandleType gpio_handle, uint8_t pin_num);
+
+/*
+@brief: Read GPIO
+@param: gpio_handle - GPIO Handle
+@param: pin_number - Pin number
+@return: int
+*/
+int ReadGpio(GpioHandleType gpio_handle, uint8_t pin_num);
 
 #endif /* PLATFORM_INCLUDE_GPIODRIVER_H_ */

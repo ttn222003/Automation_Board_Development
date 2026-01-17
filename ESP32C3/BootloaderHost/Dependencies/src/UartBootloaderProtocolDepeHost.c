@@ -32,7 +32,7 @@ void ResetDataBuffer(void)
 	memset(ReceivedDataBuffer, 0, 64);
 }
 
-void TransmittDataToDevice(UartHandle_t uart_handle, uint8_t data_length)
+void TransmittDataToDevice(UartHandleType uart_handle, uint8_t data_length)
 {
 	uint8_t transmitted_data_to_device = 0x00;
 
@@ -40,7 +40,7 @@ void TransmittDataToDevice(UartHandle_t uart_handle, uint8_t data_length)
 	{
 		transmitted_data_to_device = TransmittedDataToDevice[transmitted_data_index];
 		DelayMs(1);
-		UartTransmittOneByteData(uart_handle, transmitted_data_to_device);
+		TransmittOneByteDataUart(uart_handle, transmitted_data_to_device);
 	}
 }
 

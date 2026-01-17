@@ -19,15 +19,80 @@
 #define UART_MAX_INSTANCE   3
 /*--------------*/
 
-typedef void* UartHandle_t;
+typedef void* UartHandleType;
 
-UartHandle_t UartCreate(void);
-void InitializeUartParameter(UartHandle_t uart_handle, uint32_t baudrate, uint8_t uart_data_bits, uint8_t uart_parity, uint8_t uart_stop_bits, uint8_t uart_hw_flowcontrol, uint8_t uart_src_clock);
-void InitializeUartPin(UartHandle_t uart_handle, uint8_t port_num, uint8_t tx_pin, uint8_t rx_pin, int rts_pin, int cts_pin);
-void InitializeUart(UartHandle_t uart_handle, uint16_t tx_buffer_size, uint16_t rx_buffer_size, uint8_t queue_size, uint8_t interrupt_allocate_flag);
-void UartTransmittOneByteData(UartHandle_t uart_handle, uint8_t transmitted_data);
-int UartQueueReceive(UartHandle_t uart_handle, uint32_t delay_timeout);
-uint8_t GetUartEventType(UartHandle_t uart_handle);
-void UartReceiveOneByteData(UartHandle_t uart_handle, uint8_t* received_data);
+/*
+@brief: Create UART Handle
+@param: port_num - UART number
+@return: UartHandleType
+*/
+UartHandleType CreateUart(uint8_t port_num);
+
+/*
+@brief: Initialize parameter of UART
+@param: uart_handle - UART Handle
+@param: baudrate - Baudrate
+@param: uart_data_bits - Data bits
+@param: uart_parity - Parity check
+@param: uart_stop_bits - Stop bits
+@param: uart_hw_flowcontrol - Hardware flow control
+@param: uart_src_clock - Source clock selection
+@return: None
+*/
+void InitializeUartParameter(UartHandleType uart_handle, uint32_t baudrate, uint8_t uart_data_bits, uint8_t uart_parity, uint8_t uart_stop_bits, uint8_t uart_hw_flowcontrol, uint8_t uart_src_clock);
+
+/*
+@brief: Initialize pin of UART
+@param: uart_handle - UART Handle
+@param: port_num - UART number
+@param: tx_pin - TX data pin
+@param: rx_pin - RX data pin
+@param: rts_pin - RTS pin
+@param: cts_pin - CTS pin
+@return: None
+*/
+void InitializeUartPin(UartHandleType uart_handle, uint8_t port_num, uint8_t tx_pin, uint8_t rx_pin, int rts_pin, int cts_pin);
+
+/*
+@brief: Initialize UART
+@param: uart_handle - UART Handle
+@param: tx_buffer_size - TX buffer size
+@param: rx_buffer_size - RX buffer size
+@param: queue_size - Queue size
+@param: interrupt_allocate_flag - Type of interrupt flag
+@return: None
+*/
+void InitializeUart(UartHandleType uart_handle, uint16_t tx_buffer_size, uint16_t rx_buffer_size, uint8_t queue_size, uint8_t interrupt_allocate_flag);
+
+/*
+@brief: Transmitt one byte data
+@param: uart_handle - UART Handle
+@param: transmitted_data - Data want to transmitt
+@return: None
+*/
+void TransmittOneByteDataUart(UartHandleType uart_handle, uint8_t transmitted_data);
+
+/*
+@brief: Receive queue of UART
+@param: uart_handle - UART Handle
+@param: delay_timeout - Timeout to delay
+@return: int
+*/
+int ReceiveQueueUart(UartHandleType uart_handle, uint32_t delay_timeout);
+
+/*
+@brief: Get event type of UART
+@param: uart_handle - UART Handle
+@return: uint8_t
+*/
+uint8_t GetUartEventType(UartHandleType uart_handle);
+
+/*
+@brief: Receive one byte data
+@param: uart_handle - UART Handle
+@param: received_data - Received data
+@return: None
+*/
+void ReceiveOneByteDataUart(UartHandleType uart_handle, uint8_t* received_data);
 
 #endif /* PLATFORM_INCLUDE_UARTDRIVER_H_ */

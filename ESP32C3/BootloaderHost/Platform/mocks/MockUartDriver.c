@@ -36,14 +36,14 @@ static const char* CMockString_uart_stop_bits = "uart_stop_bits";
 typedef struct _CMOCK_UartCreate_CALL_INSTANCE
 {
   UNITY_LINE_TYPE LineNumber;
-  UartHandle_t ReturnVal;
+  UartHandleType ReturnVal;
 
 } CMOCK_UartCreate_CALL_INSTANCE;
 
 typedef struct _CMOCK_InitializeUartParameter_CALL_INSTANCE
 {
   UNITY_LINE_TYPE LineNumber;
-  UartHandle_t Expected_uart_handle;
+  UartHandleType Expected_uart_handle;
   uint32_t Expected_baudrate;
   uint8_t Expected_uart_data_bits;
   uint8_t Expected_uart_parity;
@@ -56,7 +56,7 @@ typedef struct _CMOCK_InitializeUartParameter_CALL_INSTANCE
 typedef struct _CMOCK_InitializeUartPin_CALL_INSTANCE
 {
   UNITY_LINE_TYPE LineNumber;
-  UartHandle_t Expected_uart_handle;
+  UartHandleType Expected_uart_handle;
   uint8_t Expected_port_num;
   uint8_t Expected_tx_pin;
   uint8_t Expected_rx_pin;
@@ -68,7 +68,7 @@ typedef struct _CMOCK_InitializeUartPin_CALL_INSTANCE
 typedef struct _CMOCK_InitializeUart_CALL_INSTANCE
 {
   UNITY_LINE_TYPE LineNumber;
-  UartHandle_t Expected_uart_handle;
+  UartHandleType Expected_uart_handle;
   uint16_t Expected_tx_buffer_size;
   uint16_t Expected_rx_buffer_size;
   uint8_t Expected_queue_size;
@@ -79,7 +79,7 @@ typedef struct _CMOCK_InitializeUart_CALL_INSTANCE
 typedef struct _CMOCK_UartTransmittOneByteData_CALL_INSTANCE
 {
   UNITY_LINE_TYPE LineNumber;
-  UartHandle_t Expected_uart_handle;
+  UartHandleType Expected_uart_handle;
   uint8_t Expected_transmitted_data;
 
 } CMOCK_UartTransmittOneByteData_CALL_INSTANCE;
@@ -88,7 +88,7 @@ typedef struct _CMOCK_UartQueueReceive_CALL_INSTANCE
 {
   UNITY_LINE_TYPE LineNumber;
   int ReturnVal;
-  UartHandle_t Expected_uart_handle;
+  UartHandleType Expected_uart_handle;
   uint32_t Expected_delay_timeout;
 
 } CMOCK_UartQueueReceive_CALL_INSTANCE;
@@ -97,14 +97,14 @@ typedef struct _CMOCK_GetUartEventType_CALL_INSTANCE
 {
   UNITY_LINE_TYPE LineNumber;
   uint8_t ReturnVal;
-  UartHandle_t Expected_uart_handle;
+  UartHandleType Expected_uart_handle;
 
 } CMOCK_GetUartEventType_CALL_INSTANCE;
 
 typedef struct _CMOCK_UartReceiveOneByteData_CALL_INSTANCE
 {
   UNITY_LINE_TYPE LineNumber;
-  UartHandle_t Expected_uart_handle;
+  UartHandleType Expected_uart_handle;
   uint8_t* Expected_received_data;
 
 } CMOCK_UartReceiveOneByteData_CALL_INSTANCE;
@@ -187,7 +187,7 @@ void MockUartDriver_Destroy(void)
   memset(&Mock, 0, sizeof(Mock));
 }
 
-UartHandle_t UartCreate(void)
+UartHandleType UartCreate(void)
 {
   UNITY_LINE_TYPE cmock_line = TEST_LINE_NUM;
   CMOCK_UartCreate_CALL_INSTANCE* cmock_call_instance;
@@ -200,7 +200,7 @@ UartHandle_t UartCreate(void)
   return cmock_call_instance->ReturnVal;
 }
 
-void UartCreate_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, UartHandle_t cmock_to_return)
+void UartCreate_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, UartHandleType cmock_to_return)
 {
   CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_UartCreate_CALL_INSTANCE));
   CMOCK_UartCreate_CALL_INSTANCE* cmock_call_instance = (CMOCK_UartCreate_CALL_INSTANCE*)CMock_Guts_GetAddressFor(cmock_guts_index);
@@ -209,10 +209,10 @@ void UartCreate_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, UartHandle_t cm
   Mock.UartCreate_CallInstance = CMock_Guts_MemChain(Mock.UartCreate_CallInstance, cmock_guts_index);
   cmock_call_instance->LineNumber = cmock_line;
   memcpy((void*)(&cmock_call_instance->ReturnVal), (const void*)(&cmock_to_return),
-         sizeof(UartHandle_t[sizeof(cmock_to_return) == sizeof(UartHandle_t) ? 1 : -1])); /* add UartHandle_t to :treat_as_array if this causes an error */
+         sizeof(UartHandleType[sizeof(cmock_to_return) == sizeof(UartHandleType) ? 1 : -1])); /* add UartHandleType to :treat_as_array if this causes an error */
 }
 
-void InitializeUartParameter(UartHandle_t uart_handle, uint32_t baudrate, uint8_t uart_data_bits, uint8_t uart_parity, uint8_t uart_stop_bits, uint8_t uart_hw_flowcontrol, uint8_t uart_src_clock)
+void InitializeUartParameter(UartHandleType uart_handle, uint32_t baudrate, uint8_t uart_data_bits, uint8_t uart_parity, uint8_t uart_stop_bits, uint8_t uart_hw_flowcontrol, uint8_t uart_src_clock)
 {
   UNITY_LINE_TYPE cmock_line = TEST_LINE_NUM;
   CMOCK_InitializeUartParameter_CALL_INSTANCE* cmock_call_instance;
@@ -223,7 +223,7 @@ void InitializeUartParameter(UartHandle_t uart_handle, uint32_t baudrate, uint8_
   cmock_line = cmock_call_instance->LineNumber;
   {
     UNITY_SET_DETAILS(CMockString_InitializeUartParameter,CMockString_uart_handle);
-    UNITY_TEST_ASSERT_EQUAL_MEMORY(&cmock_call_instance->Expected_uart_handle, &uart_handle, sizeof(UartHandle_t), cmock_line, CMockStringMismatch);
+    UNITY_TEST_ASSERT_EQUAL_MEMORY(&cmock_call_instance->Expected_uart_handle, &uart_handle, sizeof(UartHandleType), cmock_line, CMockStringMismatch);
   }
   {
     UNITY_SET_DETAILS(CMockString_InitializeUartParameter,CMockString_baudrate);
@@ -252,11 +252,11 @@ void InitializeUartParameter(UartHandle_t uart_handle, uint32_t baudrate, uint8_
   UNITY_CLR_DETAILS();
 }
 
-void CMockExpectParameters_InitializeUartParameter(CMOCK_InitializeUartParameter_CALL_INSTANCE* cmock_call_instance, UartHandle_t uart_handle, uint32_t baudrate, uint8_t uart_data_bits, uint8_t uart_parity, uint8_t uart_stop_bits, uint8_t uart_hw_flowcontrol, uint8_t uart_src_clock);
-void CMockExpectParameters_InitializeUartParameter(CMOCK_InitializeUartParameter_CALL_INSTANCE* cmock_call_instance, UartHandle_t uart_handle, uint32_t baudrate, uint8_t uart_data_bits, uint8_t uart_parity, uint8_t uart_stop_bits, uint8_t uart_hw_flowcontrol, uint8_t uart_src_clock)
+void CMockExpectParameters_InitializeUartParameter(CMOCK_InitializeUartParameter_CALL_INSTANCE* cmock_call_instance, UartHandleType uart_handle, uint32_t baudrate, uint8_t uart_data_bits, uint8_t uart_parity, uint8_t uart_stop_bits, uint8_t uart_hw_flowcontrol, uint8_t uart_src_clock);
+void CMockExpectParameters_InitializeUartParameter(CMOCK_InitializeUartParameter_CALL_INSTANCE* cmock_call_instance, UartHandleType uart_handle, uint32_t baudrate, uint8_t uart_data_bits, uint8_t uart_parity, uint8_t uart_stop_bits, uint8_t uart_hw_flowcontrol, uint8_t uart_src_clock)
 {
   memcpy((void*)(&cmock_call_instance->Expected_uart_handle), (const void*)(&uart_handle),
-         sizeof(UartHandle_t[sizeof(uart_handle) == sizeof(UartHandle_t) ? 1 : -1])); /* add UartHandle_t to :treat_as_array if this causes an error */
+         sizeof(UartHandleType[sizeof(uart_handle) == sizeof(UartHandleType) ? 1 : -1])); /* add UartHandleType to :treat_as_array if this causes an error */
   cmock_call_instance->Expected_baudrate = baudrate;
   cmock_call_instance->Expected_uart_data_bits = uart_data_bits;
   cmock_call_instance->Expected_uart_parity = uart_parity;
@@ -265,7 +265,7 @@ void CMockExpectParameters_InitializeUartParameter(CMOCK_InitializeUartParameter
   cmock_call_instance->Expected_uart_src_clock = uart_src_clock;
 }
 
-void InitializeUartParameter_CMockExpect(UNITY_LINE_TYPE cmock_line, UartHandle_t uart_handle, uint32_t baudrate, uint8_t uart_data_bits, uint8_t uart_parity, uint8_t uart_stop_bits, uint8_t uart_hw_flowcontrol, uint8_t uart_src_clock)
+void InitializeUartParameter_CMockExpect(UNITY_LINE_TYPE cmock_line, UartHandleType uart_handle, uint32_t baudrate, uint8_t uart_data_bits, uint8_t uart_parity, uint8_t uart_stop_bits, uint8_t uart_hw_flowcontrol, uint8_t uart_src_clock)
 {
   CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_InitializeUartParameter_CALL_INSTANCE));
   CMOCK_InitializeUartParameter_CALL_INSTANCE* cmock_call_instance = (CMOCK_InitializeUartParameter_CALL_INSTANCE*)CMock_Guts_GetAddressFor(cmock_guts_index);
@@ -276,7 +276,7 @@ void InitializeUartParameter_CMockExpect(UNITY_LINE_TYPE cmock_line, UartHandle_
   CMockExpectParameters_InitializeUartParameter(cmock_call_instance, uart_handle, baudrate, uart_data_bits, uart_parity, uart_stop_bits, uart_hw_flowcontrol, uart_src_clock);
 }
 
-void InitializeUartPin(UartHandle_t uart_handle, uint8_t port_num, uint8_t tx_pin, uint8_t rx_pin, int rts_pin, int cts_pin)
+void InitializeUartPin(UartHandleType uart_handle, uint8_t port_num, uint8_t tx_pin, uint8_t rx_pin, int rts_pin, int cts_pin)
 {
   UNITY_LINE_TYPE cmock_line = TEST_LINE_NUM;
   CMOCK_InitializeUartPin_CALL_INSTANCE* cmock_call_instance;
@@ -287,7 +287,7 @@ void InitializeUartPin(UartHandle_t uart_handle, uint8_t port_num, uint8_t tx_pi
   cmock_line = cmock_call_instance->LineNumber;
   {
     UNITY_SET_DETAILS(CMockString_InitializeUartPin,CMockString_uart_handle);
-    UNITY_TEST_ASSERT_EQUAL_MEMORY(&cmock_call_instance->Expected_uart_handle, &uart_handle, sizeof(UartHandle_t), cmock_line, CMockStringMismatch);
+    UNITY_TEST_ASSERT_EQUAL_MEMORY(&cmock_call_instance->Expected_uart_handle, &uart_handle, sizeof(UartHandleType), cmock_line, CMockStringMismatch);
   }
   {
     UNITY_SET_DETAILS(CMockString_InitializeUartPin,CMockString_port_num);
@@ -312,11 +312,11 @@ void InitializeUartPin(UartHandle_t uart_handle, uint8_t port_num, uint8_t tx_pi
   UNITY_CLR_DETAILS();
 }
 
-void CMockExpectParameters_InitializeUartPin(CMOCK_InitializeUartPin_CALL_INSTANCE* cmock_call_instance, UartHandle_t uart_handle, uint8_t port_num, uint8_t tx_pin, uint8_t rx_pin, int rts_pin, int cts_pin);
-void CMockExpectParameters_InitializeUartPin(CMOCK_InitializeUartPin_CALL_INSTANCE* cmock_call_instance, UartHandle_t uart_handle, uint8_t port_num, uint8_t tx_pin, uint8_t rx_pin, int rts_pin, int cts_pin)
+void CMockExpectParameters_InitializeUartPin(CMOCK_InitializeUartPin_CALL_INSTANCE* cmock_call_instance, UartHandleType uart_handle, uint8_t port_num, uint8_t tx_pin, uint8_t rx_pin, int rts_pin, int cts_pin);
+void CMockExpectParameters_InitializeUartPin(CMOCK_InitializeUartPin_CALL_INSTANCE* cmock_call_instance, UartHandleType uart_handle, uint8_t port_num, uint8_t tx_pin, uint8_t rx_pin, int rts_pin, int cts_pin)
 {
   memcpy((void*)(&cmock_call_instance->Expected_uart_handle), (const void*)(&uart_handle),
-         sizeof(UartHandle_t[sizeof(uart_handle) == sizeof(UartHandle_t) ? 1 : -1])); /* add UartHandle_t to :treat_as_array if this causes an error */
+         sizeof(UartHandleType[sizeof(uart_handle) == sizeof(UartHandleType) ? 1 : -1])); /* add UartHandleType to :treat_as_array if this causes an error */
   cmock_call_instance->Expected_port_num = port_num;
   cmock_call_instance->Expected_tx_pin = tx_pin;
   cmock_call_instance->Expected_rx_pin = rx_pin;
@@ -324,7 +324,7 @@ void CMockExpectParameters_InitializeUartPin(CMOCK_InitializeUartPin_CALL_INSTAN
   cmock_call_instance->Expected_cts_pin = cts_pin;
 }
 
-void InitializeUartPin_CMockExpect(UNITY_LINE_TYPE cmock_line, UartHandle_t uart_handle, uint8_t port_num, uint8_t tx_pin, uint8_t rx_pin, int rts_pin, int cts_pin)
+void InitializeUartPin_CMockExpect(UNITY_LINE_TYPE cmock_line, UartHandleType uart_handle, uint8_t port_num, uint8_t tx_pin, uint8_t rx_pin, int rts_pin, int cts_pin)
 {
   CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_InitializeUartPin_CALL_INSTANCE));
   CMOCK_InitializeUartPin_CALL_INSTANCE* cmock_call_instance = (CMOCK_InitializeUartPin_CALL_INSTANCE*)CMock_Guts_GetAddressFor(cmock_guts_index);
@@ -335,7 +335,7 @@ void InitializeUartPin_CMockExpect(UNITY_LINE_TYPE cmock_line, UartHandle_t uart
   CMockExpectParameters_InitializeUartPin(cmock_call_instance, uart_handle, port_num, tx_pin, rx_pin, rts_pin, cts_pin);
 }
 
-void InitializeUart(UartHandle_t uart_handle, uint16_t tx_buffer_size, uint16_t rx_buffer_size, uint8_t queue_size, uint8_t interrupt_allocate_flag)
+void InitializeUart(UartHandleType uart_handle, uint16_t tx_buffer_size, uint16_t rx_buffer_size, uint8_t queue_size, uint8_t interrupt_allocate_flag)
 {
   UNITY_LINE_TYPE cmock_line = TEST_LINE_NUM;
   CMOCK_InitializeUart_CALL_INSTANCE* cmock_call_instance;
@@ -346,7 +346,7 @@ void InitializeUart(UartHandle_t uart_handle, uint16_t tx_buffer_size, uint16_t 
   cmock_line = cmock_call_instance->LineNumber;
   {
     UNITY_SET_DETAILS(CMockString_InitializeUart,CMockString_uart_handle);
-    UNITY_TEST_ASSERT_EQUAL_MEMORY(&cmock_call_instance->Expected_uart_handle, &uart_handle, sizeof(UartHandle_t), cmock_line, CMockStringMismatch);
+    UNITY_TEST_ASSERT_EQUAL_MEMORY(&cmock_call_instance->Expected_uart_handle, &uart_handle, sizeof(UartHandleType), cmock_line, CMockStringMismatch);
   }
   {
     UNITY_SET_DETAILS(CMockString_InitializeUart,CMockString_tx_buffer_size);
@@ -367,18 +367,18 @@ void InitializeUart(UartHandle_t uart_handle, uint16_t tx_buffer_size, uint16_t 
   UNITY_CLR_DETAILS();
 }
 
-void CMockExpectParameters_InitializeUart(CMOCK_InitializeUart_CALL_INSTANCE* cmock_call_instance, UartHandle_t uart_handle, uint16_t tx_buffer_size, uint16_t rx_buffer_size, uint8_t queue_size, uint8_t interrupt_allocate_flag);
-void CMockExpectParameters_InitializeUart(CMOCK_InitializeUart_CALL_INSTANCE* cmock_call_instance, UartHandle_t uart_handle, uint16_t tx_buffer_size, uint16_t rx_buffer_size, uint8_t queue_size, uint8_t interrupt_allocate_flag)
+void CMockExpectParameters_InitializeUart(CMOCK_InitializeUart_CALL_INSTANCE* cmock_call_instance, UartHandleType uart_handle, uint16_t tx_buffer_size, uint16_t rx_buffer_size, uint8_t queue_size, uint8_t interrupt_allocate_flag);
+void CMockExpectParameters_InitializeUart(CMOCK_InitializeUart_CALL_INSTANCE* cmock_call_instance, UartHandleType uart_handle, uint16_t tx_buffer_size, uint16_t rx_buffer_size, uint8_t queue_size, uint8_t interrupt_allocate_flag)
 {
   memcpy((void*)(&cmock_call_instance->Expected_uart_handle), (const void*)(&uart_handle),
-         sizeof(UartHandle_t[sizeof(uart_handle) == sizeof(UartHandle_t) ? 1 : -1])); /* add UartHandle_t to :treat_as_array if this causes an error */
+         sizeof(UartHandleType[sizeof(uart_handle) == sizeof(UartHandleType) ? 1 : -1])); /* add UartHandleType to :treat_as_array if this causes an error */
   cmock_call_instance->Expected_tx_buffer_size = tx_buffer_size;
   cmock_call_instance->Expected_rx_buffer_size = rx_buffer_size;
   cmock_call_instance->Expected_queue_size = queue_size;
   cmock_call_instance->Expected_interrupt_allocate_flag = interrupt_allocate_flag;
 }
 
-void InitializeUart_CMockExpect(UNITY_LINE_TYPE cmock_line, UartHandle_t uart_handle, uint16_t tx_buffer_size, uint16_t rx_buffer_size, uint8_t queue_size, uint8_t interrupt_allocate_flag)
+void InitializeUart_CMockExpect(UNITY_LINE_TYPE cmock_line, UartHandleType uart_handle, uint16_t tx_buffer_size, uint16_t rx_buffer_size, uint8_t queue_size, uint8_t interrupt_allocate_flag)
 {
   CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_InitializeUart_CALL_INSTANCE));
   CMOCK_InitializeUart_CALL_INSTANCE* cmock_call_instance = (CMOCK_InitializeUart_CALL_INSTANCE*)CMock_Guts_GetAddressFor(cmock_guts_index);
@@ -389,7 +389,7 @@ void InitializeUart_CMockExpect(UNITY_LINE_TYPE cmock_line, UartHandle_t uart_ha
   CMockExpectParameters_InitializeUart(cmock_call_instance, uart_handle, tx_buffer_size, rx_buffer_size, queue_size, interrupt_allocate_flag);
 }
 
-void UartTransmittOneByteData(UartHandle_t uart_handle, uint8_t transmitted_data)
+void UartTransmittOneByteData(UartHandleType uart_handle, uint8_t transmitted_data)
 {
   UNITY_LINE_TYPE cmock_line = TEST_LINE_NUM;
   CMOCK_UartTransmittOneByteData_CALL_INSTANCE* cmock_call_instance;
@@ -400,7 +400,7 @@ void UartTransmittOneByteData(UartHandle_t uart_handle, uint8_t transmitted_data
   cmock_line = cmock_call_instance->LineNumber;
   {
     UNITY_SET_DETAILS(CMockString_UartTransmittOneByteData,CMockString_uart_handle);
-    UNITY_TEST_ASSERT_EQUAL_MEMORY(&cmock_call_instance->Expected_uart_handle, &uart_handle, sizeof(UartHandle_t), cmock_line, CMockStringMismatch);
+    UNITY_TEST_ASSERT_EQUAL_MEMORY(&cmock_call_instance->Expected_uart_handle, &uart_handle, sizeof(UartHandleType), cmock_line, CMockStringMismatch);
   }
   {
     UNITY_SET_DETAILS(CMockString_UartTransmittOneByteData,CMockString_transmitted_data);
@@ -409,15 +409,15 @@ void UartTransmittOneByteData(UartHandle_t uart_handle, uint8_t transmitted_data
   UNITY_CLR_DETAILS();
 }
 
-void CMockExpectParameters_UartTransmittOneByteData(CMOCK_UartTransmittOneByteData_CALL_INSTANCE* cmock_call_instance, UartHandle_t uart_handle, uint8_t transmitted_data);
-void CMockExpectParameters_UartTransmittOneByteData(CMOCK_UartTransmittOneByteData_CALL_INSTANCE* cmock_call_instance, UartHandle_t uart_handle, uint8_t transmitted_data)
+void CMockExpectParameters_UartTransmittOneByteData(CMOCK_UartTransmittOneByteData_CALL_INSTANCE* cmock_call_instance, UartHandleType uart_handle, uint8_t transmitted_data);
+void CMockExpectParameters_UartTransmittOneByteData(CMOCK_UartTransmittOneByteData_CALL_INSTANCE* cmock_call_instance, UartHandleType uart_handle, uint8_t transmitted_data)
 {
   memcpy((void*)(&cmock_call_instance->Expected_uart_handle), (const void*)(&uart_handle),
-         sizeof(UartHandle_t[sizeof(uart_handle) == sizeof(UartHandle_t) ? 1 : -1])); /* add UartHandle_t to :treat_as_array if this causes an error */
+         sizeof(UartHandleType[sizeof(uart_handle) == sizeof(UartHandleType) ? 1 : -1])); /* add UartHandleType to :treat_as_array if this causes an error */
   cmock_call_instance->Expected_transmitted_data = transmitted_data;
 }
 
-void UartTransmittOneByteData_CMockExpect(UNITY_LINE_TYPE cmock_line, UartHandle_t uart_handle, uint8_t transmitted_data)
+void UartTransmittOneByteData_CMockExpect(UNITY_LINE_TYPE cmock_line, UartHandleType uart_handle, uint8_t transmitted_data)
 {
   CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_UartTransmittOneByteData_CALL_INSTANCE));
   CMOCK_UartTransmittOneByteData_CALL_INSTANCE* cmock_call_instance = (CMOCK_UartTransmittOneByteData_CALL_INSTANCE*)CMock_Guts_GetAddressFor(cmock_guts_index);
@@ -428,7 +428,7 @@ void UartTransmittOneByteData_CMockExpect(UNITY_LINE_TYPE cmock_line, UartHandle
   CMockExpectParameters_UartTransmittOneByteData(cmock_call_instance, uart_handle, transmitted_data);
 }
 
-int UartQueueReceive(UartHandle_t uart_handle, uint32_t delay_timeout)
+int UartQueueReceive(UartHandleType uart_handle, uint32_t delay_timeout)
 {
   UNITY_LINE_TYPE cmock_line = TEST_LINE_NUM;
   CMOCK_UartQueueReceive_CALL_INSTANCE* cmock_call_instance;
@@ -439,7 +439,7 @@ int UartQueueReceive(UartHandle_t uart_handle, uint32_t delay_timeout)
   cmock_line = cmock_call_instance->LineNumber;
   {
     UNITY_SET_DETAILS(CMockString_UartQueueReceive,CMockString_uart_handle);
-    UNITY_TEST_ASSERT_EQUAL_MEMORY(&cmock_call_instance->Expected_uart_handle, &uart_handle, sizeof(UartHandle_t), cmock_line, CMockStringMismatch);
+    UNITY_TEST_ASSERT_EQUAL_MEMORY(&cmock_call_instance->Expected_uart_handle, &uart_handle, sizeof(UartHandleType), cmock_line, CMockStringMismatch);
   }
   {
     UNITY_SET_DETAILS(CMockString_UartQueueReceive,CMockString_delay_timeout);
@@ -449,15 +449,15 @@ int UartQueueReceive(UartHandle_t uart_handle, uint32_t delay_timeout)
   return cmock_call_instance->ReturnVal;
 }
 
-void CMockExpectParameters_UartQueueReceive(CMOCK_UartQueueReceive_CALL_INSTANCE* cmock_call_instance, UartHandle_t uart_handle, uint32_t delay_timeout);
-void CMockExpectParameters_UartQueueReceive(CMOCK_UartQueueReceive_CALL_INSTANCE* cmock_call_instance, UartHandle_t uart_handle, uint32_t delay_timeout)
+void CMockExpectParameters_UartQueueReceive(CMOCK_UartQueueReceive_CALL_INSTANCE* cmock_call_instance, UartHandleType uart_handle, uint32_t delay_timeout);
+void CMockExpectParameters_UartQueueReceive(CMOCK_UartQueueReceive_CALL_INSTANCE* cmock_call_instance, UartHandleType uart_handle, uint32_t delay_timeout)
 {
   memcpy((void*)(&cmock_call_instance->Expected_uart_handle), (const void*)(&uart_handle),
-         sizeof(UartHandle_t[sizeof(uart_handle) == sizeof(UartHandle_t) ? 1 : -1])); /* add UartHandle_t to :treat_as_array if this causes an error */
+         sizeof(UartHandleType[sizeof(uart_handle) == sizeof(UartHandleType) ? 1 : -1])); /* add UartHandleType to :treat_as_array if this causes an error */
   cmock_call_instance->Expected_delay_timeout = delay_timeout;
 }
 
-void UartQueueReceive_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, UartHandle_t uart_handle, uint32_t delay_timeout, int cmock_to_return)
+void UartQueueReceive_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, UartHandleType uart_handle, uint32_t delay_timeout, int cmock_to_return)
 {
   CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_UartQueueReceive_CALL_INSTANCE));
   CMOCK_UartQueueReceive_CALL_INSTANCE* cmock_call_instance = (CMOCK_UartQueueReceive_CALL_INSTANCE*)CMock_Guts_GetAddressFor(cmock_guts_index);
@@ -469,7 +469,7 @@ void UartQueueReceive_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, UartHandl
   cmock_call_instance->ReturnVal = cmock_to_return;
 }
 
-uint8_t GetUartEventType(UartHandle_t uart_handle)
+uint8_t GetUartEventType(UartHandleType uart_handle)
 {
   UNITY_LINE_TYPE cmock_line = TEST_LINE_NUM;
   CMOCK_GetUartEventType_CALL_INSTANCE* cmock_call_instance;
@@ -480,20 +480,20 @@ uint8_t GetUartEventType(UartHandle_t uart_handle)
   cmock_line = cmock_call_instance->LineNumber;
   {
     UNITY_SET_DETAILS(CMockString_GetUartEventType,CMockString_uart_handle);
-    UNITY_TEST_ASSERT_EQUAL_MEMORY(&cmock_call_instance->Expected_uart_handle, &uart_handle, sizeof(UartHandle_t), cmock_line, CMockStringMismatch);
+    UNITY_TEST_ASSERT_EQUAL_MEMORY(&cmock_call_instance->Expected_uart_handle, &uart_handle, sizeof(UartHandleType), cmock_line, CMockStringMismatch);
   }
   UNITY_CLR_DETAILS();
   return cmock_call_instance->ReturnVal;
 }
 
-void CMockExpectParameters_GetUartEventType(CMOCK_GetUartEventType_CALL_INSTANCE* cmock_call_instance, UartHandle_t uart_handle);
-void CMockExpectParameters_GetUartEventType(CMOCK_GetUartEventType_CALL_INSTANCE* cmock_call_instance, UartHandle_t uart_handle)
+void CMockExpectParameters_GetUartEventType(CMOCK_GetUartEventType_CALL_INSTANCE* cmock_call_instance, UartHandleType uart_handle);
+void CMockExpectParameters_GetUartEventType(CMOCK_GetUartEventType_CALL_INSTANCE* cmock_call_instance, UartHandleType uart_handle)
 {
   memcpy((void*)(&cmock_call_instance->Expected_uart_handle), (const void*)(&uart_handle),
-         sizeof(UartHandle_t[sizeof(uart_handle) == sizeof(UartHandle_t) ? 1 : -1])); /* add UartHandle_t to :treat_as_array if this causes an error */
+         sizeof(UartHandleType[sizeof(uart_handle) == sizeof(UartHandleType) ? 1 : -1])); /* add UartHandleType to :treat_as_array if this causes an error */
 }
 
-void GetUartEventType_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, UartHandle_t uart_handle, uint8_t cmock_to_return)
+void GetUartEventType_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, UartHandleType uart_handle, uint8_t cmock_to_return)
 {
   CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_GetUartEventType_CALL_INSTANCE));
   CMOCK_GetUartEventType_CALL_INSTANCE* cmock_call_instance = (CMOCK_GetUartEventType_CALL_INSTANCE*)CMock_Guts_GetAddressFor(cmock_guts_index);
@@ -505,7 +505,7 @@ void GetUartEventType_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, UartHandl
   cmock_call_instance->ReturnVal = cmock_to_return;
 }
 
-void UartReceiveOneByteData(UartHandle_t uart_handle, uint8_t* received_data)
+void UartReceiveOneByteData(UartHandleType uart_handle, uint8_t* received_data)
 {
   UNITY_LINE_TYPE cmock_line = TEST_LINE_NUM;
   CMOCK_UartReceiveOneByteData_CALL_INSTANCE* cmock_call_instance;
@@ -516,7 +516,7 @@ void UartReceiveOneByteData(UartHandle_t uart_handle, uint8_t* received_data)
   cmock_line = cmock_call_instance->LineNumber;
   {
     UNITY_SET_DETAILS(CMockString_UartReceiveOneByteData,CMockString_uart_handle);
-    UNITY_TEST_ASSERT_EQUAL_MEMORY(&cmock_call_instance->Expected_uart_handle, &uart_handle, sizeof(UartHandle_t), cmock_line, CMockStringMismatch);
+    UNITY_TEST_ASSERT_EQUAL_MEMORY(&cmock_call_instance->Expected_uart_handle, &uart_handle, sizeof(UartHandleType), cmock_line, CMockStringMismatch);
   }
   {
     UNITY_SET_DETAILS(CMockString_UartReceiveOneByteData,CMockString_received_data);
@@ -528,15 +528,15 @@ void UartReceiveOneByteData(UartHandle_t uart_handle, uint8_t* received_data)
   UNITY_CLR_DETAILS();
 }
 
-void CMockExpectParameters_UartReceiveOneByteData(CMOCK_UartReceiveOneByteData_CALL_INSTANCE* cmock_call_instance, UartHandle_t uart_handle, uint8_t* received_data);
-void CMockExpectParameters_UartReceiveOneByteData(CMOCK_UartReceiveOneByteData_CALL_INSTANCE* cmock_call_instance, UartHandle_t uart_handle, uint8_t* received_data)
+void CMockExpectParameters_UartReceiveOneByteData(CMOCK_UartReceiveOneByteData_CALL_INSTANCE* cmock_call_instance, UartHandleType uart_handle, uint8_t* received_data);
+void CMockExpectParameters_UartReceiveOneByteData(CMOCK_UartReceiveOneByteData_CALL_INSTANCE* cmock_call_instance, UartHandleType uart_handle, uint8_t* received_data)
 {
   memcpy((void*)(&cmock_call_instance->Expected_uart_handle), (const void*)(&uart_handle),
-         sizeof(UartHandle_t[sizeof(uart_handle) == sizeof(UartHandle_t) ? 1 : -1])); /* add UartHandle_t to :treat_as_array if this causes an error */
+         sizeof(UartHandleType[sizeof(uart_handle) == sizeof(UartHandleType) ? 1 : -1])); /* add UartHandleType to :treat_as_array if this causes an error */
   cmock_call_instance->Expected_received_data = received_data;
 }
 
-void UartReceiveOneByteData_CMockExpect(UNITY_LINE_TYPE cmock_line, UartHandle_t uart_handle, uint8_t* received_data)
+void UartReceiveOneByteData_CMockExpect(UNITY_LINE_TYPE cmock_line, UartHandleType uart_handle, uint8_t* received_data)
 {
   CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_UartReceiveOneByteData_CALL_INSTANCE));
   CMOCK_UartReceiveOneByteData_CALL_INSTANCE* cmock_call_instance = (CMOCK_UartReceiveOneByteData_CALL_INSTANCE*)CMock_Guts_GetAddressFor(cmock_guts_index);
