@@ -1,0 +1,38 @@
+/*
+ * UartBootloaderProtocolCoresHost.h
+ *
+ *  Created on: Nov 20, 2025
+ *      Author: TTN
+ */
+
+#ifndef CORES_INCLUDE_UARTBOOTLOADERPROTOCOLCORESHOST_H_
+#define CORES_INCLUDE_UARTBOOTLOADERPROTOCOLCORESHOST_H_
+
+#include "UartBootloaderProtocolStateHost.h"
+#include <stdint.h>
+
+/*------- Struct -------*/
+typedef struct{
+	uint8_t CommandCode;
+	uint8_t Phase;
+	eFrameStatus FrameStatus;
+} UartBootloaderProtocolHost_t;
+
+/*------- Setter Getter -------*/
+void SetCommandCode(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t cmd_code);
+uint8_t GetCommandCode(UartBootloaderProtocolHost_t uart_bootloader);
+void SetPhase(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t phase);
+uint8_t GetPhase(UartBootloaderProtocolHost_t uart_bootloader);
+void SetFrameStatus(UartBootloaderProtocolHost_t* uart_bootloader, eFrameStatus frame_status);
+eFrameStatus GetFrameStatus(UartBootloaderProtocolHost_t uart_bootloader); 
+
+/*------- API -------*/
+void InitializeUartBootloaderProtocol(UartBootloaderProtocolHost_t* uart_bootloader);
+void HandleHandshakeRequestOfGetCommandForTransmission(uint8_t* transmitted_data);
+void HandleDataRequestOfGetCommandForTransmission(uint8_t* transmitted_data);
+void HandleEndHandshakeOfGetCommandForTransmission(uint8_t* transmitted_data);
+eFrameStatus ParseFrameAck(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t data_buffer[]);
+eFrameStatus ParseFrameNack(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t data_buffer[]);
+eFrameStatus ParseFrameDataGetCommand(UartBootloaderProtocolHost_t* uart_bootloader, uint8_t data_buffer[]);
+
+#endif /* CORES_INCLUDE_UARTBOOTLOADERPROTOCOLCORESHOST_H_ */
