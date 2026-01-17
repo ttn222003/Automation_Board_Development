@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<item key="hasShownOverlayPopupBefore" value="true"/>
+	<item key="replaceBarOpen" value="true"/>
+	<list key="searchhistory">
+		<item value="HandleAckForTransmission"/>
+		<item value="check_point"/>
+		<item value="received_data_from_host"/>
+		<item value="TransmittedDataToHost"/>
+		<item value="HAL_Delay"/>
+		<item value="HandleGetCommandForTransmission"/>
+		<item value="rx_state"/>
+		<item value="received_data_index_buffer"/>
+		<item value="rx_data_state"/>
+		<item value="received_data_state"/>
+		<item value="ReceivedDataFromHost"/>
+		<item value="HAL_UART_Receive_IT"/>
+		<item value="HandlingSteps"/>
+		<item value="CommandCode"/>
+		<item value="ProcessStatus"/>
+	</list>
+	<list key="replacehistory">
+		<item value="DelayMs"/>
+		<item value="received_data"/>
+		<item value="state"/>
+		<item value="rx_buffer_index"/>
+		<item value="rx_state"/>
+		<item value="rx_data_state"/>
+		<item value="ReceivedDataBuffer"/>
+		<item value="CmdCode"/>
+	</list>
+</section>

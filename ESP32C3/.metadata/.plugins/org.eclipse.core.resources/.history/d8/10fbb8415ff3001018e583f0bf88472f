@@ -1,0 +1,91 @@
+/*
+ * UartDriver.h
+ *
+ *  Created on: Jan 2, 2026
+ *      Author: TTN
+ */
+
+#ifndef PLATFORM_INCLUDE_UARTDRIVER_H_
+#define PLATFORM_INCLUDE_UARTDRIVER_H_
+
+#include <stdint.h>
+
+#ifndef TEST
+#include "driver/uart.h"
+#include "soc/gpio_num.h"
+#endif
+
+/*------- Define -------*/
+#define UART_MAX_INSTANCE   3
+/*--------------*/
+
+typedef void* UartHandleType;
+
+/*
+@brief: Create UART Handle
+@param: port_num - UART number
+@return: UartHandleType
+*/
+UartHandleType CreateUart(uint8_t port_num);
+
+/*
+@brief: Initialize parameter of UART
+@param: uart_handle - UART Handle
+@param: baudrate - Baudrate
+@param: uart_data_bits - Data bits
+@param: uart_parity - Parity check
+@param: uart_stop_bits - Stop bits
+@param: uart_hw_flowcontrol - Hardware flow control
+@param: uart_src_clock - Source clock selection
+@return: None
+*/
+void InitializeUartParameter(UartHandleType uart_handle, uint32_t baudrate, uint8_t uart_data_bits, uint8_t uart_parity, uint8_t uart_stop_bits, uint8_t uart_hw_flowcontrol, uint8_t uart_src_clock);
+
+/*
+@brief: Initialize pin of UART
+@param: uart_handle - UART Handle
+@param: port_num - UART number
+@param: tx_pin - TX data pin
+@param: rx_pin - RX data pin
+@param: rts_pin - RTS pin
+@param: cts_pin - CTS pin
+@return: None
+*/
+void InitializeUartPin(UartHandleType uart_handle, uint8_t port_num, uint8_t tx_pin, uint8_t rx_pin, int rts_pin, int cts_pin);
+
+/*
+@brief: Initialize UART
+@param: uart_handle - UART Handle
+@param: tx_buffer_size - TX buffer size
+@param: rx_buffer_size - RX buffer size
+@param: queue_size - Queue size
+@param: interrupt_allocate_flag - Type of interrupt flag
+@return: None
+*/
+void InitializeUart(UartHandleType uart_handle, uint16_t tx_buffer_size, uint16_t rx_buffer_size, uint8_t queue_size, uint8_t interrupt_allocate_flag);
+
+/*
+@brief: Transmitt one data
+@param: uart_handle - UART Handle
+@param: transmitted_data - Data want to transmitt
+@return: None
+*/
+void TransmittOneByteDataUart(UartHandleType uart_handle, uint8_t transmitted_data);
+
+/*
+@brief: Receive queue of UART
+@param: uart_handle - UART Handle
+@param: delay_timeout - Timeout to delay
+@return: None
+*/
+int QueueReceiveUart(UartHandleType uart_handle, uint32_t delay_timeout);
+
+/*
+@brief: Get event type of UART
+@param: uart_handle - UART Handle
+@return: None
+*/
+uint8_t GetUartEventType(UartHandleType uart_handle);
+void ReceiveOneByteDataUart(UartHandleType uart_handle, uint8_t* received_data);
+
+#endif /* PLATFORM_INCLUDE_UARTDRIVER_H_ */

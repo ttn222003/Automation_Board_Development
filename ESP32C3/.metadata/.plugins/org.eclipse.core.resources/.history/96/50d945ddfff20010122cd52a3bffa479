@@ -1,0 +1,63 @@
+/*
+ * GpioDriver.h
+ *
+ *  Created on: Jan 4, 2026
+ *      Author: ASUS
+ */
+
+#ifndef PLATFORM_INCLUDE_GPIODRIVER_H_
+#define PLATFORM_INCLUDE_GPIODRIVER_H_
+
+#include <stdint.h>
+
+#ifndef TEST
+#include "driver/gpio.h"
+#include "hal/gpio_types.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/queue.h"
+#endif
+
+/*------- Define -------*/
+/*------- Pull mode -------*/
+#define PULL_UP				0
+#define PULL_DOWN			1
+#define PULL_UP_DOWN		2
+#define NO_PULL				3
+
+/*------- Edge mode -------*/
+#define POS_EDGE			0
+#define NEG_EDGE			1
+#define BOTH_EDGE			2
+#define NO_EDGE				3
+
+#define GPIO_MAX_INSTANCE   22
+
+typedef void* GpioHandleType;
+
+/*------- API -------*/
+
+/*
+@brief: Create GPIO Handle
+@param: pin_number - Pin number
+@return: GpioHandleType
+*/
+GpioHandleType CreateGpio(uint8_t pin_number);
+
+/*
+@brief: Initialize GPIO for reading
+@param: gpio_handle - GPIO Handle
+@param: pin_number - Pin number
+@param: pull_mode - Pull mode
+@param: edge_mode - Edge mode
+@param: isr_handler - ISR callback function
+@return: int8_t
+*/
+int8_t InitializeGpioRead(GpioHandleType gpio_handle, uint8_t pin_number, uint8_t pull_mode, uint8_t edge_mode, void* isr_handler);
+
+int DisableInterruptGpio(GpioHandleType gpio_handle, uint8_t pin_num);
+
+int EnableInterruptGpio(GpioHandleType gpio_handle, uint8_t pin_num);
+
+int ReadGpio(GpioHandleType gpio_handle, uint8_t pin_num);
+
+#endif /* PLATFORM_INCLUDE_GPIODRIVER_H_ */

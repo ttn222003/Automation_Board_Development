@@ -1,0 +1,31 @@
+/*
+ * TimerDriver.c
+ *
+ *  Created on: Jan 2, 2026
+ *      Author: TTN
+ */
+
+#include "TimerDriver.h"
+
+typedef struct
+{
+	esp_timer_handle_t mTimerHandle;
+} TimerDriver_t;
+
+void InitializeIimer(char* name_timer, TimerDriverHandle_t* timer_driver_handle, void* callback_func)
+{
+	TimerDriver_t* timer_driver = (TimerDriver_t*)timer_driver_handle;
+	
+	esp_timer_create_args_t timer_config = {
+		.callback = callback_func,
+		.name = name_timer,
+		.arg = NULL
+	};
+	
+	esp_timer_create(&timer_config, &timer_driver->mTimerHandle);
+}
+
+void DelayMs(uint32_t time_delay)
+{
+	vTaskDelay(time_delay / portTICK_PERIOD_MS);
+}

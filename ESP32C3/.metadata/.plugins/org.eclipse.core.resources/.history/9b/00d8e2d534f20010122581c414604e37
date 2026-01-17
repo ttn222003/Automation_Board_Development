@@ -1,0 +1,165 @@
+/*
+ * UartBootloaderProtocolDepeHost.c
+ *
+ *  Created on: Nov 20, 2025
+ *      Author: TTN
+ */
+ 
+#include "UartBootloaderProtocolStateHost.h"
+#include "esp_log.h"
+#include "portmacro.h"
+#include "string.h"
+#include "UartBootloaderProtocolCoresHost.h"
+#include "UartBootloaderProtocolDepeHost.h"
+#include <stdint.h>
+#include "GpioDriver.h"
+#include "TimerDriver.h"
+#include "UartDriver.h"
+
+GpioDriver_t ButtonDriver;
+TimerDriverHandle_t DebounceTimer;
+
+UartHandle_t uart1;
+
+TaskHandle_t HandleTransmissionTask_handle;
+TaskHandle_t HandleAckTask_handle;
+TaskHandle_t HandleGetCmdTask_handle;
+
+void IRAM_ATTR button_isr_handler(void* arg);
+void debounce_timer_callback(void* arg);
+
+void UartTransmissionTask(void* args);
+void UartReceptionTask(void* args);
+void HandleAckTask(void* args);
+void HandleGetCmdTask(void* args);
+
+
+uint8_t checkpoint = 0;
+void app_main(void)
+{
+	ButtonDriver.mGpioEventQueue = NULL;
+	InitializeGpioRead(ButtonDriver, GPIO_NUM_1, PULL_UP, NEG_EDGE, button_isr_handler);
+	
+	DebounceTimer = TimerCreate();
+	InitializeIimer("Button_debounce", DebounceTimer, debounce_timer_callback);
+	
+	uart1 = UartCreate();
+	
+	InitializeUartParameter(uart1, 115200, UART_DATA_8_BITS, UART_PARITY_DISABLE, UART_STOP_BITS_1, UART_HW_FLOWCTRL_DISABLE, UART_SCLK_DEFAULT);
+	InitializeUartPin(uart1, UART_NUM_1, GPIO_NUM_21, GPIO_NUM_20, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+	InitializeUart(uart1, 0, 1024, 10, 0);
+	
+    InitializeUartBootloaderProtocol(&mUartBootloader);
+    
+	InitializeDataBuffer();
+	
+	xTaskCreate(UartReceptionTask, "Uart Rx", 8192, NULL, configMAX_PRIORITIES - 1, NULL);
+	xTaskCreate(UartTransmissionTask, "Uart Tx", 8192, NULL, configMAX_PRIORITIES - 2, &HandleTransmissionTask_handle);
+	xTaskCreate(HandleAckTask, "Handle ACK", 8192, NULL, configMAX_PRIORITIES - 3, &HandleAckTask_handle);
+	xTaskCreate(HandleGetCmdTask, "Get Command Task", 8192, NULL, configMAX_PRIORITIES - 5, &HandleGetCmdTask_handle);
+}
+
+void button_isr_handler(void* arg)
+{
+	gpio_intr_disable(GPIO_NUM_1);
+	TimerStartOnceMs(DebounceTimer, 40*1000);
+}
+
+void debounce_timer_callback(void* arg)
+{
+	if(gpio_get_level(GPIO_NUM_1) == 0)
+	{
+		SetPhase(&mUartBootloader, REQUEST_HANDSHAKE);
+		SetCommandCode(&mUartBootloader, GET_CMD);
+		xTaskNotifyGive(HandleTransmissionTask_handle);
+	}
+	
+	gpio_intr_enable(GPIO_NUM_1);
+}
+
+
+
+void UartTransmissionTask(void* args)
+{	
+	while (1) {
+		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+		
+		
+		if((GetCommandCode(mUartBootloader) == GET_CMD) && (GetPhase(mUartBootloader) == REQUEST_HANDSHAKE))
+		{
+			HandleHandshakeRequestOfGetCommandForTransmission(TransmittedDataToDevice);
+			TransmittDataToDevice(uart1, TransmittedDataToDevice[1]);
+		}
+		else if((GetCommandCode(mUartBootloader) == GET_CMD) && (GetPhase(mUartBootloader) == REQUEST_DATA))
+		{
+			HandleDataRequestOfGetCommandForTransmission(TransmittedDataToDevice);
+			TransmittDataToDevice(uart1, TransmittedDataToDevice[1]);
+		}
+		else if((GetCommandCode(mUartBootloader) == GET_CMD) && (GetPhase(mUartBootloader) == END_HANDSHAKE))
+		{
+			
+			HandleEndHandshakeOfGetCommandForTransmission(TransmittedDataToDevice);
+			TransmittDataToDevice(uart1, TransmittedDataToDevice[1]);
+		}
+	}
+}
+
+void UartReceptionTask(void* args)
+{
+	uint8_t received_data_from_device = 0x00;
+	while (1) {
+		// Wait until get data
+		if (UartQueueReceive(uart1, portMAX_DELAY)) {
+			if (UartEvent.type == UART_DATA) {
+				UartReceiveOneByteData(uart1, &received_data_from_device);
+				
+				uint8_t frame_status = ReceiveDataAndPutInBuffer(received_data_from_device);
+				SetFrameStatus(&mUartBootloader, frame_status);
+				
+				if(GetFrameStatus(mUartBootloader) == FRAME_ABLE_TO_PROCESS)
+				{
+					if(ParseFrameAck(&mUartBootloader, ReceivedDataBuffer) == FRAME_OK)
+					{
+						xTaskNotifyGive(HandleAckTask_handle);
+					}
+					else if(ParseFrameDataGetCommand(&mUartBootloader, ReceivedDataBuffer) == FRAME_OK)
+					{
+						xTaskNotifyGive(HandleGetCmdTask_handle);
+					}
+				}
+			}
+		}
+	}
+}
+
+void HandleAckTask(void* args)
+{
+	while(1) {
+		// pdTRUE: Reset counter notify to 0 after get signal
+		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+		
+		if(GetPhase(mUartBootloader) == REQUEST_HANDSHAKE)
+		{
+			SetPhase(&mUartBootloader, REQUEST_DATA);
+			xTaskNotifyGive(HandleTransmissionTask_handle);
+		}
+		else if (GetPhase(mUartBootloader) == END_HANDSHAKE)
+		{
+			ESP_LOGI("Debug", "Have got in here");
+			SetPhase(&mUartBootloader, IDLE);
+			SetCommandCode(&mUartBootloader, NOT_CODE);
+			xTaskNotifyGive(HandleTransmissionTask_handle);
+		}
+	}
+}
+
+void HandleGetCmdTask(void* args)
+{
+	while(1)
+	{
+		ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+		
+		SetPhase(&mUartBootloader, END_HANDSHAKE);
+		xTaskNotifyGive(HandleTransmissionTask_handle);
+	}
+}

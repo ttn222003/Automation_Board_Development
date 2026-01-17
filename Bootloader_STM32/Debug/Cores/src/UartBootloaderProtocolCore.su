@@ -1,0 +1,17 @@
+../Cores/src/UartBootloaderProtocolCore.c:8:17:CalculateCrc32	24	static
+../Cores/src/UartBootloaderProtocolCore.c:38:13:ConvertCrcToArray	32	static
+../Cores/src/UartBootloaderProtocolCore.c:47:21:CheckCrcAndSetCommandCode	32	static
+../Cores/src/UartBootloaderProtocolCore.c:62:6:InitializeUartBootloaderProtocol	16	static
+../Cores/src/UartBootloaderProtocolCore.c:68:6:ResetUartBootloaderProtocol	16	static
+../Cores/src/UartBootloaderProtocolCore.c:74:9:GetCommandCode	16	static
+../Cores/src/UartBootloaderProtocolCore.c:79:6:SetCommandCode	16	static
+../Cores/src/UartBootloaderProtocolCore.c:84:9:GetPhase	16	static
+../Cores/src/UartBootloaderProtocolCore.c:89:6:SetPhase	16	static
+../Cores/src/UartBootloaderProtocolCore.c:94:14:GetFrameStatus	16	static
+../Cores/src/UartBootloaderProtocolCore.c:99:6:SetFrameStatus	16	static
+../Cores/src/UartBootloaderProtocolCore.c:105:14:ParseFrameHandshakeRequestGetCommandFromHost	16	static
+../Cores/src/UartBootloaderProtocolCore.c:110:14:ParseFrameDataRequestGetCommandFromHost	16	static
+../Cores/src/UartBootloaderProtocolCore.c:115:14:ParseFrameEndHandshakeGetCommandFromHost	16	static
+../Cores/src/UartBootloaderProtocolCore.c:120:6:HandleAckForTransmission	16	static
+../Cores/src/UartBootloaderProtocolCore.c:130:6:HandleNackForTransmission	16	static
+../Cores/src/UartBootloaderProtocolCore.c:140:6:HandleDataGetCommandForTransmission	16	static

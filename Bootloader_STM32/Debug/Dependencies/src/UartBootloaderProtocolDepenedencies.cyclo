@@ -1,0 +1,6 @@
+../Dependencies/src/UartBootloaderProtocolDepenedencies.c:16:6:TransmittDataToHost	2
+../Dependencies/src/UartBootloaderProtocolDepenedencies.c:28:6:ResetReceivedDataBuffer	1
+../Dependencies/src/UartBootloaderProtocolDepenedencies.c:33:6:ResetTransmittedDataBuffer	1
+../Dependencies/src/UartBootloaderProtocolDepenedencies.c:38:6:InitializeDataBuffer	1
+../Dependencies/src/UartBootloaderProtocolDepenedencies.c:44:6:ResetDataBuffer	1
+../Dependencies/src/UartBootloaderProtocolDepenedencies.c:50:14:ReceiveDataAndPutInBuffer	8

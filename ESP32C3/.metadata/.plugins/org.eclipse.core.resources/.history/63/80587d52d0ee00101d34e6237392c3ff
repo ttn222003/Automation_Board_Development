@@ -1,0 +1,100 @@
+/*
+ * UartBootloaderProtocolDepeHost.c
+ *
+ *  Created on: Nov 20, 2025
+ *      Author: TTN
+ */
+
+#include "UartBootloaderProtocolDepeHost.h"
+#include "UartDriver.h"
+#include "esp_log.h"
+
+/*------- Declare variable -------*/
+uint8_t TransmittedDataToDevice[MAX_DATA_LEN];
+uint8_t ReceivedDataBuffer[MAX_DATA_LEN];
+UartBootloaderProtocolHost_t mUartBootloader;
+
+/*------- Implement Interface -------*/
+void InitializeDataBuffer(void)
+{
+	memset(TransmittedDataToDevice, 0, 64);
+	memset(ReceivedDataBuffer, 0, 64);
+}
+
+void ResetReceivedDataBuffer(void)
+{
+	memset(ReceivedDataBuffer, 0, 64);
+}
+
+void ResetDataBuffer(void)
+{
+	memset(TransmittedDataToDevice, 0, 64);
+	memset(ReceivedDataBuffer, 0, 64);
+}
+
+void TransmittDataToDevice(UartHandle_t uart_handle, uint8_t data_length)
+{
+	uint8_t transmitted_data_to_device = 0x00;
+
+	for (uint8_t transmitted_data_index = 0; transmitted_data_index < data_length; transmitted_data_index++)
+	{
+		transmitted_data_to_device = TransmittedDataToDevice[transmitted_data_index];
+		DelayMs(1);
+		UartTransmittOneByteData(uart_handle, transmitted_data_to_device);
+	}
+}
+
+static eFrameStatus PutDataInBufferFollowByLimitState(uint8_t* buffer_state, uint8_t* buffer_index, uint8_t received_data, uint8_t limit_state)
+{
+	uint8_t index = *buffer_index;
+	uint8_t state = *buffer_state;
+
+	if(state == limit_state)
+	{
+		ReceivedDataBuffer[index] = received_data;
+		
+		*buffer_state = 0;
+		*buffer_index = 0;
+		
+		return FRAME_ABLE_TO_PROCESS;
+	}
+
+	else
+	{
+		ReceivedDataBuffer[index] = received_data;
+		*buffer_state += 1;
+		*buffer_index += 1;
+
+		return FRAME_UNABLE_TO_PROCESS;
+	}
+}
+
+eFrameStatus ReceiveDataAndPutInBuffer(uint8_t received_data)
+{
+	static uint8_t rx_state = 0;
+	static uint8_t rx_limit_state = 0;
+	static uint8_t rx_buffer_index = 0;
+
+	if(rx_state == 0)
+	{
+		if(received_data == RESPONE_HANDSHAKE)
+		{
+			ReceivedDataBuffer[rx_buffer_index++] = received_data;
+			rx_state = 1;
+			rx_limit_state = 7;
+		}
+
+		else if(received_data == RESPONSE_DATA)
+		{
+			ReceivedDataBuffer[rx_buffer_index++] = received_data;
+			rx_state = 1;
+			rx_limit_state = 20;
+		}
+
+		return FRAME_UNABLE_TO_PROCESS;
+	}
+	
+	/*ESP_LOGI("Debug", "Have got in here");*/
+
+	return PutDataInBufferFollowByLimitState(&rx_state, &rx_buffer_index, received_data, rx_limit_state);
+}
