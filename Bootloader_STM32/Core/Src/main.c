@@ -6,7 +6,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2025 STMicroelectronics.
+  * Copyright (c) 2026 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -21,8 +21,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "ssd1306.h"
-#include "fonts.h"
 #include "UartBootloaderProtocolCore.h"
 #include "UartBootloaderProtocolDepenedencies.h"
 /* USER CODE END Includes */
@@ -44,20 +42,16 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-I2C_HandleTypeDef hi2c1;
-
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
 uint8_t received_data_from_host = 0x00;
 uint8_t check_point = 0;
-bool update_screen = false;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_I2C1_Init(void);
 static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
@@ -71,7 +65,6 @@ void goto_application( void )
   void (*app_reset_handler)(void) = (void*)(*((volatile uint32_t*)(0x08004400 + 4U)));
   app_reset_handler();
 }
-uint8_t phase = 0;
 /* USER CODE END 0 */
 
 /**
@@ -103,20 +96,13 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_I2C1_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-
   // Initialize
   InitializeDataBuffer();
   InitializeUartBootloaderProtocol(&mUartBootloader);
 
   HAL_UART_Receive_IT(&huart1, &received_data_from_host, 1);
-
-  SSD1306_Init();
-  SSD1306_GotoXY(0, 0);
-  SSD1306_Puts("Init Bootloader!", &Font_7x10, 1);
-  SSD1306_UpdateScreen();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -126,12 +112,11 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if(GetFrameStatus(mUartBootloader) == FRAME_ABLE_TO_PROCESS)
+    if(GetFrameStatus(mUartBootloader) == FRAME_ABLE_TO_PROCESS)
 	  {
 		  SetPhase(&mUartBootloader, ReceivedDataBuffer[0]);
 		  SetCommandCode(&mUartBootloader, ReceivedDataBuffer[2]);
 
-		  phase = GetPhase(mUartBootloader);
 		  // Can add test case for TDD?
 		  if((GetCommandCode(mUartBootloader) == GET_CMD) && (GetPhase(mUartBootloader) == REQUEST_HANDSHAKE))
 		  {
@@ -214,40 +199,6 @@ void SystemClock_Config(void)
 }
 
 /**
-  * @brief I2C1 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_I2C1_Init(void)
-{
-
-  /* USER CODE BEGIN I2C1_Init 0 */
-
-  /* USER CODE END I2C1_Init 0 */
-
-  /* USER CODE BEGIN I2C1_Init 1 */
-
-  /* USER CODE END I2C1_Init 1 */
-  hi2c1.Instance = I2C1;
-  hi2c1.Init.ClockSpeed = 400000;
-  hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
-  hi2c1.Init.OwnAddress1 = 0;
-  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  hi2c1.Init.OwnAddress2 = 0;
-  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN I2C1_Init 2 */
-
-  /* USER CODE END I2C1_Init 2 */
-
-}
-
-/**
   * @brief USART1 Initialization Function
   * @param None
   * @retval None
@@ -293,7 +244,6 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 
