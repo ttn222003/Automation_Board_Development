@@ -12,6 +12,44 @@ uint8_t ReceivedDataBuffer[MAX_DATA_LEN];
 uint8_t TransmittedDataToHost[MAX_DATA_LEN];
 UartBootloaderProtocolDevice_t mUartBootloader;
 
+/*------- Private Functions -------*/
+static void HandleRequestDataPhase(void)
+{
+	uint8_t command_code = GetCommandCode(mUartBootloader);
+	
+	switch (command_code)
+	{
+	case GET_CMD:
+		HandleDataGetCommandForTransmission(TransmittedDataToHost);
+		break;
+	
+	case GET_VERSION:
+	{
+		uint8_t major_version = GetMajorVersion(mUartBootloader);
+		uint8_t minor_version = GetMinorVersion(mUartBootloader);
+		HandleDataGetVersionForTransmission(TransmittedDataToHost, major_version, minor_version);
+		break;
+	}
+		
+	default:
+		break;
+	}
+}
+
+static void HandleValidFrame(void)
+{
+	uint8_t phase = GetPhase(mUartBootloader);
+
+	if((phase == REQUEST_HANDSHAKE) || (phase == END_HANDSHAKE))
+	{
+		HandleAckForTransmission(TransmittedDataToHost);
+	}
+	else if(phase == REQUEST_DATA)
+	{
+		HandleRequestDataPhase();
+	}
+}
+
 /*------- Implement Interface -------*/
 void TransmittDataToHost(uint8_t data_length)
 {
@@ -83,4 +121,28 @@ eFrameStatus ReceiveDataAndPutInBuffer(uint8_t received_data)
 
 		return FRAME_UNABLE_TO_PROCESS;
 	}
+}
+
+void HandleUartBootloaderFrame(void)
+{
+	if (GetFrameStatus(mUartBootloader) == FRAME_UNABLE_TO_PROCESS)
+	{
+		return;
+	}
+
+	eFrameStatus frame_status = ParseFrameFromHost(&mUartBootloader, ReceivedDataBuffer);
+
+	if(frame_status == FRAME_OK)
+	{
+		HandleValidFrame();
+	}
+	else if(frame_status == FRAME_ERROR)
+	{
+		HandleNackForTransmission(TransmittedDataToHost);
+	}
+
+	TransmittDataToHost(TransmittedDataToHost[1]);
+
+	ResetDataBuffer();
+	SetFrameStatus(&mUartBootloader, FRAME_UNABLE_TO_PROCESS);
 }

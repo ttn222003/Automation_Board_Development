@@ -30,5 +30,6 @@ void ResetTransmittedDataBuffer(void);
 void InitializeDataBuffer(void);
 void ResetDataBuffer(void);
 eFrameStatus ReceiveDataAndPutInBuffer(uint8_t received_data);
+void HandleUartBootloaderFrame(void);
 
 #endif /* DEPENDENCIES_INCLUDE_UARTBOOTLOADERPROTOCOLDEPENEDENCIES_H_ */

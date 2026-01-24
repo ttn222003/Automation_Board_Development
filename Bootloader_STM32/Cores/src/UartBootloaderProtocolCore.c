@@ -4,7 +4,7 @@
 static unsigned int polynomial_crc32 = 0x04C11DB7;
 /*----------------*/
 
-/*------- Internal function -------*/
+/*------- Implement Private Functions -------*/
 static uint32_t CalculateCrc32(uint8_t data[], uint8_t data_length)
 {
     uint32_t crc = (data[0] << 24) | (data[1] << 16) | (data[2] << 8) | (data[3] << 0);
@@ -44,21 +44,7 @@ static void ConvertCrcToArray(uint8_t input_data[], uint8_t data_length, uint8_t
 	output_data[data_length + 3] = (uint8_t)((crc32 >> 0) & 0xFF);
 }
 
-static eFrameStatus CheckCrcAndSetCommandCode(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[], uint8_t cmd_code)
-{
-	uint32_t crc32_result = CalculateCrc32(data_buffer, 8);
-
-	if(crc32_result == 0)
-	{
-		SetCommandCode(uart_bootloader, cmd_code);
-		return FRAME_OK;
-	}
-
-	SetCommandCode(uart_bootloader, NOT_CODE);
-	return FRAME_ERROR;
-}
-
-/*------- Implement Interface -------*/
+/*------- Implement API -------*/
 void InitializeUartBootloaderProtocol(UartBootloaderProtocolDevice_t* uart_bootloader)
 {
 	uart_bootloader->CommandCode = NOT_CODE;
@@ -91,6 +77,26 @@ void SetPhase(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t phase)
 	uart_bootloader->Phase = phase;
 }
 
+uint8_t GetMajorVersion(UartBootloaderProtocolDevice_t uart_bootloader)
+{
+	return uart_bootloader.MajorVersion;
+}
+
+void SetMajorVersion(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t major_version)
+{
+	uart_bootloader->MajorVersion = major_version;
+}
+
+uint8_t GetMinorVersion(UartBootloaderProtocolDevice_t uart_bootloader)
+{
+	return uart_bootloader.MinorVersion;
+}
+
+void SetMinorVersion(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t minor_version)
+{
+	uart_bootloader->MinorVersion = minor_version;
+}
+
 eFrameStatus GetFrameStatus(UartBootloaderProtocolDevice_t uart_bootloader)
 {
 	return uart_bootloader.FrameStatus;
@@ -101,20 +107,20 @@ void SetFrameStatus(UartBootloaderProtocolDevice_t* uart_bootloader, eFrameStatu
 	uart_bootloader->FrameStatus = frame_status;
 }
 
-/*------- API -------*/
-eFrameStatus ParseFrameHandshakeRequestGetCommandFromHost(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[])
+eFrameStatus ParseFrameFromHost(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[])
 {
-	return CheckCrcAndSetCommandCode(uart_bootloader, data_buffer, GET_CMD);
-}
+	uint32_t crc32_result = CalculateCrc32(data_buffer, 8);
 
-eFrameStatus ParseFrameDataRequestGetCommandFromHost(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[])
-{
-	return CheckCrcAndSetCommandCode(uart_bootloader, data_buffer, GET_CMD);
-}
+	if(crc32_result == 0)
+	{
+		SetCommandCode(uart_bootloader, data_buffer[2]);
+		SetPhase(uart_bootloader, data_buffer[0]);
+		return FRAME_OK;
+	}
 
-eFrameStatus ParseFrameEndHandshakeGetCommandFromHost(UartBootloaderProtocolDevice_t* uart_bootloader, uint8_t data_buffer[])
-{
-	return CheckCrcAndSetCommandCode(uart_bootloader, data_buffer, GET_CMD);
+	SetCommandCode(uart_bootloader, NOT_CODE);
+	// Should have IDLE phase here
+	return FRAME_ERROR;
 }
 
 void HandleAckForTransmission(uint8_t* transmitted_data)
@@ -158,4 +164,14 @@ void HandleDataGetCommandForTransmission(uint8_t* transmitted_data)
 	transmitted_data[16] = EXT_SPECIAL_CMD;
 
 	ConvertCrcToArray(transmitted_data, 17, transmitted_data);
+}
+
+void HandleDataGetVersionForTransmission(uint8_t* transmitted_data, uint8_t version_major, uint8_t version_minor)
+{
+	transmitted_data[0] = RESPONSE_DATA;
+	transmitted_data[1] = 8;
+	transmitted_data[2] = version_major;
+	transmitted_data[3] = version_minor;
+
+	ConvertCrcToArray(transmitted_data, 4, transmitted_data);
 }

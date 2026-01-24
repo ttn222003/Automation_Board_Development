@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "UartBootloaderProtocolCore.h"
 #include "UartBootloaderProtocolDepenedencies.h"
+#include "UartBootloaderProtocolState.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -101,6 +102,8 @@ int main(void)
   // Initialize
   InitializeDataBuffer();
   InitializeUartBootloaderProtocol(&mUartBootloader);
+  SetMajorVersion(&mUartBootloader, MAJOR);
+  SetMinorVersion(&mUartBootloader, MINOR);
 
   HAL_UART_Receive_IT(&huart1, &received_data_from_host, 1);
   /* USER CODE END 2 */
@@ -112,52 +115,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    if(GetFrameStatus(mUartBootloader) == FRAME_ABLE_TO_PROCESS)
-	  {
-		  SetPhase(&mUartBootloader, ReceivedDataBuffer[0]);
-		  SetCommandCode(&mUartBootloader, ReceivedDataBuffer[2]);
-
-		  // Can add test case for TDD?
-		  if((GetCommandCode(mUartBootloader) == GET_CMD) && (GetPhase(mUartBootloader) == REQUEST_HANDSHAKE))
-		  {
-			  if(ParseFrameHandshakeRequestGetCommandFromHost(&mUartBootloader, ReceivedDataBuffer) == FRAME_OK)
-			  {
-				  HandleAckForTransmission(TransmittedDataToHost);
-			  }
-			  else if(ParseFrameHandshakeRequestGetCommandFromHost(&mUartBootloader, ReceivedDataBuffer) == FRAME_ERROR)
-			  {
-				  HandleNackForTransmission(TransmittedDataToHost);
-			  }
-		  }
-		  else if((GetCommandCode(mUartBootloader) == GET_CMD) && (GetPhase(mUartBootloader) == REQUEST_DATA))
-		  {
-			  if(ParseFrameDataRequestGetCommandFromHost(&mUartBootloader, ReceivedDataBuffer) == FRAME_OK)
-			  {
-
-				  HandleDataGetCommandForTransmission(TransmittedDataToHost);
-			  }
-			  else if(ParseFrameDataRequestGetCommandFromHost(&mUartBootloader, ReceivedDataBuffer) == FRAME_ERROR)
-			  {
-				  HandleNackForTransmission(TransmittedDataToHost);
-			  }
-		  }
-		  else if((GetCommandCode(mUartBootloader) == GET_CMD) && (GetPhase(mUartBootloader) == END_HANDSHAKE))
-		  {
-			  if(ParseFrameEndHandshakeGetCommandFromHost(&mUartBootloader, ReceivedDataBuffer) == FRAME_OK)
-			  {
-				  HandleAckForTransmission(TransmittedDataToHost);
-			  }
-			  else if(ParseFrameEndHandshakeGetCommandFromHost(&mUartBootloader, ReceivedDataBuffer) == FRAME_ERROR)
-			  {
-				  HandleNackForTransmission(TransmittedDataToHost);
-			  }
-		  }
-
-		  TransmittDataToHost(TransmittedDataToHost[1]);
-
-		  ResetDataBuffer();
-		  SetFrameStatus(&mUartBootloader, FRAME_UNABLE_TO_PROCESS);
-	  }
+    // Optimize using decision pipeline
+    HandleUartBootloaderFrame();
   }
   /* USER CODE END 3 */
 }
