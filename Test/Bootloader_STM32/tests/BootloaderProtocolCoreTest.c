@@ -16,19 +16,29 @@ void tearDown(void)
 
 }
 
-void ParseFrameHandshakeRequestOfGetCommandTest(void)
+// Add test for parse frame here
+void ParseFrameTest(void)
 {   
     uint8_t received_data[8] = { REQUEST_HANDSHAKE, 0x08, GET_CMD, 0xFF - GET_CMD, 0x8A, 0xC2, 0xA9, 0xFA };
-    uint8_t status = ParseFrameHandshakeRequestGetCommandFromHost(&mUartBootloaderTest, received_data);
+    uint8_t status = ParseFrameFromHost(&mUartBootloaderTest, received_data);
 
     TEST_ASSERT_EQUAL(GET_CMD, GetCommandCode(mUartBootloaderTest));
     TEST_ASSERT_EQUAL(FRAME_OK, status);
 }
 
-void ParseFrameHandshakeRequestOfGetCommandButByteDataLengthIsWrongTest(void)
+void ParseFrameButByteDataLengthIsWrongTest(void)
 {
     uint8_t received_data[8] = { REQUEST_HANDSHAKE, 0x07, GET_CMD, 0xFF - GET_CMD, 0x8A, 0xC2, 0xA9, 0xFA };
-    uint8_t status = ParseFrameHandshakeRequestGetCommandFromHost(&mUartBootloaderTest, received_data);
+    uint8_t status = ParseFrameFromHost(&mUartBootloaderTest, received_data);
+
+    TEST_ASSERT_EQUAL(NOT_CODE, GetCommandCode(mUartBootloaderTest));
+    TEST_ASSERT_EQUAL(FRAME_ERROR, status);
+}
+
+void ParseFrameButNotEnoughBytesTest(void)
+{
+    uint8_t received_data[8] = { REQUEST_DATA, 0x08, GET_CMD, 0xFF - GET_CMD, 0x6E, 0x2E, 0x0C };
+    uint8_t status = ParseFrameFromHost(&mUartBootloaderTest, received_data);
 
     TEST_ASSERT_EQUAL(NOT_CODE, GetCommandCode(mUartBootloaderTest));
     TEST_ASSERT_EQUAL(FRAME_ERROR, status);
@@ -48,24 +58,6 @@ void HandleNackTest(void)
     TEST_ASSERT_EQUAL_UINT8_ARRAY(expected_data, transmitt_data, 8);
 }
 
-void ParseFrameDataRequestOfGetCommandTest(void)
-{
-    uint8_t received_data[8] = { REQUEST_DATA, 0x08, GET_CMD, 0xFF - GET_CMD, 0x6E, 0x2E, 0x0C, 0x64 };
-    uint8_t status = ParseFrameDataRequestGetCommandFromHost(&mUartBootloaderTest, received_data);
-
-    TEST_ASSERT_EQUAL(GET_CMD, GetCommandCode(mUartBootloaderTest));
-    TEST_ASSERT_EQUAL(FRAME_OK, status);
-}
-
-void ParseFrameDataRequestOfGetCommandButNotEnoughBytesTest(void)
-{
-    uint8_t received_data[8] = { REQUEST_DATA, 0x08, GET_CMD, 0xFF - GET_CMD, 0x6E, 0x2E, 0x0C };
-    uint8_t status = ParseFrameDataRequestGetCommandFromHost(&mUartBootloaderTest, received_data);
-
-    TEST_ASSERT_EQUAL(NOT_CODE, GetCommandCode(mUartBootloaderTest));
-    TEST_ASSERT_EQUAL(FRAME_ERROR, status);
-}
-
 void HandleDataGetCmdTest(void)
 {
     uint8_t expected_data[21] = { RESPONSE_DATA, 21, GET_CMD, GET_VERSION, GET_ID, READ_MEM, GO_CMD, WRITE_MEM, ERASE_MEM, EXT_ERASE_MEM, WRITE_PROTECT, WRITE_UNPROTECT, READOUT_PROTECT, READOUT_UNPROTECT, GET_CHECKSUM, SPECIAL_CMD, EXT_SPECIAL_CMD, 0x4B, 0xA5, 0x3E, 0x9C };
@@ -73,27 +65,24 @@ void HandleDataGetCmdTest(void)
     TEST_ASSERT_EQUAL_UINT8_ARRAY(expected_data, transmitt_data, 21);
 }
 
-void ParseFrameEndHandshakeOfGetCommandTest(void)
+void HandleDataGetVersionTest(void)
 {
-    uint8_t received_data[8] = { END_HANDSHAKE, 0x08, GET_CMD, 0xFF - GET_CMD, 0xE6, 0xFE, 0xF5, 0x86 };
-    uint8_t status = ParseFrameEndHandshakeGetCommandFromHost(&mUartBootloaderTest, received_data);
-
-    TEST_ASSERT_EQUAL(GET_CMD, GetCommandCode(mUartBootloaderTest));
-    TEST_ASSERT_EQUAL(FRAME_OK, status);
+    uint8_t expected_data[9] = { RESPONSE_DATA, 0x08, 0x10, 0x00, 0x93, 0x01, 0xBE, 0xF2 };
+    HandleDataGetVersionForTransmission(transmitt_data, 0x10, 0x00);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(expected_data, transmitt_data, 8);
 }
 
 int main(void)
 {
     printf(COL_YELLOW "==== START CORE TEST ====\n" COL_RESET);
     UNITY_BEGIN();
-    RUN_TEST(ParseFrameHandshakeRequestOfGetCommandTest);
-    RUN_TEST(ParseFrameHandshakeRequestOfGetCommandButByteDataLengthIsWrongTest);
+    RUN_TEST(ParseFrameTest);
+    RUN_TEST(ParseFrameButByteDataLengthIsWrongTest);
+    RUN_TEST(ParseFrameButNotEnoughBytesTest);
     RUN_TEST(HandleAckTest);
     RUN_TEST(HandleNackTest);
-    RUN_TEST(ParseFrameDataRequestOfGetCommandTest);
-    RUN_TEST(ParseFrameDataRequestOfGetCommandButNotEnoughBytesTest);
     RUN_TEST(HandleDataGetCmdTest);
-    RUN_TEST(ParseFrameEndHandshakeOfGetCommandTest);
+    RUN_TEST(HandleDataGetVersionTest);
     printf(COL_YELLOW "==== END CORE TEST ====\n" COL_RESET);
     return UNITY_END();
 }
