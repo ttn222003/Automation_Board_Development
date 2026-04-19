@@ -23,6 +23,9 @@
 /* USER CODE BEGIN Includes */
 #include "FreeRTOS.h"
 #include "task.h"
+#include "GpioCommon.h"
+#include "PlcGpio.h"
+#include "PlcMainExecuteLogic.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -95,13 +98,13 @@ int main(void)
   BaseType_t xCommunicationReturned;
   BaseType_t xWatchdogReturned;
 
-  xPLCScanReturned = xTaskCreate(PLCScanTask, "PLC Scan Task", 256, NULL, configMAX_PRIORITIES - 1, NULL);
+  xPLCScanReturned = xTaskCreate(PLCScanTask, "PLC Scan Task", 512, NULL, configMAX_PRIORITIES - 1, NULL);
   configASSERT(xPLCScanReturned == pdPASS);
 
-  xCommunicationReturned = xTaskCreate(CommunicationTask, "Communication Task", 128, NULL, configMAX_PRIORITIES - 2, NULL);
+  xCommunicationReturned = xTaskCreate(CommunicationTask, "Communication Task", 256, NULL, configMAX_PRIORITIES - 2, NULL);
   configASSERT(xCommunicationReturned == pdPASS);
 
-  xWatchdogReturned = xTaskCreate(WatchdogTask, "Watchdog Task", 128, NULL, configMAX_PRIORITIES - 3, NULL);
+  xWatchdogReturned = xTaskCreate(WatchdogTask, "Watchdog Task", 256, NULL, configMAX_PRIORITIES - 3, NULL);
   configASSERT(xWatchdogReturned == pdPASS);
 
   vTaskStartScheduler();
@@ -201,10 +204,30 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void PLCScanTask(void* const pvParameters)
 {
-	count_debug += 1;
+	BSP_GPIO_Init();
+	PLC_Core_Init();
+	PLC_Core_SetState(ePlcStateRun);
+
+	TickType_t last_wake_time = xTaskGetTickCount();
+	const TickType_t period = pdMS_TO_TICKS(PLC_SCAN_PERIOD_MS);
+
 	while(1)
 	{
+		TickType_t scan_start = xTaskGetTickCount();
 
+		/* Read Input Image */
+		PLC_ReadInputs();
+		/* Execute Logic */
+		/* User only execute logic in PLC_ExecuteLogic(), don't change anything in other files */
+		PLC_ExecuteLogic();
+		/* Update Output Image */
+		PLC_UpdateOutputs();
+		/* Write to GPIO */
+		BSP_WriteOutputs();
+		/* Watchdog refresh */
+		BSP_FeedWatchdog();
+
+		vTaskDelayUntil(&last_wake_time, period);
 	}
 }
 
