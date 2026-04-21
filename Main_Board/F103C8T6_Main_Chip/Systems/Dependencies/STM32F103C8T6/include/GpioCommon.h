@@ -8,6 +8,9 @@
 #ifndef DEPENDENCIES_STM32F103C8T6_INCLUDE_GPIOCOMMON_H_
 #define DEPENDENCIES_STM32F103C8T6_INCLUDE_GPIOCOMMON_H_
 
+#include "main.h"
+
+int8_t GpioCommon();
 void BSP_GPIO_Init();
 void BSP_WriteOutputs();
 void BSP_FeedWatchdog();

@@ -94,6 +94,15 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
+  // Initialize all peripheral
+  int8_t initialization_state = 1;
+  initialization_state = GpioCommon() & 0x01;
+
+  if (initialization_state != 1)
+  {
+	  // Handle something here
+  }
+
   BaseType_t xPLCScanReturned;
   BaseType_t xCommunicationReturned;
   BaseType_t xWatchdogReturned;
