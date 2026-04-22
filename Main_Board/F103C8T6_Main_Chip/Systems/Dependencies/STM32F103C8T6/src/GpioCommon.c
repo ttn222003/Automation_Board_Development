@@ -13,53 +13,51 @@
 #ifdef V1
 #define OUTPUT_NUMBER	6
 
-//#define OUT0	OutputImage[0]
-//#define	OUT1	OutputImage[1]
-//#define OUT2	OutputImage[2]
-//#define	OUT3	OutputImage[3]
-//#define OUT4	OutputImage[4]
-//#define	OUT5	OutputImage[5]
-
 #endif
 
 typedef struct
 {
-	uint8_t mNumberOfOutput;
-	uint16_t mOutputImage[OUTPUT_NUMBER];
+	uint8_t mNumberOfUpdatingOutput;
+	uint16_t mUpdatingOutput[OUTPUT_NUMBER];
 } Output_t;
 
-static Output_t mOutput;
+static Output_t Output;
 
 int8_t GpioCommon()
 {
-	mOutput.mNumberOfOutput = OUTPUT_NUMBER;
+	Output.mNumberOfUpdatingOutput = OUTPUT_NUMBER;
 
-	mOutput.mOutputImage[0] = GPIO_PIN_0;
-	mOutput.mOutputImage[1] = GPIO_PIN_1;
-	mOutput.mOutputImage[2] = GPIO_PIN_2;
-	mOutput.mOutputImage[3] = GPIO_PIN_3;
-	mOutput.mOutputImage[4] = GPIO_PIN_4;
-	mOutput.mOutputImage[5] = GPIO_PIN_5;
+	Output.mUpdatingOutput[0] = GPIO_PIN_0;
+	Output.mUpdatingOutput[1] = GPIO_PIN_1;
+	Output.mUpdatingOutput[2] = GPIO_PIN_2;
+	Output.mUpdatingOutput[3] = GPIO_PIN_3;
+	Output.mUpdatingOutput[4] = GPIO_PIN_4;
+	Output.mUpdatingOutput[5] = GPIO_PIN_5;
 
 	return 1;
 }
 
 void BSP_GPIO_Init()
 {
-	// Initialize Output
 	uint32_t odr_register = GPIOA->ODR;
 
-	for (uint8_t index = 0; index < OUTPUT_NUMBER; index++)
+	for (uint8_t index = 0; index < Output.mNumberOfUpdatingOutput; index++)
 	{
-		HAL_GPIO_WritePin(GPIOA, mOutput.mOutputImage[index], (odr_register >> index) & 0x01);
+		HAL_GPIO_WritePin(GPIOA, Output.mUpdatingOutput[index], (odr_register >> index) & 0x01);
 	}
 }
 
 void BSP_WriteOutputs()
 {
+	uint16_t output_image_value = ReadOutputImage();
 
+	for (uint8_t index = 0; index < Output.mNumberOfUpdatingOutput; index++)
+	{
+		HAL_GPIO_WritePin(GPIOA, Output.mUpdatingOutput[index], (output_image_value >> index) & 0x01);
+	}
 }
 
+// Suspend this function after handle communication and will put it to another file related to WDG
 void BSP_FeedWatchdog()
 {
 
