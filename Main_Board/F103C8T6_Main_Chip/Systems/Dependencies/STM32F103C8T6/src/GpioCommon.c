@@ -8,12 +8,7 @@
 #include "GpioCommon.h"
 
 /* This define image of IO base on version and product */
-#define V1		1
 
-#ifdef V1
-#define OUTPUT_NUMBER	6
-
-#endif
 
 typedef struct
 {
@@ -47,13 +42,11 @@ void BSP_GPIO_Init()
 	}
 }
 
-void BSP_WriteOutputs()
+void BSP_WriteOutputs(uint16_t output_image)
 {
-	uint16_t output_image_value = ReadOutputImage();
-
 	for (uint8_t index = 0; index < Output.mNumberOfUpdatingOutput; index++)
 	{
-		HAL_GPIO_WritePin(GPIOA, Output.mUpdatingOutput[index], (output_image_value >> index) & 0x01);
+		HAL_GPIO_WritePin(GPIOA, Output.mUpdatingOutput[index], (output_image >> index) & 0x01);
 	}
 }
 

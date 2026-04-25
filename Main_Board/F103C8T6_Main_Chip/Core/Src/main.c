@@ -232,7 +232,7 @@ void PLCScanTask(void* const pvParameters)
 		/* Update Output Image */
 		PLC_UpdateOutputs();
 		/* Write to GPIO */
-		BSP_WriteOutputs();
+		BSP_WriteOutputs(ReadOutputImage());
 		/* Watchdog refresh */
 		BSP_FeedWatchdog();
 

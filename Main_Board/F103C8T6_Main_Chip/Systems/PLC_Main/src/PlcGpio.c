@@ -7,13 +7,6 @@
 
 #include "PlcGpio.h"
 
-#define V1		1
-
-#ifdef V1
-#define OUTPUT_NUMBER	6
-
-#endif
-
 typedef struct {
 	uint8_t mNumberOfOutputImage;
 	uint16_t mOutputImage[OUTPUT_NUMBER];
@@ -26,12 +19,10 @@ void PLC_Core_Init()
 	// Assign external variale to eternal variable
 	OutputImage.mNumberOfOutputImage = OUTPUT_NUMBER;
 
-	OutputImage.mOutputImage[0] = OUT0;
-	OutputImage.mOutputImage[1] = OUT1;
-	OutputImage.mOutputImage[2] = OUT2;
-	OutputImage.mOutputImage[3] = OUT3;
-	OutputImage.mOutputImage[4] = OUT4;
-	OutputImage.mOutputImage[5] = OUT5;
+	for (uint16_t index = 0; index < OutputImage.mNumberOfOutputImage; index++)
+	{
+		OutputImage.mOutputImage[index] = 0;
+	}
 }
 
 void PLC_ReadInputs()
@@ -55,12 +46,12 @@ void PLC_Core_SetState(PlcState_t state)
  * */
 uint16_t ReadOutputImage()
 {
-	uint16_t ret_val = 	OutputImage.mOutputImage[0] & \
-						(OutputImage.mOutputImage[1] << 1) & \
-						(OutputImage.mOutputImage[2] << 2) & \
-						(OutputImage.mOutputImage[3] << 3) & \
-						(OutputImage.mOutputImage[4] << 4) & \
-						(OutputImage.mOutputImage[5] << 5);
+	uint16_t ret_val = 	OutputImage.mOutputImage[0];
+
+	for (uint8_t index = 1; index < OutputImage.mNumberOfOutputImage; index++)
+	{
+		ret_val |= OutputImage.mOutputImage[index] << index;
+	}
 
 	return ret_val;
 }

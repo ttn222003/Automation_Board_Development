@@ -10,10 +10,11 @@
 
 #include "main.h"
 #include "PlcGpio.h"
+#include "PlcConfig.h"
 
 int8_t GpioCommon();
 void BSP_GPIO_Init();
-void BSP_WriteOutputs();
+void BSP_WriteOutputs(uint16_t output_image);
 void BSP_FeedWatchdog();
 
 
