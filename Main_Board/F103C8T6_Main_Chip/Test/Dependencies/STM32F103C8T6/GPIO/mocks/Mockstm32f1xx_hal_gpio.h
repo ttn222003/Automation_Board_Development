@@ -28,27 +28,67 @@ void Mockstm32f1xx_hal_gpio_Verify(void);
 
 
 
+#define HAL_GPIO_Init_IgnoreAndReturn(cmock_retval) TEST_FAIL_MESSAGE("HAL_GPIO_Init requires _Ignore (not AndReturn)");
+#define HAL_GPIO_Init_Ignore() HAL_GPIO_Init_CMockIgnore()
+void HAL_GPIO_Init_CMockIgnore(void);
+#define HAL_GPIO_Init_StopIgnore() HAL_GPIO_Init_CMockStopIgnore()
+void HAL_GPIO_Init_CMockStopIgnore(void);
 #define HAL_GPIO_Init_ExpectAndReturn(GPIOx, GPIO_Init, cmock_retval) TEST_FAIL_MESSAGE("HAL_GPIO_Init requires _Expect (not AndReturn)");
 #define HAL_GPIO_Init_Expect(GPIOx, GPIO_Init) HAL_GPIO_Init_CMockExpect(__LINE__, GPIOx, GPIO_Init)
 void HAL_GPIO_Init_CMockExpect(UNITY_LINE_TYPE cmock_line, GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_Init);
+#define HAL_GPIO_DeInit_IgnoreAndReturn(cmock_retval) TEST_FAIL_MESSAGE("HAL_GPIO_DeInit requires _Ignore (not AndReturn)");
+#define HAL_GPIO_DeInit_Ignore() HAL_GPIO_DeInit_CMockIgnore()
+void HAL_GPIO_DeInit_CMockIgnore(void);
+#define HAL_GPIO_DeInit_StopIgnore() HAL_GPIO_DeInit_CMockStopIgnore()
+void HAL_GPIO_DeInit_CMockStopIgnore(void);
 #define HAL_GPIO_DeInit_ExpectAndReturn(GPIOx, GPIO_Pin, cmock_retval) TEST_FAIL_MESSAGE("HAL_GPIO_DeInit requires _Expect (not AndReturn)");
 #define HAL_GPIO_DeInit_Expect(GPIOx, GPIO_Pin) HAL_GPIO_DeInit_CMockExpect(__LINE__, GPIOx, GPIO_Pin)
 void HAL_GPIO_DeInit_CMockExpect(UNITY_LINE_TYPE cmock_line, GPIO_TypeDef* GPIOx, uint32_t GPIO_Pin);
+#define HAL_GPIO_ReadPin_Ignore() TEST_FAIL_MESSAGE("HAL_GPIO_ReadPin requires _IgnoreAndReturn");
+#define HAL_GPIO_ReadPin_IgnoreAndReturn(cmock_retval) HAL_GPIO_ReadPin_CMockIgnoreAndReturn(__LINE__, cmock_retval)
+void HAL_GPIO_ReadPin_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, GPIO_PinState cmock_to_return);
+#define HAL_GPIO_ReadPin_StopIgnore() HAL_GPIO_ReadPin_CMockStopIgnore()
+void HAL_GPIO_ReadPin_CMockStopIgnore(void);
 #define HAL_GPIO_ReadPin_Expect(GPIOx, GPIO_Pin) TEST_FAIL_MESSAGE("HAL_GPIO_ReadPin requires _ExpectAndReturn");
 #define HAL_GPIO_ReadPin_ExpectAndReturn(GPIOx, GPIO_Pin, cmock_retval) HAL_GPIO_ReadPin_CMockExpectAndReturn(__LINE__, GPIOx, GPIO_Pin, cmock_retval)
 void HAL_GPIO_ReadPin_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, GPIO_PinState cmock_to_return);
+#define HAL_GPIO_WritePin_IgnoreAndReturn(cmock_retval) TEST_FAIL_MESSAGE("HAL_GPIO_WritePin requires _Ignore (not AndReturn)");
+#define HAL_GPIO_WritePin_Ignore() HAL_GPIO_WritePin_CMockIgnore()
+void HAL_GPIO_WritePin_CMockIgnore(void);
+#define HAL_GPIO_WritePin_StopIgnore() HAL_GPIO_WritePin_CMockStopIgnore()
+void HAL_GPIO_WritePin_CMockStopIgnore(void);
 #define HAL_GPIO_WritePin_ExpectAndReturn(GPIOx, GPIO_Pin, PinState, cmock_retval) TEST_FAIL_MESSAGE("HAL_GPIO_WritePin requires _Expect (not AndReturn)");
 #define HAL_GPIO_WritePin_Expect(GPIOx, GPIO_Pin, PinState) HAL_GPIO_WritePin_CMockExpect(__LINE__, GPIOx, GPIO_Pin, PinState)
 void HAL_GPIO_WritePin_CMockExpect(UNITY_LINE_TYPE cmock_line, GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState);
+#define HAL_GPIO_TogglePin_IgnoreAndReturn(cmock_retval) TEST_FAIL_MESSAGE("HAL_GPIO_TogglePin requires _Ignore (not AndReturn)");
+#define HAL_GPIO_TogglePin_Ignore() HAL_GPIO_TogglePin_CMockIgnore()
+void HAL_GPIO_TogglePin_CMockIgnore(void);
+#define HAL_GPIO_TogglePin_StopIgnore() HAL_GPIO_TogglePin_CMockStopIgnore()
+void HAL_GPIO_TogglePin_CMockStopIgnore(void);
 #define HAL_GPIO_TogglePin_ExpectAndReturn(GPIOx, GPIO_Pin, cmock_retval) TEST_FAIL_MESSAGE("HAL_GPIO_TogglePin requires _Expect (not AndReturn)");
 #define HAL_GPIO_TogglePin_Expect(GPIOx, GPIO_Pin) HAL_GPIO_TogglePin_CMockExpect(__LINE__, GPIOx, GPIO_Pin)
 void HAL_GPIO_TogglePin_CMockExpect(UNITY_LINE_TYPE cmock_line, GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
+#define HAL_GPIO_LockPin_Ignore() TEST_FAIL_MESSAGE("HAL_GPIO_LockPin requires _IgnoreAndReturn");
+#define HAL_GPIO_LockPin_IgnoreAndReturn(cmock_retval) HAL_GPIO_LockPin_CMockIgnoreAndReturn(__LINE__, cmock_retval)
+void HAL_GPIO_LockPin_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, HAL_StatusTypeDef cmock_to_return);
+#define HAL_GPIO_LockPin_StopIgnore() HAL_GPIO_LockPin_CMockStopIgnore()
+void HAL_GPIO_LockPin_CMockStopIgnore(void);
 #define HAL_GPIO_LockPin_Expect(GPIOx, GPIO_Pin) TEST_FAIL_MESSAGE("HAL_GPIO_LockPin requires _ExpectAndReturn");
 #define HAL_GPIO_LockPin_ExpectAndReturn(GPIOx, GPIO_Pin, cmock_retval) HAL_GPIO_LockPin_CMockExpectAndReturn(__LINE__, GPIOx, GPIO_Pin, cmock_retval)
 void HAL_GPIO_LockPin_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, HAL_StatusTypeDef cmock_to_return);
+#define HAL_GPIO_EXTI_IRQHandler_IgnoreAndReturn(cmock_retval) TEST_FAIL_MESSAGE("HAL_GPIO_EXTI_IRQHandler requires _Ignore (not AndReturn)");
+#define HAL_GPIO_EXTI_IRQHandler_Ignore() HAL_GPIO_EXTI_IRQHandler_CMockIgnore()
+void HAL_GPIO_EXTI_IRQHandler_CMockIgnore(void);
+#define HAL_GPIO_EXTI_IRQHandler_StopIgnore() HAL_GPIO_EXTI_IRQHandler_CMockStopIgnore()
+void HAL_GPIO_EXTI_IRQHandler_CMockStopIgnore(void);
 #define HAL_GPIO_EXTI_IRQHandler_ExpectAndReturn(GPIO_Pin, cmock_retval) TEST_FAIL_MESSAGE("HAL_GPIO_EXTI_IRQHandler requires _Expect (not AndReturn)");
 #define HAL_GPIO_EXTI_IRQHandler_Expect(GPIO_Pin) HAL_GPIO_EXTI_IRQHandler_CMockExpect(__LINE__, GPIO_Pin)
 void HAL_GPIO_EXTI_IRQHandler_CMockExpect(UNITY_LINE_TYPE cmock_line, uint16_t GPIO_Pin);
+#define HAL_GPIO_EXTI_Callback_IgnoreAndReturn(cmock_retval) TEST_FAIL_MESSAGE("HAL_GPIO_EXTI_Callback requires _Ignore (not AndReturn)");
+#define HAL_GPIO_EXTI_Callback_Ignore() HAL_GPIO_EXTI_Callback_CMockIgnore()
+void HAL_GPIO_EXTI_Callback_CMockIgnore(void);
+#define HAL_GPIO_EXTI_Callback_StopIgnore() HAL_GPIO_EXTI_Callback_CMockStopIgnore()
+void HAL_GPIO_EXTI_Callback_CMockStopIgnore(void);
 #define HAL_GPIO_EXTI_Callback_ExpectAndReturn(GPIO_Pin, cmock_retval) TEST_FAIL_MESSAGE("HAL_GPIO_EXTI_Callback requires _Expect (not AndReturn)");
 #define HAL_GPIO_EXTI_Callback_Expect(GPIO_Pin) HAL_GPIO_EXTI_Callback_CMockExpect(__LINE__, GPIO_Pin)
 void HAL_GPIO_EXTI_Callback_CMockExpect(UNITY_LINE_TYPE cmock_line, uint16_t GPIO_Pin);

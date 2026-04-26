@@ -85,13 +85,23 @@ typedef struct _CMOCK_HAL_GPIO_EXTI_Callback_CALL_INSTANCE
 
 static struct Mockstm32f1xx_hal_gpioInstance
 {
+  char HAL_GPIO_Init_IgnoreBool;
   CMOCK_MEM_INDEX_TYPE HAL_GPIO_Init_CallInstance;
+  char HAL_GPIO_DeInit_IgnoreBool;
   CMOCK_MEM_INDEX_TYPE HAL_GPIO_DeInit_CallInstance;
+  char HAL_GPIO_ReadPin_IgnoreBool;
+  GPIO_PinState HAL_GPIO_ReadPin_FinalReturn;
   CMOCK_MEM_INDEX_TYPE HAL_GPIO_ReadPin_CallInstance;
+  char HAL_GPIO_WritePin_IgnoreBool;
   CMOCK_MEM_INDEX_TYPE HAL_GPIO_WritePin_CallInstance;
+  char HAL_GPIO_TogglePin_IgnoreBool;
   CMOCK_MEM_INDEX_TYPE HAL_GPIO_TogglePin_CallInstance;
+  char HAL_GPIO_LockPin_IgnoreBool;
+  HAL_StatusTypeDef HAL_GPIO_LockPin_FinalReturn;
   CMOCK_MEM_INDEX_TYPE HAL_GPIO_LockPin_CallInstance;
+  char HAL_GPIO_EXTI_IRQHandler_IgnoreBool;
   CMOCK_MEM_INDEX_TYPE HAL_GPIO_EXTI_IRQHandler_CallInstance;
+  char HAL_GPIO_EXTI_Callback_IgnoreBool;
   CMOCK_MEM_INDEX_TYPE HAL_GPIO_EXTI_Callback_CallInstance;
 } Mock;
 
@@ -101,48 +111,64 @@ void Mockstm32f1xx_hal_gpio_Verify(void)
   UNITY_LINE_TYPE cmock_line = TEST_LINE_NUM;
   CMOCK_MEM_INDEX_TYPE call_instance;
   call_instance = Mock.HAL_GPIO_Init_CallInstance;
+  if (Mock.HAL_GPIO_Init_IgnoreBool)
+    call_instance = CMOCK_GUTS_NONE;
   if (CMOCK_GUTS_NONE != call_instance)
   {
     UNITY_SET_DETAIL(CMockString_HAL_GPIO_Init);
     UNITY_TEST_FAIL(cmock_line, CMockStringCalledLess);
   }
   call_instance = Mock.HAL_GPIO_DeInit_CallInstance;
+  if (Mock.HAL_GPIO_DeInit_IgnoreBool)
+    call_instance = CMOCK_GUTS_NONE;
   if (CMOCK_GUTS_NONE != call_instance)
   {
     UNITY_SET_DETAIL(CMockString_HAL_GPIO_DeInit);
     UNITY_TEST_FAIL(cmock_line, CMockStringCalledLess);
   }
   call_instance = Mock.HAL_GPIO_ReadPin_CallInstance;
+  if (Mock.HAL_GPIO_ReadPin_IgnoreBool)
+    call_instance = CMOCK_GUTS_NONE;
   if (CMOCK_GUTS_NONE != call_instance)
   {
     UNITY_SET_DETAIL(CMockString_HAL_GPIO_ReadPin);
     UNITY_TEST_FAIL(cmock_line, CMockStringCalledLess);
   }
   call_instance = Mock.HAL_GPIO_WritePin_CallInstance;
+  if (Mock.HAL_GPIO_WritePin_IgnoreBool)
+    call_instance = CMOCK_GUTS_NONE;
   if (CMOCK_GUTS_NONE != call_instance)
   {
     UNITY_SET_DETAIL(CMockString_HAL_GPIO_WritePin);
     UNITY_TEST_FAIL(cmock_line, CMockStringCalledLess);
   }
   call_instance = Mock.HAL_GPIO_TogglePin_CallInstance;
+  if (Mock.HAL_GPIO_TogglePin_IgnoreBool)
+    call_instance = CMOCK_GUTS_NONE;
   if (CMOCK_GUTS_NONE != call_instance)
   {
     UNITY_SET_DETAIL(CMockString_HAL_GPIO_TogglePin);
     UNITY_TEST_FAIL(cmock_line, CMockStringCalledLess);
   }
   call_instance = Mock.HAL_GPIO_LockPin_CallInstance;
+  if (Mock.HAL_GPIO_LockPin_IgnoreBool)
+    call_instance = CMOCK_GUTS_NONE;
   if (CMOCK_GUTS_NONE != call_instance)
   {
     UNITY_SET_DETAIL(CMockString_HAL_GPIO_LockPin);
     UNITY_TEST_FAIL(cmock_line, CMockStringCalledLess);
   }
   call_instance = Mock.HAL_GPIO_EXTI_IRQHandler_CallInstance;
+  if (Mock.HAL_GPIO_EXTI_IRQHandler_IgnoreBool)
+    call_instance = CMOCK_GUTS_NONE;
   if (CMOCK_GUTS_NONE != call_instance)
   {
     UNITY_SET_DETAIL(CMockString_HAL_GPIO_EXTI_IRQHandler);
     UNITY_TEST_FAIL(cmock_line, CMockStringCalledLess);
   }
   call_instance = Mock.HAL_GPIO_EXTI_Callback_CallInstance;
+  if (Mock.HAL_GPIO_EXTI_Callback_IgnoreBool)
+    call_instance = CMOCK_GUTS_NONE;
   if (CMOCK_GUTS_NONE != call_instance)
   {
     UNITY_SET_DETAIL(CMockString_HAL_GPIO_EXTI_Callback);
@@ -168,6 +194,11 @@ void HAL_GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_Init)
   UNITY_SET_DETAIL(CMockString_HAL_GPIO_Init);
   cmock_call_instance = (CMOCK_HAL_GPIO_Init_CALL_INSTANCE*)CMock_Guts_GetAddressFor(Mock.HAL_GPIO_Init_CallInstance);
   Mock.HAL_GPIO_Init_CallInstance = CMock_Guts_MemNext(Mock.HAL_GPIO_Init_CallInstance);
+  if (Mock.HAL_GPIO_Init_IgnoreBool)
+  {
+    UNITY_CLR_DETAILS();
+    return;
+  }
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringCalledMore);
   cmock_line = cmock_call_instance->LineNumber;
   {
@@ -188,6 +219,16 @@ void CMockExpectParameters_HAL_GPIO_Init(CMOCK_HAL_GPIO_Init_CALL_INSTANCE* cmoc
   cmock_call_instance->Expected_GPIO_Init = GPIO_Init;
 }
 
+void HAL_GPIO_Init_CMockIgnore(void)
+{
+  Mock.HAL_GPIO_Init_IgnoreBool = (char)1;
+}
+
+void HAL_GPIO_Init_CMockStopIgnore(void)
+{
+  Mock.HAL_GPIO_Init_IgnoreBool = (char)0;
+}
+
 void HAL_GPIO_Init_CMockExpect(UNITY_LINE_TYPE cmock_line, GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_Init)
 {
   CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_HAL_GPIO_Init_CALL_INSTANCE));
@@ -195,6 +236,7 @@ void HAL_GPIO_Init_CMockExpect(UNITY_LINE_TYPE cmock_line, GPIO_TypeDef* GPIOx, 
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringOutOfMemory);
   memset(cmock_call_instance, 0, sizeof(*cmock_call_instance));
   Mock.HAL_GPIO_Init_CallInstance = CMock_Guts_MemChain(Mock.HAL_GPIO_Init_CallInstance, cmock_guts_index);
+  Mock.HAL_GPIO_Init_IgnoreBool = (char)0;
   cmock_call_instance->LineNumber = cmock_line;
   CMockExpectParameters_HAL_GPIO_Init(cmock_call_instance, GPIOx, GPIO_Init);
 }
@@ -206,6 +248,11 @@ void HAL_GPIO_DeInit(GPIO_TypeDef* GPIOx, uint32_t GPIO_Pin)
   UNITY_SET_DETAIL(CMockString_HAL_GPIO_DeInit);
   cmock_call_instance = (CMOCK_HAL_GPIO_DeInit_CALL_INSTANCE*)CMock_Guts_GetAddressFor(Mock.HAL_GPIO_DeInit_CallInstance);
   Mock.HAL_GPIO_DeInit_CallInstance = CMock_Guts_MemNext(Mock.HAL_GPIO_DeInit_CallInstance);
+  if (Mock.HAL_GPIO_DeInit_IgnoreBool)
+  {
+    UNITY_CLR_DETAILS();
+    return;
+  }
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringCalledMore);
   cmock_line = cmock_call_instance->LineNumber;
   {
@@ -226,6 +273,16 @@ void CMockExpectParameters_HAL_GPIO_DeInit(CMOCK_HAL_GPIO_DeInit_CALL_INSTANCE* 
   cmock_call_instance->Expected_GPIO_Pin = GPIO_Pin;
 }
 
+void HAL_GPIO_DeInit_CMockIgnore(void)
+{
+  Mock.HAL_GPIO_DeInit_IgnoreBool = (char)1;
+}
+
+void HAL_GPIO_DeInit_CMockStopIgnore(void)
+{
+  Mock.HAL_GPIO_DeInit_IgnoreBool = (char)0;
+}
+
 void HAL_GPIO_DeInit_CMockExpect(UNITY_LINE_TYPE cmock_line, GPIO_TypeDef* GPIOx, uint32_t GPIO_Pin)
 {
   CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_HAL_GPIO_DeInit_CALL_INSTANCE));
@@ -233,6 +290,7 @@ void HAL_GPIO_DeInit_CMockExpect(UNITY_LINE_TYPE cmock_line, GPIO_TypeDef* GPIOx
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringOutOfMemory);
   memset(cmock_call_instance, 0, sizeof(*cmock_call_instance));
   Mock.HAL_GPIO_DeInit_CallInstance = CMock_Guts_MemChain(Mock.HAL_GPIO_DeInit_CallInstance, cmock_guts_index);
+  Mock.HAL_GPIO_DeInit_IgnoreBool = (char)0;
   cmock_call_instance->LineNumber = cmock_line;
   CMockExpectParameters_HAL_GPIO_DeInit(cmock_call_instance, GPIOx, GPIO_Pin);
 }
@@ -244,6 +302,15 @@ GPIO_PinState HAL_GPIO_ReadPin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
   UNITY_SET_DETAIL(CMockString_HAL_GPIO_ReadPin);
   cmock_call_instance = (CMOCK_HAL_GPIO_ReadPin_CALL_INSTANCE*)CMock_Guts_GetAddressFor(Mock.HAL_GPIO_ReadPin_CallInstance);
   Mock.HAL_GPIO_ReadPin_CallInstance = CMock_Guts_MemNext(Mock.HAL_GPIO_ReadPin_CallInstance);
+  if (Mock.HAL_GPIO_ReadPin_IgnoreBool)
+  {
+    UNITY_CLR_DETAILS();
+    if (cmock_call_instance == NULL)
+      return Mock.HAL_GPIO_ReadPin_FinalReturn;
+    memcpy((void*)(&Mock.HAL_GPIO_ReadPin_FinalReturn), (const void*)(&cmock_call_instance->ReturnVal),
+         sizeof(GPIO_PinState[sizeof(cmock_call_instance->ReturnVal) == sizeof(GPIO_PinState) ? 1 : -1])); /* add GPIO_PinState to :treat_as_array if this causes an error */
+    return cmock_call_instance->ReturnVal;
+  }
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringCalledMore);
   cmock_line = cmock_call_instance->LineNumber;
   {
@@ -265,6 +332,26 @@ void CMockExpectParameters_HAL_GPIO_ReadPin(CMOCK_HAL_GPIO_ReadPin_CALL_INSTANCE
   cmock_call_instance->Expected_GPIO_Pin = GPIO_Pin;
 }
 
+void HAL_GPIO_ReadPin_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, GPIO_PinState cmock_to_return)
+{
+  CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_HAL_GPIO_ReadPin_CALL_INSTANCE));
+  CMOCK_HAL_GPIO_ReadPin_CALL_INSTANCE* cmock_call_instance = (CMOCK_HAL_GPIO_ReadPin_CALL_INSTANCE*)CMock_Guts_GetAddressFor(cmock_guts_index);
+  UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringOutOfMemory);
+  memset(cmock_call_instance, 0, sizeof(*cmock_call_instance));
+  Mock.HAL_GPIO_ReadPin_CallInstance = CMock_Guts_MemChain(Mock.HAL_GPIO_ReadPin_CallInstance, cmock_guts_index);
+  Mock.HAL_GPIO_ReadPin_IgnoreBool = (char)0;
+  cmock_call_instance->LineNumber = cmock_line;
+  cmock_call_instance->ReturnVal = cmock_to_return;
+  Mock.HAL_GPIO_ReadPin_IgnoreBool = (char)1;
+}
+
+void HAL_GPIO_ReadPin_CMockStopIgnore(void)
+{
+  if(Mock.HAL_GPIO_ReadPin_IgnoreBool)
+    Mock.HAL_GPIO_ReadPin_CallInstance = CMock_Guts_MemNext(Mock.HAL_GPIO_ReadPin_CallInstance);
+  Mock.HAL_GPIO_ReadPin_IgnoreBool = (char)0;
+}
+
 void HAL_GPIO_ReadPin_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, GPIO_PinState cmock_to_return)
 {
   CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_HAL_GPIO_ReadPin_CALL_INSTANCE));
@@ -272,6 +359,7 @@ void HAL_GPIO_ReadPin_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, GPIO_Type
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringOutOfMemory);
   memset(cmock_call_instance, 0, sizeof(*cmock_call_instance));
   Mock.HAL_GPIO_ReadPin_CallInstance = CMock_Guts_MemChain(Mock.HAL_GPIO_ReadPin_CallInstance, cmock_guts_index);
+  Mock.HAL_GPIO_ReadPin_IgnoreBool = (char)0;
   cmock_call_instance->LineNumber = cmock_line;
   CMockExpectParameters_HAL_GPIO_ReadPin(cmock_call_instance, GPIOx, GPIO_Pin);
   memcpy((void*)(&cmock_call_instance->ReturnVal), (const void*)(&cmock_to_return),
@@ -285,6 +373,11 @@ void HAL_GPIO_WritePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, GPIO_PinState Pin
   UNITY_SET_DETAIL(CMockString_HAL_GPIO_WritePin);
   cmock_call_instance = (CMOCK_HAL_GPIO_WritePin_CALL_INSTANCE*)CMock_Guts_GetAddressFor(Mock.HAL_GPIO_WritePin_CallInstance);
   Mock.HAL_GPIO_WritePin_CallInstance = CMock_Guts_MemNext(Mock.HAL_GPIO_WritePin_CallInstance);
+  if (Mock.HAL_GPIO_WritePin_IgnoreBool)
+  {
+    UNITY_CLR_DETAILS();
+    return;
+  }
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringCalledMore);
   cmock_line = cmock_call_instance->LineNumber;
   {
@@ -311,6 +404,16 @@ void CMockExpectParameters_HAL_GPIO_WritePin(CMOCK_HAL_GPIO_WritePin_CALL_INSTAN
          sizeof(GPIO_PinState[sizeof(PinState) == sizeof(GPIO_PinState) ? 1 : -1])); /* add GPIO_PinState to :treat_as_array if this causes an error */
 }
 
+void HAL_GPIO_WritePin_CMockIgnore(void)
+{
+  Mock.HAL_GPIO_WritePin_IgnoreBool = (char)1;
+}
+
+void HAL_GPIO_WritePin_CMockStopIgnore(void)
+{
+  Mock.HAL_GPIO_WritePin_IgnoreBool = (char)0;
+}
+
 void HAL_GPIO_WritePin_CMockExpect(UNITY_LINE_TYPE cmock_line, GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState)
 {
   CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_HAL_GPIO_WritePin_CALL_INSTANCE));
@@ -318,6 +421,7 @@ void HAL_GPIO_WritePin_CMockExpect(UNITY_LINE_TYPE cmock_line, GPIO_TypeDef* GPI
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringOutOfMemory);
   memset(cmock_call_instance, 0, sizeof(*cmock_call_instance));
   Mock.HAL_GPIO_WritePin_CallInstance = CMock_Guts_MemChain(Mock.HAL_GPIO_WritePin_CallInstance, cmock_guts_index);
+  Mock.HAL_GPIO_WritePin_IgnoreBool = (char)0;
   cmock_call_instance->LineNumber = cmock_line;
   CMockExpectParameters_HAL_GPIO_WritePin(cmock_call_instance, GPIOx, GPIO_Pin, PinState);
 }
@@ -329,6 +433,11 @@ void HAL_GPIO_TogglePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
   UNITY_SET_DETAIL(CMockString_HAL_GPIO_TogglePin);
   cmock_call_instance = (CMOCK_HAL_GPIO_TogglePin_CALL_INSTANCE*)CMock_Guts_GetAddressFor(Mock.HAL_GPIO_TogglePin_CallInstance);
   Mock.HAL_GPIO_TogglePin_CallInstance = CMock_Guts_MemNext(Mock.HAL_GPIO_TogglePin_CallInstance);
+  if (Mock.HAL_GPIO_TogglePin_IgnoreBool)
+  {
+    UNITY_CLR_DETAILS();
+    return;
+  }
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringCalledMore);
   cmock_line = cmock_call_instance->LineNumber;
   {
@@ -349,6 +458,16 @@ void CMockExpectParameters_HAL_GPIO_TogglePin(CMOCK_HAL_GPIO_TogglePin_CALL_INST
   cmock_call_instance->Expected_GPIO_Pin = GPIO_Pin;
 }
 
+void HAL_GPIO_TogglePin_CMockIgnore(void)
+{
+  Mock.HAL_GPIO_TogglePin_IgnoreBool = (char)1;
+}
+
+void HAL_GPIO_TogglePin_CMockStopIgnore(void)
+{
+  Mock.HAL_GPIO_TogglePin_IgnoreBool = (char)0;
+}
+
 void HAL_GPIO_TogglePin_CMockExpect(UNITY_LINE_TYPE cmock_line, GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 {
   CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_HAL_GPIO_TogglePin_CALL_INSTANCE));
@@ -356,6 +475,7 @@ void HAL_GPIO_TogglePin_CMockExpect(UNITY_LINE_TYPE cmock_line, GPIO_TypeDef* GP
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringOutOfMemory);
   memset(cmock_call_instance, 0, sizeof(*cmock_call_instance));
   Mock.HAL_GPIO_TogglePin_CallInstance = CMock_Guts_MemChain(Mock.HAL_GPIO_TogglePin_CallInstance, cmock_guts_index);
+  Mock.HAL_GPIO_TogglePin_IgnoreBool = (char)0;
   cmock_call_instance->LineNumber = cmock_line;
   CMockExpectParameters_HAL_GPIO_TogglePin(cmock_call_instance, GPIOx, GPIO_Pin);
 }
@@ -367,6 +487,15 @@ HAL_StatusTypeDef HAL_GPIO_LockPin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
   UNITY_SET_DETAIL(CMockString_HAL_GPIO_LockPin);
   cmock_call_instance = (CMOCK_HAL_GPIO_LockPin_CALL_INSTANCE*)CMock_Guts_GetAddressFor(Mock.HAL_GPIO_LockPin_CallInstance);
   Mock.HAL_GPIO_LockPin_CallInstance = CMock_Guts_MemNext(Mock.HAL_GPIO_LockPin_CallInstance);
+  if (Mock.HAL_GPIO_LockPin_IgnoreBool)
+  {
+    UNITY_CLR_DETAILS();
+    if (cmock_call_instance == NULL)
+      return Mock.HAL_GPIO_LockPin_FinalReturn;
+    memcpy((void*)(&Mock.HAL_GPIO_LockPin_FinalReturn), (const void*)(&cmock_call_instance->ReturnVal),
+         sizeof(HAL_StatusTypeDef[sizeof(cmock_call_instance->ReturnVal) == sizeof(HAL_StatusTypeDef) ? 1 : -1])); /* add HAL_StatusTypeDef to :treat_as_array if this causes an error */
+    return cmock_call_instance->ReturnVal;
+  }
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringCalledMore);
   cmock_line = cmock_call_instance->LineNumber;
   {
@@ -388,6 +517,26 @@ void CMockExpectParameters_HAL_GPIO_LockPin(CMOCK_HAL_GPIO_LockPin_CALL_INSTANCE
   cmock_call_instance->Expected_GPIO_Pin = GPIO_Pin;
 }
 
+void HAL_GPIO_LockPin_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, HAL_StatusTypeDef cmock_to_return)
+{
+  CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_HAL_GPIO_LockPin_CALL_INSTANCE));
+  CMOCK_HAL_GPIO_LockPin_CALL_INSTANCE* cmock_call_instance = (CMOCK_HAL_GPIO_LockPin_CALL_INSTANCE*)CMock_Guts_GetAddressFor(cmock_guts_index);
+  UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringOutOfMemory);
+  memset(cmock_call_instance, 0, sizeof(*cmock_call_instance));
+  Mock.HAL_GPIO_LockPin_CallInstance = CMock_Guts_MemChain(Mock.HAL_GPIO_LockPin_CallInstance, cmock_guts_index);
+  Mock.HAL_GPIO_LockPin_IgnoreBool = (char)0;
+  cmock_call_instance->LineNumber = cmock_line;
+  cmock_call_instance->ReturnVal = cmock_to_return;
+  Mock.HAL_GPIO_LockPin_IgnoreBool = (char)1;
+}
+
+void HAL_GPIO_LockPin_CMockStopIgnore(void)
+{
+  if(Mock.HAL_GPIO_LockPin_IgnoreBool)
+    Mock.HAL_GPIO_LockPin_CallInstance = CMock_Guts_MemNext(Mock.HAL_GPIO_LockPin_CallInstance);
+  Mock.HAL_GPIO_LockPin_IgnoreBool = (char)0;
+}
+
 void HAL_GPIO_LockPin_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, HAL_StatusTypeDef cmock_to_return)
 {
   CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_HAL_GPIO_LockPin_CALL_INSTANCE));
@@ -395,6 +544,7 @@ void HAL_GPIO_LockPin_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, GPIO_Type
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringOutOfMemory);
   memset(cmock_call_instance, 0, sizeof(*cmock_call_instance));
   Mock.HAL_GPIO_LockPin_CallInstance = CMock_Guts_MemChain(Mock.HAL_GPIO_LockPin_CallInstance, cmock_guts_index);
+  Mock.HAL_GPIO_LockPin_IgnoreBool = (char)0;
   cmock_call_instance->LineNumber = cmock_line;
   CMockExpectParameters_HAL_GPIO_LockPin(cmock_call_instance, GPIOx, GPIO_Pin);
   memcpy((void*)(&cmock_call_instance->ReturnVal), (const void*)(&cmock_to_return),
@@ -408,6 +558,11 @@ void HAL_GPIO_EXTI_IRQHandler(uint16_t GPIO_Pin)
   UNITY_SET_DETAIL(CMockString_HAL_GPIO_EXTI_IRQHandler);
   cmock_call_instance = (CMOCK_HAL_GPIO_EXTI_IRQHandler_CALL_INSTANCE*)CMock_Guts_GetAddressFor(Mock.HAL_GPIO_EXTI_IRQHandler_CallInstance);
   Mock.HAL_GPIO_EXTI_IRQHandler_CallInstance = CMock_Guts_MemNext(Mock.HAL_GPIO_EXTI_IRQHandler_CallInstance);
+  if (Mock.HAL_GPIO_EXTI_IRQHandler_IgnoreBool)
+  {
+    UNITY_CLR_DETAILS();
+    return;
+  }
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringCalledMore);
   cmock_line = cmock_call_instance->LineNumber;
   {
@@ -423,6 +578,16 @@ void CMockExpectParameters_HAL_GPIO_EXTI_IRQHandler(CMOCK_HAL_GPIO_EXTI_IRQHandl
   cmock_call_instance->Expected_GPIO_Pin = GPIO_Pin;
 }
 
+void HAL_GPIO_EXTI_IRQHandler_CMockIgnore(void)
+{
+  Mock.HAL_GPIO_EXTI_IRQHandler_IgnoreBool = (char)1;
+}
+
+void HAL_GPIO_EXTI_IRQHandler_CMockStopIgnore(void)
+{
+  Mock.HAL_GPIO_EXTI_IRQHandler_IgnoreBool = (char)0;
+}
+
 void HAL_GPIO_EXTI_IRQHandler_CMockExpect(UNITY_LINE_TYPE cmock_line, uint16_t GPIO_Pin)
 {
   CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_HAL_GPIO_EXTI_IRQHandler_CALL_INSTANCE));
@@ -430,6 +595,7 @@ void HAL_GPIO_EXTI_IRQHandler_CMockExpect(UNITY_LINE_TYPE cmock_line, uint16_t G
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringOutOfMemory);
   memset(cmock_call_instance, 0, sizeof(*cmock_call_instance));
   Mock.HAL_GPIO_EXTI_IRQHandler_CallInstance = CMock_Guts_MemChain(Mock.HAL_GPIO_EXTI_IRQHandler_CallInstance, cmock_guts_index);
+  Mock.HAL_GPIO_EXTI_IRQHandler_IgnoreBool = (char)0;
   cmock_call_instance->LineNumber = cmock_line;
   CMockExpectParameters_HAL_GPIO_EXTI_IRQHandler(cmock_call_instance, GPIO_Pin);
 }
@@ -441,6 +607,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   UNITY_SET_DETAIL(CMockString_HAL_GPIO_EXTI_Callback);
   cmock_call_instance = (CMOCK_HAL_GPIO_EXTI_Callback_CALL_INSTANCE*)CMock_Guts_GetAddressFor(Mock.HAL_GPIO_EXTI_Callback_CallInstance);
   Mock.HAL_GPIO_EXTI_Callback_CallInstance = CMock_Guts_MemNext(Mock.HAL_GPIO_EXTI_Callback_CallInstance);
+  if (Mock.HAL_GPIO_EXTI_Callback_IgnoreBool)
+  {
+    UNITY_CLR_DETAILS();
+    return;
+  }
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringCalledMore);
   cmock_line = cmock_call_instance->LineNumber;
   {
@@ -456,6 +627,16 @@ void CMockExpectParameters_HAL_GPIO_EXTI_Callback(CMOCK_HAL_GPIO_EXTI_Callback_C
   cmock_call_instance->Expected_GPIO_Pin = GPIO_Pin;
 }
 
+void HAL_GPIO_EXTI_Callback_CMockIgnore(void)
+{
+  Mock.HAL_GPIO_EXTI_Callback_IgnoreBool = (char)1;
+}
+
+void HAL_GPIO_EXTI_Callback_CMockStopIgnore(void)
+{
+  Mock.HAL_GPIO_EXTI_Callback_IgnoreBool = (char)0;
+}
+
 void HAL_GPIO_EXTI_Callback_CMockExpect(UNITY_LINE_TYPE cmock_line, uint16_t GPIO_Pin)
 {
   CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_HAL_GPIO_EXTI_Callback_CALL_INSTANCE));
@@ -463,6 +644,7 @@ void HAL_GPIO_EXTI_Callback_CMockExpect(UNITY_LINE_TYPE cmock_line, uint16_t GPI
   UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, CMockStringOutOfMemory);
   memset(cmock_call_instance, 0, sizeof(*cmock_call_instance));
   Mock.HAL_GPIO_EXTI_Callback_CallInstance = CMock_Guts_MemChain(Mock.HAL_GPIO_EXTI_Callback_CallInstance, cmock_guts_index);
+  Mock.HAL_GPIO_EXTI_Callback_IgnoreBool = (char)0;
   cmock_call_instance->LineNumber = cmock_line;
   CMockExpectParameters_HAL_GPIO_EXTI_Callback(cmock_call_instance, GPIO_Pin);
 }
