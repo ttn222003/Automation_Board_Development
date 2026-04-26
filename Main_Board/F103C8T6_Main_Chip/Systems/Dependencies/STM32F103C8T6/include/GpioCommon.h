@@ -9,13 +9,12 @@
 #define DEPENDENCIES_STM32F103C8T6_INCLUDE_GPIOCOMMON_H_
 
 #include "main.h"
-#include "PlcGpio.h"
 #include "PlcConfig.h"
 
-int8_t GpioCommon();
-void BSP_GPIO_Init();
+int8_t GpioCommon(void);
+void BSP_GPIO_Init(void);
 void BSP_WriteOutputs(uint16_t output_image);
-void BSP_FeedWatchdog();
+void BSP_FeedWatchdog(void);
 
 
 #endif /* DEPENDENCIES_STM32F103C8T6_INCLUDE_GPIOCOMMON_H_ */
