@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "FreeRTOS.h"
 #include "task.h"
+#include "PlcConfig.h"
 #include "GpioCommon.h"
 #include "PlcGpio.h"
 #include "PlcMainExecuteLogic.h"
@@ -213,9 +214,11 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void PLCScanTask(void* const pvParameters)
 {
+	uint16_t output_image[OUTPUT_NUMBER];
+
 	BSP_GPIO_Init();
-	PLC_Core_Init();
-	PLC_Core_SetState(ePlcStateRun);
+	InitPlcCore();
+	SetPlcState(ePlcStateRun);
 
 	TickType_t last_wake_time = xTaskGetTickCount();
 	const TickType_t period = pdMS_TO_TICKS(PLC_SCAN_PERIOD_MS);
@@ -225,12 +228,12 @@ void PLCScanTask(void* const pvParameters)
 		TickType_t scan_start = xTaskGetTickCount();
 
 		/* Read Input Image */
-		PLC_ReadInputs();
+		ReadPlcInputs();
 		/* Execute Logic */
 		/* User only execute logic in PLC_ExecuteLogic(), don't change anything in other files */
 		PLC_ExecuteLogic();
 		/* Update Output Image */
-		PLC_UpdateOutputs();
+		UpdatePlcOutputs(output_image);
 		/* Write to GPIO */
 		BSP_WriteOutputs(ReadOutputImage());
 		/* Watchdog refresh */

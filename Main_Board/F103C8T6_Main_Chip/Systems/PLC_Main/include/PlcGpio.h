@@ -8,7 +8,7 @@
 #ifndef PLC_MAIN_INCLUDE_PLCGPIO_H_
 #define PLC_MAIN_INCLUDE_PLCGPIO_H_
 
-#include "main.h"
+#include <stdint.h>
 #include "PlcConfig.h"
 
 typedef enum {
@@ -17,12 +17,13 @@ typedef enum {
 } PlcState_t;
 
 // Main function for PLC task
-void PLC_Core_Init();
-void PLC_ReadInputs();
-void PLC_UpdateOutputs();
-void PLC_Core_SetState(PlcState_t state);
+void InitPlcCore(void);
+void ReadPlcInputs(void);
+void UpdatePlcOutputs(uint16_t output_image[]);
+void SetPlcState(PlcState_t state);
+PlcState_t GetPlcState(void);
 
 // Support function
-uint16_t ReadOutputImage();
+uint16_t ReadOutputImage(void);
 
 #endif /* PLC_MAIN_INCLUDE_PLCGPIO_H_ */

@@ -10,11 +10,25 @@
 typedef struct {
 	uint8_t mNumberOfOutputImage;
 	uint16_t mOutputImage[OUTPUT_NUMBER];
+	PlcState_t mPlcState;
 } OutputImage_t;
 
 static OutputImage_t OutputImage;
 
-void PLC_Core_Init()
+/*======= Internal function =======*/
+static uint8_t IsPlcRunning(void)
+{
+	if (OutputImage.mPlcState == ePlcStateRun) {
+		return 1;
+	}
+
+	else {
+		return 0;
+	}
+}
+
+/*=================================*/
+void InitPlcCore(void)
 {
 	// Assign external variale to eternal variable
 	OutputImage.mNumberOfOutputImage = OUTPUT_NUMBER;
@@ -23,34 +37,50 @@ void PLC_Core_Init()
 	{
 		OutputImage.mOutputImage[index] = 0;
 	}
+
+	OutputImage.mPlcState = ePlcStateStop;
 }
 
-void PLC_ReadInputs()
+void ReadPlcInputs(void)
 {
-
+	/* TO DO */
 }
 
-void PLC_UpdateOutputs()
+void UpdatePlcOutputs(uint16_t output_image[])
 {
+	if (IsPlcRunning() != 1)
+	{
+		// We will handle error later
+		return;
+	}
 
+	for (uint8_t index = 0; index < OutputImage.mNumberOfOutputImage; index++)
+	{
+		OutputImage.mOutputImage[index] = output_image[index];
+	}
 }
 
-void PLC_Core_SetState(PlcState_t state)
+void SetPlcState(PlcState_t state)
 {
+	OutputImage.mPlcState = state;
+}
 
+PlcState_t GetPlcState(void)
+{
+	return OutputImage.mPlcState;
 }
 
 /**********************/
 /*
  * This function is used to read output value after updating IO image from Execution Phase
  * */
-uint16_t ReadOutputImage()
+uint16_t ReadOutputImage(void)
 {
-	uint16_t ret_val = 	OutputImage.mOutputImage[0];
+	uint16_t ret_val = 0;
 
-	for (uint8_t index = 1; index < OutputImage.mNumberOfOutputImage; index++)
+	for (uint8_t index = 0; index < OutputImage.mNumberOfOutputImage; index++)
 	{
-		ret_val |= OutputImage.mOutputImage[index] << index;
+		ret_val |= (uint16_t)((OutputImage.mOutputImage[index] & 0x01) << index);
 	}
 
 	return ret_val;
