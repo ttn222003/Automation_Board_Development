@@ -97,9 +97,12 @@ int main(void)
   /* USER CODE BEGIN 2 */
   // Initialize all peripheral
   int8_t initialization_state = 1;
-  initialization_state = GpioCommon() & 0x01;
+  int8_t initialization_variable = 1;
 
-  if (initialization_state != 1)
+  initialization_state = GpioCommon() & 0x01;
+  initialization_variable = InitializeVariable() & 0x01;
+
+  if ((initialization_state != 1) || (initialization_variable != 1))
   {
 	  // Handle something here
   }
@@ -231,7 +234,7 @@ void PLCScanTask(void* const pvParameters)
 		ReadPlcInputs();
 		/* Execute Logic */
 		/* User only execute logic in PLC_ExecuteLogic(), don't change anything in other files */
-		PLC_ExecuteLogic();
+		ExecutePlcLogic(output_image);
 		/* Update Output Image */
 		UpdatePlcOutputs(output_image);
 		/* Write to GPIO */
@@ -245,7 +248,8 @@ void PLCScanTask(void* const pvParameters)
 
 void CommunicationTask(void* const pvParameters)
 {
-	count_debug += 2;
+	/* TO DO */
+	//count_debug += 2;
 	while(1)
 	{
 
@@ -254,7 +258,8 @@ void CommunicationTask(void* const pvParameters)
 
 void WatchdogTask(void* const pvParameters)
 {
-	count_debug += 3;
+	/* TO DO */
+	//count_debug += 3;
 	while(1)
 	{
 
