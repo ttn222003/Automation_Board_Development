@@ -2,25 +2,25 @@
 
 CC = gcc
 CFLAGS = -Wall \
-		 -I./../../ThirdParty/Unity/src \
-		 -I./../../ThirdParty/CMock/src \
-		 -I./../../Systems/PLC_Main/include \
-		 -I./../../Systems/CommonDefine \
+		 -I./../../../ThirdParty/Unity/src \
+		 -I./../../../ThirdParty/CMock/src \
+		 -I./../../../Systems/PLC_Main/include \
+		 -I./../../../Systems/CommonDefine \
 
-SRCS = ./../../ThirdParty/Unity/src/unity.c \
-	   ./../../ThirdParty/CMock/src/cmock.c \
+SRCS = ./../../../ThirdParty/Unity/src/unity.c \
+	   ./../../../ThirdParty/CMock/src/cmock.c \
        ./TestRunner.c \
        ./TestPlcGpio.c \
-       ./../../Systems/PLC_Main/src/PlcGpio.c \
+       ./../../../Systems/PLC_Main/src/PlcGpio.c \
 
 TARGET = TestRunner
 BUILD_DIR = build
 
 OBJS = $(patsubst %.c, $(BUILD_DIR)/%.o, $(notdir $(SRCS)))
 
-VPATH = ./../../ThirdParty/Unity/src \
-        ./../../ThirdParty/CMock/src \
-        ./../../Systems/PLC_Main/src \
+VPATH = ./../../../ThirdParty/Unity/src \
+        ./../../../ThirdParty/CMock/src \
+        ./../../../Systems/PLC_Main/src \
         .
 
 all: $(BUILD_DIR) $(TARGET)
