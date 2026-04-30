@@ -1,0 +1,5 @@
+:cmock:
+  :mock_path: Dependencies/STM32F103C8T6/UART/mocks
+  :plugins:
+    - :ignore
+    - :expect
