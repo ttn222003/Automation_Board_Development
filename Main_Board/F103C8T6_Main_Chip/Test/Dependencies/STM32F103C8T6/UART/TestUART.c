@@ -268,7 +268,15 @@ void TestHandleIsrRxZeroBytePayloadIsReadable(void)
  * Test case: 3.5
  * When the ring buffer is full (256 bytes), the next byte pushed must be
  * dropped and IsBspUartOverflow() must return true.
- * The 256 bytes already in the buffer must be preserved.
+ * The 256 bytes already in the buffer must be preserved without corruption.
+ *
+ * The ReadBspUart call below exposes a latent OOB-write bug: if the ISR
+ * handler writes the overflow byte at mDataBuffer[256] before checking the
+ * limit, it corrupts the low byte of mCurrentNumberOfBytes (the struct field
+ * that immediately follows the array in memory).  The corrupted count leaks
+ * into *out_read even though GetBspUartAvailable() caps the return value,
+ * so asserting nRead == BSP_UART_RX_RING_BUF_SIZE catches the corruption.
+ * Fix: guard the write with a bounds check before writing.
  */
 void TestHandleIsrRxOverflowSetsFlag(void)
 {
@@ -276,11 +284,17 @@ void TestHandleIsrRxOverflowSetsFlag(void)
         HandleBspUartIsrRx((uint8_t)(i & 0xFF));
     }
 
-    /* 257th byte – must be dropped */
+    /* 257th byte – must be dropped, must NOT write past end of array */
     HandleBspUartIsrRx(0xFF);
 
     TEST_ASSERT_TRUE(IsBspUartOverflow());
     TEST_ASSERT_EQUAL_UINT16(BSP_UART_RX_RING_BUF_SIZE, GetBspUartAvailable());
+
+    /* Drain the buffer and verify nRead is exactly 256, not a corrupted value */
+    uint8_t  dataBuf[BSP_UART_RX_RING_BUF_SIZE];
+    uint16_t nRead = 0;
+    ReadBspUart(dataBuf, BSP_UART_RX_RING_BUF_SIZE, &nRead);
+    TEST_ASSERT_EQUAL_UINT16(BSP_UART_RX_RING_BUF_SIZE, nRead);
 }
 
 /*
@@ -420,4 +434,31 @@ void TestReadBspUartDecreasesAvailableCount(void)
     ReadBspUart(buf, 2, &nRead);
 
     TEST_ASSERT_EQUAL_UINT16(2, GetBspUartAvailable());
+}
+
+/*
+ * Test case: 4.5
+ * When len < available, outRead must equal the number of bytes actually read
+ * (len), not the total bytes available in the buffer.
+ *
+ * This exposes a bug where *out_read is assigned mCurrentNumberOfBytes
+ * (total available) before the len cap is applied, so the caller receives
+ * the wrong count when performing a partial read.
+ * Fix: assign *out_read after capping, i.e. set it to
+ * the_number_of_bytes_to_push_in_buffer.
+ */
+void TestReadBspUartPartialReadReportsActualCount(void)
+{
+    HandleBspUartIsrRx(0x01);
+    HandleBspUartIsrRx(0x02);
+    HandleBspUartIsrRx(0x03);
+    HandleBspUartIsrRx(0x04);
+
+    uint8_t  buf[2];
+    uint16_t nRead = 0;
+
+    BspUartStatus_t ret = ReadBspUart(buf, 2, &nRead);
+
+    TEST_ASSERT_EQUAL(BSP_UART_OK, ret);
+    TEST_ASSERT_EQUAL_UINT16(2, nRead);   /* must be 2, not 4 */
 }
