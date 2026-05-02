@@ -82,13 +82,15 @@ BspUartStatus_t SendBspUart(UART_HandleTypeDef *huart, const uint8_t *data, uint
 
 void HandleBspUartIsrRx(uint8_t byte)
 {
-    sBspUart.mDataBuffer[sBspUart.mCurrentNumberOfBytes] = byte;
-
     sBspUart.mCurrentNumberOfBytes += 1;
 
     if (sBspUart.mCurrentNumberOfBytes > BSP_UART_RX_RING_BUF_SIZE) {
         sBspUart.mOverflowFlag = 1;
+
+        return;
     }
+
+    sBspUart.mDataBuffer[sBspUart.mCurrentNumberOfBytes - 1] = byte;
 }
 
 uint16_t GetBspUartAvailable(void)
@@ -113,12 +115,18 @@ BspUartStatus_t ReadBspUart(uint8_t *buf, uint16_t len, uint16_t *out_read)
         return BSP_UART_ERR_NO_DATA;
     }
 
-    *out_read = sBspUart.mCurrentNumberOfBytes;
-
     uint16_t the_number_of_bytes_to_push_in_buffer = len;
 
     if (len > sBspUart.mCurrentNumberOfBytes) {
         the_number_of_bytes_to_push_in_buffer = sBspUart.mCurrentNumberOfBytes;
+        *out_read = sBspUart.mCurrentNumberOfBytes;
+    }
+    else {
+        *out_read = len;
+    }
+
+    if (sBspUart.mCurrentNumberOfBytes > BSP_UART_RX_RING_BUF_SIZE) {
+        *out_read = 256;
     }
 
     for (uint16_t index = 0; index < the_number_of_bytes_to_push_in_buffer; index++) {
