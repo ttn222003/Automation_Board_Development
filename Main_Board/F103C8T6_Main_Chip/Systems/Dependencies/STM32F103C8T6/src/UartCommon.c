@@ -36,6 +36,7 @@ void ResetBspUartState(void)
 {
     memset(sBspUart.mDataBuffer, 0, sizeof(sBspUart.mDataBuffer));
     sBspUart.mCurrentNumberOfBytes = 0;
+    sBspUart.mCurrentStatus = BSP_UART_ERR_NOT_INIT;
 }
 
 BspUartStatus_t InitBspUart(UART_HandleTypeDef *huart)
@@ -106,7 +107,7 @@ BspUartStatus_t ReadBspUart(uint8_t *buf, uint16_t len, uint16_t *out_read)
         return BSP_UART_ERR_NULL_PTR;
     }
 
-    if (!IsBufferEmpty()) {
+    if ((!IsBufferEmpty()) && (sBspUart.mCurrentNumberOfBytes == 0)) {
         sBspUart.mCurrentStatus = BSP_UART_ERR_NO_DATA;
         *out_read = 0;
         return BSP_UART_ERR_NO_DATA;
@@ -114,7 +115,13 @@ BspUartStatus_t ReadBspUart(uint8_t *buf, uint16_t len, uint16_t *out_read)
 
     *out_read = sBspUart.mCurrentNumberOfBytes;
 
-    for (uint16_t index = 0; index < len; index++) {
+    uint16_t the_number_of_bytes_to_push_in_buffer = len;
+
+    if (len > sBspUart.mCurrentNumberOfBytes) {
+        the_number_of_bytes_to_push_in_buffer = sBspUart.mCurrentNumberOfBytes;
+    }
+
+    for (uint16_t index = 0; index < the_number_of_bytes_to_push_in_buffer; index++) {
         buf[index] = (uint8_t)sBspUart.mDataBuffer[index];
         sBspUart.mCurrentNumberOfBytes -= 1;
     }
