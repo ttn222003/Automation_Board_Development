@@ -21,6 +21,9 @@ extern void TestSendBspUartHalErrorReturnsError(void);
 extern void TestSendBspUartNullPointerReturnsError(void);
 extern void TestSendBspUartZeroLenReturnsError(void);
 extern void TestSendBspUartHalBusyReturnsError(void);
+extern void TestSendBspUartRetryAfterHalBusySucceeds(void);
+extern void TestSendBspUartRetryAfterNullSucceeds(void);
+extern void TestSendBspUartRetryAfterZeroLenSucceeds(void);
 
 /* ── SUITE 3 – HandleBspUartIsrRx() → ring buffer ───────────────────────── */
 extern void TestHandleIsrRxOneByteIsAvailable(void);
@@ -37,6 +40,8 @@ extern void TestReadBspUartReadsOnlyAvailableBytes(void);
 extern void TestReadBspUartNullBufferReturnsError(void);
 extern void TestReadBspUartDecreasesAvailableCount(void);
 extern void TestReadBspUartPartialReadReportsActualCount(void);
+extern void TestReadBspUartSequentialPartialReadsReturnCorrectData(void);
+extern void TestReadBspUartAfterDrainReturnsNoData(void);
 
 /* ── setUp / tearDown declared in TestUART.c ─────────────────────────────── */
 void setUp(void);
@@ -60,6 +65,9 @@ int main(void)
     RUN_TEST(TestSendBspUartNullPointerReturnsError);
     RUN_TEST(TestSendBspUartZeroLenReturnsError);
     RUN_TEST(TestSendBspUartHalBusyReturnsError);
+    RUN_TEST(TestSendBspUartRetryAfterHalBusySucceeds);
+    RUN_TEST(TestSendBspUartRetryAfterNullSucceeds);
+    RUN_TEST(TestSendBspUartRetryAfterZeroLenSucceeds);
 
     printf("\n--- SUITE 3 - HandleBspUartIsrRx() -> ring buffer ---\n");
     RUN_TEST(TestHandleIsrRxOneByteIsAvailable);
@@ -76,6 +84,8 @@ int main(void)
     RUN_TEST(TestReadBspUartNullBufferReturnsError);
     RUN_TEST(TestReadBspUartDecreasesAvailableCount);
     RUN_TEST(TestReadBspUartPartialReadReportsActualCount);
+    RUN_TEST(TestReadBspUartSequentialPartialReadsReturnCorrectData);
+    RUN_TEST(TestReadBspUartAfterDrainReturnsNoData);
 
     return UNITY_END();
 }

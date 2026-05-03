@@ -11,6 +11,8 @@
 typedef struct
 {
     uint8_t mDataBuffer[BSP_UART_RX_RING_BUF_SIZE];
+    uint16_t mHeadIndex;
+    uint16_t mTailIndex;
     uint16_t mCurrentNumberOfBytes;
     BspUartStatus_t mCurrentStatus;
     uint8_t mOverflowFlag;
@@ -20,21 +22,15 @@ static BspUart_t sBspUart;
 
 /*======= Internal function =======*/
 
-static uint8_t IsBufferEmpty(void)
-{
-    for (uint16_t index = 0; index < BSP_UART_RX_RING_BUF_SIZE; index++) {
-        if (sBspUart.mDataBuffer[index] != 0) {
-            return 1;
-        }
-    }
-    return 0;
-}
+
 
 /*=================================*/
 
 void ResetBspUartState(void)
 {
     memset(sBspUart.mDataBuffer, 0, sizeof(sBspUart.mDataBuffer));
+    sBspUart.mHeadIndex = 0;
+    sBspUart.mTailIndex = 0;
     sBspUart.mCurrentNumberOfBytes = 0;
     sBspUart.mCurrentStatus = BSP_UART_ERR_NOT_INIT;
 }
@@ -47,6 +43,8 @@ BspUartStatus_t InitBspUart(UART_HandleTypeDef *huart)
     }
 
     memset(sBspUart.mDataBuffer, 0, sizeof(sBspUart.mDataBuffer));
+    sBspUart.mHeadIndex = 0;
+    sBspUart.mTailIndex = 0;
     sBspUart.mCurrentNumberOfBytes = 0;
     sBspUart.mCurrentStatus = BSP_UART_OK;
     sBspUart.mOverflowFlag = 0;
@@ -57,23 +55,21 @@ BspUartStatus_t InitBspUart(UART_HandleTypeDef *huart)
 BspUartStatus_t SendBspUart(UART_HandleTypeDef *huart, const uint8_t *data, uint16_t len)
 {
 	if(data == NULL) {
-		sBspUart.mCurrentStatus = BSP_UART_ERR_NULL_PTR;
 		return BSP_UART_ERR_NULL_PTR;
 	}
 
+    // Same as bug found at test case 2.6? Check again all same bug for the src
     if (sBspUart.mCurrentStatus != BSP_UART_OK) {
         sBspUart.mCurrentStatus = BSP_UART_ERR_NOT_INIT;
         return BSP_UART_ERR_NOT_INIT;
     }
 
     if (len == 0) {
-    	sBspUart.mCurrentStatus = BSP_UART_ERR_ZERO_LEN;
     	return BSP_UART_ERR_ZERO_LEN;
     }
 
     HAL_StatusTypeDef uart_status = HAL_UART_Transmit(huart, data, len, BSP_UART_TX_TIMEOUT_MS);
     if ((uart_status == HAL_ERROR) || (uart_status == HAL_BUSY)) {
-    	sBspUart.mCurrentStatus = BSP_UART_ERR_HAL;
     	return BSP_UART_ERR_HAL;
     }
 
@@ -82,6 +78,7 @@ BspUartStatus_t SendBspUart(UART_HandleTypeDef *huart, const uint8_t *data, uint
 
 void HandleBspUartIsrRx(uint8_t byte)
 {
+    // If use ring buffer, then does check overflow neccesary?
     sBspUart.mCurrentNumberOfBytes += 1;
 
     if (sBspUart.mCurrentNumberOfBytes > BSP_UART_RX_RING_BUF_SIZE) {
@@ -90,11 +87,13 @@ void HandleBspUartIsrRx(uint8_t byte)
         return;
     }
 
-    sBspUart.mDataBuffer[sBspUart.mCurrentNumberOfBytes - 1] = byte;
+    sBspUart.mDataBuffer[sBspUart.mHeadIndex] = byte;
+    sBspUart.mHeadIndex = (sBspUart.mHeadIndex + 1) % BSP_UART_RX_RING_BUF_SIZE;
 }
 
 uint16_t GetBspUartAvailable(void)
 {
+    // If use ring buffer, then does check overflow neccesary?
     if (sBspUart.mCurrentNumberOfBytes > BSP_UART_RX_RING_BUF_SIZE) {
         return BSP_UART_RX_RING_BUF_SIZE;
     }
@@ -109,29 +108,31 @@ BspUartStatus_t ReadBspUart(uint8_t *buf, uint16_t len, uint16_t *out_read)
         return BSP_UART_ERR_NULL_PTR;
     }
 
-    if ((!IsBufferEmpty()) && (sBspUart.mCurrentNumberOfBytes == 0)) {
+    if (sBspUart.mCurrentNumberOfBytes == 0) {
         sBspUart.mCurrentStatus = BSP_UART_ERR_NO_DATA;
         *out_read = 0;
         return BSP_UART_ERR_NO_DATA;
     }
 
     uint16_t the_number_of_bytes_to_push_in_buffer = len;
+    *out_read = len;
 
     if (len > sBspUart.mCurrentNumberOfBytes) {
         the_number_of_bytes_to_push_in_buffer = sBspUart.mCurrentNumberOfBytes;
         *out_read = sBspUart.mCurrentNumberOfBytes;
     }
-    else {
-        *out_read = len;
-    }
 
     if (sBspUart.mCurrentNumberOfBytes > BSP_UART_RX_RING_BUF_SIZE) {
-        *out_read = 256;
+        *out_read = BSP_UART_RX_RING_BUF_SIZE;
     }
 
-    for (uint16_t index = 0; index < the_number_of_bytes_to_push_in_buffer; index++) {
-        buf[index] = (uint8_t)sBspUart.mDataBuffer[index];
-        sBspUart.mCurrentNumberOfBytes -= 1;
+    uint16_t buffer_index = 0;
+
+    while (the_number_of_bytes_to_push_in_buffer > 0) {
+        buf[buffer_index++] = (uint8_t)sBspUart.mDataBuffer[sBspUart.mTailIndex];
+        sBspUart.mTailIndex = (sBspUart.mTailIndex + 1) % BSP_UART_RX_RING_BUF_SIZE;
+        sBspUart.mCurrentNumberOfBytes--;
+        the_number_of_bytes_to_push_in_buffer--;
     }
 
     return BSP_UART_OK;

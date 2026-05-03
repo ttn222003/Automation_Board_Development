@@ -184,6 +184,91 @@ void TestSendBspUartHalBusyReturnsError(void)
     TEST_ASSERT_EQUAL(BSP_UART_ERR_HAL, ret);
 }
 
+/*
+ * Test case: 2.6
+ * After a failed HAL_UART_Transmit (HAL_BUSY), a subsequent SendBspUart()
+ * call must still attempt transmission and return BSP_UART_OK on success.
+ *
+ * This exposes a state-poisoning bug: when HAL returns BUSY or ERROR,
+ * the implementation sets mCurrentStatus = BSP_UART_ERR_HAL.  The next
+ * call checks (mCurrentStatus != BSP_UART_OK) and returns BSP_UART_ERR_NOT_INIT
+ * instead of proceeding – making the module permanently unusable after any
+ * transient HAL failure, with no recovery path short of calling InitBspUart()
+ * again.
+ * Fix: do not modify mCurrentStatus on HAL transmit failure; only return
+ * the error to the caller.
+ */
+void TestSendBspUartRetryAfterHalBusySucceeds(void)
+{
+    InitBspUart(&sDummyHandle);
+
+    uint8_t data[] = {0x01, 0x02};
+
+    /* First attempt – HAL busy */
+    HAL_UART_Transmit_IgnoreAndReturn(HAL_BUSY);
+    BspUartStatus_t first = SendBspUart(&sDummyHandle, data, 2);
+    TEST_ASSERT_EQUAL(BSP_UART_ERR_HAL, first);
+
+    /* Retry – HAL now succeeds; must NOT return ERR_NOT_INIT */
+    HAL_UART_Transmit_ExpectAndReturn(
+        &sDummyHandle, data, 2, BSP_UART_TX_TIMEOUT_MS, HAL_OK);
+    BspUartStatus_t retry = SendBspUart(&sDummyHandle, data, 2);
+    TEST_ASSERT_EQUAL(BSP_UART_OK, retry);
+}
+
+/*
+ * Test case: 2.7
+ * After a call with a NULL data pointer, a subsequent call with a valid
+ * pointer must still transmit and return BSP_UART_OK.
+ *
+ * Same state-poisoning pattern as TC 2.6: setting mCurrentStatus =
+ * BSP_UART_ERR_NULL_PTR causes the next valid call to hit the NOT_INIT
+ * guard and return BSP_UART_ERR_NOT_INIT instead of transmitting.
+ * Fix: do not modify mCurrentStatus when rejecting a NULL or len=0 argument;
+ * these are caller errors, not module-state transitions.
+ */
+void TestSendBspUartRetryAfterNullSucceeds(void)
+{
+    InitBspUart(&sDummyHandle);
+
+    /* First call – NULL data, must be rejected */
+    BspUartStatus_t first = SendBspUart(&sDummyHandle, NULL, 2);
+    TEST_ASSERT_EQUAL(BSP_UART_ERR_NULL_PTR, first);
+
+    /* Retry with valid data – must NOT return ERR_NOT_INIT */
+    uint8_t data[] = {0x01, 0x02};
+    HAL_UART_Transmit_ExpectAndReturn(
+        &sDummyHandle, data, 2, BSP_UART_TX_TIMEOUT_MS, HAL_OK);
+    BspUartStatus_t retry = SendBspUart(&sDummyHandle, data, 2);
+    TEST_ASSERT_EQUAL(BSP_UART_OK, retry);
+}
+
+/*
+ * Test case: 2.8
+ * After a call with len = 0, a subsequent call with a valid len must still
+ * transmit and return BSP_UART_OK.
+ *
+ * Same state-poisoning pattern: setting mCurrentStatus = BSP_UART_ERR_ZERO_LEN
+ * blocks all future calls.
+ * Fix: same as TC 2.7 – do not modify mCurrentStatus for argument errors.
+ */
+void TestSendBspUartRetryAfterZeroLenSucceeds(void)
+{
+    InitBspUart(&sDummyHandle);
+
+    uint8_t data[] = {0x01, 0x02};
+
+    /* First call – zero len, must be rejected */
+    BspUartStatus_t first = SendBspUart(&sDummyHandle, data, 0);
+    TEST_ASSERT_EQUAL(BSP_UART_ERR_ZERO_LEN, first);
+
+    /* Retry with valid len – must NOT return ERR_NOT_INIT */
+    HAL_UART_Transmit_ExpectAndReturn(
+        &sDummyHandle, data, 2, BSP_UART_TX_TIMEOUT_MS, HAL_OK);
+    BspUartStatus_t retry = SendBspUart(&sDummyHandle, data, 2);
+    TEST_ASSERT_EQUAL(BSP_UART_OK, retry);
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
  * SUITE 3 – HandleBspUartIsrRx() → ring buffer
  *
@@ -240,13 +325,6 @@ void TestHandleIsrRxPreservesFifoOrder(void)
 /*
  * Test case: 3.4
  * Pushing a 0x00 byte must be readable as valid data, not treated as empty.
- *
- * BUG FOUND: IsBufferEmpty() scans for any byte != 0 to detect data.
- * A payload of 0x00 is a valid UART byte (e.g. CMD_ACK in our protocol).
- * With the current zero-sentinel approach, ReadBspUart() returns
- * BSP_UART_ERR_NO_DATA even though 1 byte is available.
- * Fix: replace IsBufferEmpty() with a counter-based check
- * (mCurrentNumberOfBytes == 0), removing the zero-sentinel entirely.
  */
 void TestHandleIsrRxZeroBytePayloadIsReadable(void)
 {
@@ -270,13 +348,6 @@ void TestHandleIsrRxZeroBytePayloadIsReadable(void)
  * dropped and IsBspUartOverflow() must return true.
  * The 256 bytes already in the buffer must be preserved without corruption.
  *
- * The ReadBspUart call below exposes a latent OOB-write bug: if the ISR
- * handler writes the overflow byte at mDataBuffer[256] before checking the
- * limit, it corrupts the low byte of mCurrentNumberOfBytes (the struct field
- * that immediately follows the array in memory).  The corrupted count leaks
- * into *out_read even though GetBspUartAvailable() caps the return value,
- * so asserting nRead == BSP_UART_RX_RING_BUF_SIZE catches the corruption.
- * Fix: guard the write with a bounds check before writing.
  */
 void TestHandleIsrRxOverflowSetsFlag(void)
 {
@@ -306,10 +377,6 @@ void TestHandleIsrRxOverflowSetsFlag(void)
  * from a stale one – every subsequent poll would return true forever.
  * One overflow event must produce exactly one true return, then reset,
  * so that UART_Task sends NACK exactly once per overflow, not continuously.
- *
- * BUG FOUND: current IsBspUartOverflow() sets mOverflowFlag = 1 but never
- * clears it, so the second call also returns true.
- * Fix: reset mOverflowFlag to 0 before returning 1.
  */
 void TestHandleIsrRxOverflowFlagClearsAfterCheck(void)
 {
@@ -378,10 +445,6 @@ void TestReadBspUartEmptyBufferReturnsNoData(void)
  * Test case: 4.2
  * Requesting more bytes than available must read only the available count,
  * set outRead to the actual count, and return BSP_UART_OK.
- *
- * BUG FOUND: the current loop runs len times unconditionally, which causes
- * mCurrentNumberOfBytes (uint16_t) to underflow-wrap when len > available.
- * Fix: cap the loop at min(len, mCurrentNumberOfBytes).
  */
 void TestReadBspUartReadsOnlyAvailableBytes(void)
 {
@@ -440,12 +503,6 @@ void TestReadBspUartDecreasesAvailableCount(void)
  * Test case: 4.5
  * When len < available, outRead must equal the number of bytes actually read
  * (len), not the total bytes available in the buffer.
- *
- * This exposes a bug where *out_read is assigned mCurrentNumberOfBytes
- * (total available) before the len cap is applied, so the caller receives
- * the wrong count when performing a partial read.
- * Fix: assign *out_read after capping, i.e. set it to
- * the_number_of_bytes_to_push_in_buffer.
  */
 void TestReadBspUartPartialReadReportsActualCount(void)
 {
@@ -461,4 +518,80 @@ void TestReadBspUartPartialReadReportsActualCount(void)
 
     TEST_ASSERT_EQUAL(BSP_UART_OK, ret);
     TEST_ASSERT_EQUAL_UINT16(2, nRead);   /* must be 2, not 4 */
+}
+
+/*
+ * Test case: 4.6
+ * Two sequential partial reads must each return the correct next bytes,
+ * not the same stale bytes from the start of the buffer.
+ *
+ * This exposes a fundamental FIFO violation: after a partial read of N bytes
+ * the implementation does not advance a read-head pointer – it always reads
+ * from mDataBuffer[0].  A second read therefore returns the same N bytes
+ * again instead of the next N bytes in the queue.
+ * Fix: introduce separate head and tail indices (proper ring buffer) so that
+ * each read advances the head by the number of bytes consumed.
+ */
+void TestReadBspUartSequentialPartialReadsReturnCorrectData(void)
+{
+    HandleBspUartIsrRx(0x01);
+    HandleBspUartIsrRx(0x02);
+    HandleBspUartIsrRx(0x03);
+    HandleBspUartIsrRx(0x04);
+
+    /* ── First read: consume bytes 1 and 2 ──────────── */
+    uint8_t  buf1[2];
+    uint16_t nRead1 = 0;
+    ReadBspUart(buf1, 2, &nRead1);
+    TEST_ASSERT_EQUAL_UINT16(2,    nRead1);
+    TEST_ASSERT_EQUAL_HEX8(0x01,  buf1[0]);
+    TEST_ASSERT_EQUAL_HEX8(0x02,  buf1[1]);
+
+    /* ── Second read: must return bytes 3 and 4, not 1 and 2 again ── */
+    uint8_t  buf2[2];
+    uint16_t nRead2 = 0;
+    BspUartStatus_t ret = ReadBspUart(buf2, 2, &nRead2);
+
+    TEST_ASSERT_EQUAL(BSP_UART_OK, ret);
+    TEST_ASSERT_EQUAL_UINT16(2,    nRead2);
+    TEST_ASSERT_EQUAL_HEX8(0x03,  buf2[0]);
+    TEST_ASSERT_EQUAL_HEX8(0x04,  buf2[1]);
+}
+
+/*
+ * Test case: 4.7
+ * After draining all bytes from the buffer, a subsequent ReadBspUart()
+ * must return BSP_UART_ERR_NO_DATA, not BSP_UART_OK with nRead = 0.
+ *
+ * This exposes a bug in the empty-detection logic: IsBufferEmpty() scans
+ * mDataBuffer for any non-zero byte to decide if data is present.  After
+ * a complete drain, mCurrentNumberOfBytes = 0 but the buffer still holds
+ * the old (non-zero) bytes that were read – they are never zeroed out on
+ * read.  IsBufferEmpty() therefore finds non-zero bytes and returns 1
+ * (not empty), so !IsBufferEmpty() = 0, the condition evaluates to false,
+ * and ReadBspUart() skips the ERR_NO_DATA guard entirely.  The while loop
+ * then runs 0 iterations and returns BSP_UART_OK with out_read = 0.
+ * Fix: replace IsBufferEmpty() with a simple counter check:
+ *   if (mCurrentNumberOfBytes == 0) → return ERR_NO_DATA.
+ */
+void TestReadBspUartAfterDrainReturnsNoData(void)
+{
+    HandleBspUartIsrRx(0xAA);
+    HandleBspUartIsrRx(0xBB);
+
+    /* Drain all bytes */
+    uint8_t  drain[2];
+    uint16_t nRead = 0;
+    ReadBspUart(drain, 2, &nRead);
+    TEST_ASSERT_EQUAL_UINT16(2, nRead);
+
+    /* Buffer is now logically empty – mCurrentNumberOfBytes = 0.
+     * Old data still sits in mDataBuffer[0..1].
+     * Must return ERR_NO_DATA, NOT OK with nRead = 0. */
+    uint8_t  buf[2];
+    nRead = 0;
+    BspUartStatus_t ret = ReadBspUart(buf, 2, &nRead);
+
+    TEST_ASSERT_EQUAL(BSP_UART_ERR_NO_DATA, ret);
+    TEST_ASSERT_EQUAL_UINT16(0, nRead);
 }
