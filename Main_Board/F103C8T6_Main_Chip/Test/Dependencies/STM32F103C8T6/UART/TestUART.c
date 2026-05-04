@@ -269,6 +269,62 @@ void TestSendBspUartRetryAfterZeroLenSucceeds(void)
     TEST_ASSERT_EQUAL(BSP_UART_OK, retry);
 }
 
+/*
+ * Test case: 2.9
+ * After ReadBspUart() is called with a NULL buffer, SendBspUart() must
+ * still transmit and return BSP_UART_OK.
+ *
+ * ReadBspUart() sets mCurrentStatus = BSP_UART_ERR_NULL_PTR when buf is
+ * NULL.  SendBspUart() then sees mCurrentStatus != BSP_UART_OK and returns
+ * BSP_UART_ERR_NOT_INIT, making the module permanently unable to send after
+ * any ReadBspUart error – even though InitBspUart() was called successfully.
+ * Fix: do not modify mCurrentStatus in ReadBspUart() for per-call argument
+ * errors (NULL buf, empty buffer).  These are transient caller errors, not
+ * module-state transitions.
+ */
+void TestSendBspUartAfterReadNullDoesNotBlock(void)
+{
+    InitBspUart(&sDummyHandle);
+
+    /* Trigger ReadBspUart's NULL guard → poisons mCurrentStatus in buggy impl */
+    uint16_t nRead = 0;
+    ReadBspUart(NULL, 1, &nRead);
+
+    /* SendBspUart must still work – module is initialised */
+    uint8_t data[] = {0xAB};
+    HAL_UART_Transmit_ExpectAndReturn(
+        &sDummyHandle, data, 1, BSP_UART_TX_TIMEOUT_MS, HAL_OK);
+    BspUartStatus_t ret = SendBspUart(&sDummyHandle, data, 1);
+    TEST_ASSERT_EQUAL(BSP_UART_OK, ret);
+}
+
+/*
+ * Test case: 2.10
+ * After ReadBspUart() returns BSP_UART_ERR_NO_DATA (empty buffer),
+ * SendBspUart() must still transmit and return BSP_UART_OK.
+ *
+ * Same cross-function poisoning: ReadBspUart() sets mCurrentStatus =
+ * BSP_UART_ERR_NO_DATA when the buffer is empty, which blocks all
+ * subsequent SendBspUart() calls with ERR_NOT_INIT.
+ * Fix: same as TC 2.9.
+ */
+void TestSendBspUartAfterReadEmptyDoesNotBlock(void)
+{
+    InitBspUart(&sDummyHandle);
+
+    /* Read from empty buffer → poisons mCurrentStatus in buggy impl */
+    uint8_t  buf[4];
+    uint16_t nRead = 0;
+    ReadBspUart(buf, 4, &nRead);   /* returns ERR_NO_DATA */
+
+    /* SendBspUart must still work – module is initialised */
+    uint8_t data[] = {0xCD};
+    HAL_UART_Transmit_ExpectAndReturn(
+        &sDummyHandle, data, 1, BSP_UART_TX_TIMEOUT_MS, HAL_OK);
+    BspUartStatus_t ret = SendBspUart(&sDummyHandle, data, 1);
+    TEST_ASSERT_EQUAL(BSP_UART_OK, ret);
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
  * SUITE 3 – HandleBspUartIsrRx() → ring buffer
  *
@@ -347,7 +403,15 @@ void TestHandleIsrRxZeroBytePayloadIsReadable(void)
  * When the ring buffer is full (256 bytes), the next byte pushed must be
  * dropped and IsBspUartOverflow() must return true.
  * The 256 bytes already in the buffer must be preserved without corruption.
+ * After draining all 256 bytes, GetBspUartAvailable() must return 0.
  *
+ * The last assertion exposes a ghost-count bug: HandleBspUartIsrRx()
+ * increments mCurrentNumberOfBytes before checking the limit, so the
+ * counter reaches 257 for the dropped byte.  After ReadBspUart drains
+ * 256 bytes (257-256 = 1), GetBspUartAvailable() returns 1 even though
+ * the buffer is logically empty.
+ * Fix: check the limit before incrementing so the counter never exceeds
+ * BSP_UART_RX_RING_BUF_SIZE.
  */
 void TestHandleIsrRxOverflowSetsFlag(void)
 {
@@ -361,11 +425,14 @@ void TestHandleIsrRxOverflowSetsFlag(void)
     TEST_ASSERT_TRUE(IsBspUartOverflow());
     TEST_ASSERT_EQUAL_UINT16(BSP_UART_RX_RING_BUF_SIZE, GetBspUartAvailable());
 
-    /* Drain the buffer and verify nRead is exactly 256, not a corrupted value */
+    /* Drain all 256 valid bytes */
     uint8_t  dataBuf[BSP_UART_RX_RING_BUF_SIZE];
     uint16_t nRead = 0;
     ReadBspUart(dataBuf, BSP_UART_RX_RING_BUF_SIZE, &nRead);
     TEST_ASSERT_EQUAL_UINT16(BSP_UART_RX_RING_BUF_SIZE, nRead);
+
+    /* Buffer must now be empty – ghost count of 1 would fail this */
+    TEST_ASSERT_EQUAL_UINT16(0, GetBspUartAvailable());
 }
 
 /*
@@ -373,10 +440,6 @@ void TestHandleIsrRxOverflowSetsFlag(void)
  * IsBspUartOverflow() must clear its flag automatically after the first call
  * that returns true, so the second call returns false.
  *
- * Why: without auto-clear the caller cannot distinguish a new overflow event
- * from a stale one – every subsequent poll would return true forever.
- * One overflow event must produce exactly one true return, then reset,
- * so that UART_Task sends NACK exactly once per overflow, not continuously.
  */
 void TestHandleIsrRxOverflowFlagClearsAfterCheck(void)
 {

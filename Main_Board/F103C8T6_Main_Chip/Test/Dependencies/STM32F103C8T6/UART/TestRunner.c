@@ -24,6 +24,8 @@ extern void TestSendBspUartHalBusyReturnsError(void);
 extern void TestSendBspUartRetryAfterHalBusySucceeds(void);
 extern void TestSendBspUartRetryAfterNullSucceeds(void);
 extern void TestSendBspUartRetryAfterZeroLenSucceeds(void);
+extern void TestSendBspUartAfterReadNullDoesNotBlock(void);
+extern void TestSendBspUartAfterReadEmptyDoesNotBlock(void);
 
 /* ── SUITE 3 – HandleBspUartIsrRx() → ring buffer ───────────────────────── */
 extern void TestHandleIsrRxOneByteIsAvailable(void);
@@ -68,6 +70,8 @@ int main(void)
     RUN_TEST(TestSendBspUartRetryAfterHalBusySucceeds);
     RUN_TEST(TestSendBspUartRetryAfterNullSucceeds);
     RUN_TEST(TestSendBspUartRetryAfterZeroLenSucceeds);
+    RUN_TEST(TestSendBspUartAfterReadNullDoesNotBlock);
+    RUN_TEST(TestSendBspUartAfterReadEmptyDoesNotBlock);
 
     printf("\n--- SUITE 3 - HandleBspUartIsrRx() -> ring buffer ---\n");
     RUN_TEST(TestHandleIsrRxOneByteIsAvailable);

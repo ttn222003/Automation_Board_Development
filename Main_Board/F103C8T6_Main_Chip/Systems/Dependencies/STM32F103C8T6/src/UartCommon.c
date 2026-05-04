@@ -79,13 +79,14 @@ BspUartStatus_t SendBspUart(UART_HandleTypeDef *huart, const uint8_t *data, uint
 void HandleBspUartIsrRx(uint8_t byte)
 {
     // If use ring buffer, then does check overflow neccesary?
-    sBspUart.mCurrentNumberOfBytes += 1;
-
-    if (sBspUart.mCurrentNumberOfBytes > BSP_UART_RX_RING_BUF_SIZE) {
+    
+    if (sBspUart.mCurrentNumberOfBytes >= BSP_UART_RX_RING_BUF_SIZE) {
         sBspUart.mOverflowFlag = 1;
 
         return;
     }
+
+    sBspUart.mCurrentNumberOfBytes += 1;
 
     sBspUart.mDataBuffer[sBspUart.mHeadIndex] = byte;
     sBspUart.mHeadIndex = (sBspUart.mHeadIndex + 1) % BSP_UART_RX_RING_BUF_SIZE;
@@ -104,12 +105,10 @@ uint16_t GetBspUartAvailable(void)
 BspUartStatus_t ReadBspUart(uint8_t *buf, uint16_t len, uint16_t *out_read)
 {
     if(buf == NULL) {
-        sBspUart.mCurrentStatus = BSP_UART_ERR_NULL_PTR;
         return BSP_UART_ERR_NULL_PTR;
     }
 
     if (sBspUart.mCurrentNumberOfBytes == 0) {
-        sBspUart.mCurrentStatus = BSP_UART_ERR_NO_DATA;
         *out_read = 0;
         return BSP_UART_ERR_NO_DATA;
     }
