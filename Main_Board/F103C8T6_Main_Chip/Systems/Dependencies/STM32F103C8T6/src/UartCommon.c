@@ -58,7 +58,6 @@ BspUartStatus_t SendBspUart(UART_HandleTypeDef *huart, const uint8_t *data, uint
 		return BSP_UART_ERR_NULL_PTR;
 	}
 
-    // Same as bug found at test case 2.6? Check again all same bug for the src
     if (sBspUart.mCurrentStatus != BSP_UART_OK) {
         sBspUart.mCurrentStatus = BSP_UART_ERR_NOT_INIT;
         return BSP_UART_ERR_NOT_INIT;
@@ -77,9 +76,7 @@ BspUartStatus_t SendBspUart(UART_HandleTypeDef *huart, const uint8_t *data, uint
 }
 
 void HandleBspUartIsrRx(uint8_t byte)
-{
-    // If use ring buffer, then does check overflow neccesary?
-    
+{    
     if (sBspUart.mCurrentNumberOfBytes >= BSP_UART_RX_RING_BUF_SIZE) {
         sBspUart.mOverflowFlag = 1;
 
@@ -94,11 +91,6 @@ void HandleBspUartIsrRx(uint8_t byte)
 
 uint16_t GetBspUartAvailable(void)
 {
-    // If use ring buffer, then does check overflow neccesary?
-    if (sBspUart.mCurrentNumberOfBytes > BSP_UART_RX_RING_BUF_SIZE) {
-        return BSP_UART_RX_RING_BUF_SIZE;
-    }
-
     return sBspUart.mCurrentNumberOfBytes;
 }
 
@@ -119,10 +111,6 @@ BspUartStatus_t ReadBspUart(uint8_t *buf, uint16_t len, uint16_t *out_read)
     if (len > sBspUart.mCurrentNumberOfBytes) {
         the_number_of_bytes_to_push_in_buffer = sBspUart.mCurrentNumberOfBytes;
         *out_read = sBspUart.mCurrentNumberOfBytes;
-    }
-
-    if (sBspUart.mCurrentNumberOfBytes > BSP_UART_RX_RING_BUF_SIZE) {
-        *out_read = BSP_UART_RX_RING_BUF_SIZE;
     }
 
     uint16_t buffer_index = 0;
