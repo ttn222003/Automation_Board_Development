@@ -1,12 +1,13 @@
 ------------------------------------------------------------------------------
                            GCC Code Coverage Report
-Directory: .
+Directory: ../../../../..
 ------------------------------------------------------------------------------
 File                                    Branches    Taken  Cover   Missing
 ------------------------------------------------------------------------------
-C:/Users/Admin/Documents/Automation_Board_Development/Main_Board/F103C8T6_Main_Chip/Systems/PLC_Main/src/PlcGpio.c
+Main_Board/F103C8T6_Main_Chip/Systems/PLC_Main/src/PlcGpio.c
                                               10       10   100%
-TestPlcGpio.c                                  6        6   100%
+Main_Board/F103C8T6_Main_Chip/Test/PLC_Main/PLC_GPIO/TestPlcGpio.c
+                                               6        6   100%
 ------------------------------------------------------------------------------
 TOTAL                                         16       16   100%
 ------------------------------------------------------------------------------

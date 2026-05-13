@@ -1,10 +1,10 @@
 ------------------------------------------------------------------------------
                            GCC Code Coverage Report
-Directory: .
+Directory: ../../../../..
 ------------------------------------------------------------------------------
 File                                    Branches    Taken  Cover   Missing
 ------------------------------------------------------------------------------
-C:/Users/Admin/Documents/Automation_Board_Development/Main_Board/F103C8T6_Main_Chip/Systems/PLC_Main/src/PlcMainExecuteLogic.c
+Main_Board/F103C8T6_Main_Chip/Systems/PLC_Main/src/PlcMainExecuteLogic.c
                                                2        2   100%
 ------------------------------------------------------------------------------
 TOTAL                                          2        2   100%

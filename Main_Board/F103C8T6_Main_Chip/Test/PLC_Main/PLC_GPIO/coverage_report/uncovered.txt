@@ -1,8 +1,8 @@
-C:/Users/Admin/Documents/Automation_Board_Development/Main_Board/F103C8T6_Main_Chip/Systems/PLC_Main/src/PlcGpio.c
+Main_Board\F103C8T6_Main_Chip\Test\PLC_Main\PLC_GPIO\Main_Board\F103C8T6_Main_Chip\Systems\PLC_Main\src\PlcGpio.c
   Uncovered lines  (C0): none
   Uncovered branch (C1): none
 
-TestPlcGpio.c
+Main_Board\F103C8T6_Main_Chip\Test\PLC_Main\PLC_GPIO\Main_Board\F103C8T6_Main_Chip\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c
   Uncovered lines  (C0): none
   Uncovered branch (C1): none
 

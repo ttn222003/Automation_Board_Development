@@ -57,17 +57,19 @@ coverage: run
 	@python -m gcovr \
 		--gcov-executable gcov \
 		--object-directory $(BUILD_DIR) \
+		--root "$(abspath ../../../../..)" \
 		--filter ".*UartCommon.*" \
 		--txt-metric branch \
 		--txt $(COVERAGE_REPORT)/summary.txt \
 		--json $(COVERAGE_REPORT)/.raw.json \
 		--print-summary
 	@python -c "\
-import json; \
+import json, os; \
+root = os.path.abspath('$(abspath ../../../../..)'); \
 d = json.load(open('$(COVERAGE_REPORT)/.raw.json')); \
 f = open('$(COVERAGE_REPORT)/uncovered.txt', 'w'); \
 [f.write( \
-    x.get('file', x.get('filename', '?')) + '\n' + \
+    os.path.relpath(x.get('file', x.get('filename', '?')), root) + '\n' + \
     '  Uncovered lines  (C0): ' + (', '.join(str(l['line_number']) for l in x['lines'] if l['count'] == 0) or 'none') + '\n' + \
     '  Uncovered branch (C1): ' + (', '.join('line ' + str(l['line_number']) + ' branch ' + str(i) for l in x['lines'] for i,b in enumerate(l.get('branches',[])) if b.get('count',0) == 0) or 'none') + '\n\n' \
 ) for x in d['files']]; \
@@ -77,7 +79,7 @@ f.close()"
 	@echo "uncovered.txt: $(COVERAGE_REPORT)/uncovered.txt"
 
 clean:
-	rm -rf $(BUILD_DIR) $(TARGET) $(COVERAGE_REPORT)
+	rm -rf $(BUILD_DIR) $(TARGET)
 	find . -name "*.gcda" -delete
 	find . -name "*.gcno" -delete
 	find . -name "*.info" -delete
