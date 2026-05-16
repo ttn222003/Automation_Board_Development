@@ -1,0 +1,4 @@
+F103C8T6_Main_Chip\Test\Dependencies\STM32F103C8T6\UART\F103C8T6_Main_Chip\Systems\Dependencies\STM32F103C8T6\src\UartCommon.c
+  Uncovered lines  (C0): none
+  Uncovered branch (C1): none
+
