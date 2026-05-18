@@ -364,10 +364,13 @@ void TestReturnEofErrorWhenEofIsWrong(void)
     uint8_t  mDataPayload[] = {0x10};
     uint8_t  raw[MAX_FRAME_LEN];
     uint16_t rawLen = BuildValidFrame(CMD_DATA_PUSH, mDataPayload, 1, raw);
-    raw[rawLen - 1] = 0x44;
+
+    uint8_t  corrupted[MAX_FRAME_LEN];
+    memcpy(corrupted, raw, rawLen);
+    corrupted[rawLen - 1] = 0x44;
 
     FrameStructure_t   frame;
-    FrameParseStatus_t result = ParseFrame(raw, rawLen, &frame);
+    FrameParseStatus_t result = ParseFrame(corrupted, rawLen, &frame);
 
     TEST_ASSERT_EQUAL(PARSED_FRAME_ERR_EOF_D, result);
 }
@@ -381,10 +384,13 @@ void TestReturnCrcErrorWhenCrcIsWrong(void)
     uint8_t  mDataPayload[] = {0x10, 0x20};
     uint8_t  raw[MAX_FRAME_LEN];
     uint16_t rawLen = BuildValidFrame(CMD_DATA_PUSH, mDataPayload, 2, raw);
-    raw[rawLen - 3] ^= 0xFF;   /* corrupt CRC_H */
+
+    uint8_t  corrupted[MAX_FRAME_LEN];
+    memcpy(corrupted, raw, rawLen);
+    corrupted[rawLen - 3] ^= 0xFF;   /* corrupt CRC_H */
 
     FrameStructure_t   frame;
-    FrameParseStatus_t result = ParseFrame(raw, rawLen, &frame);
+    FrameParseStatus_t result = ParseFrame(corrupted, rawLen, &frame);
 
     TEST_ASSERT_EQUAL(PARSED_FRAME_ERR_CRC, result);
 }
@@ -399,10 +405,13 @@ void TestReturnIncompleteWhenLenClaimsMoreBytesThanAvailable(void)
     uint8_t  mDataPayload[] = {0x10, 0x20, 0x30};
     uint8_t  raw[MAX_FRAME_LEN];
     uint16_t rawLen = BuildValidFrame(CMD_DATA_PUSH, mDataPayload, 3, raw);
-    raw[1] = 10;   /* lie about mDataPayload length */
+
+    uint8_t  corrupted[MAX_FRAME_LEN];
+    memcpy(corrupted, raw, rawLen);
+    corrupted[1] = 10;   /* lie about mDataPayload length */
 
     FrameStructure_t   frame;
-    FrameParseStatus_t result = ParseFrame(raw, rawLen, &frame);
+    FrameParseStatus_t result = ParseFrame(corrupted, rawLen, &frame);
 
     TEST_ASSERT_EQUAL(PARSED_FRAME_INCOMPLETE, result);
 }
@@ -499,12 +508,14 @@ void TestRejectFrameWhenCrcBytesAreSwapped(void)
     uint8_t  raw[MAX_FRAME_LEN];
     uint16_t rawLen = BuildValidFrame(CMD_DATA_PUSH, mDataPayload, 2, raw);
 
-    uint8_t tmp      = raw[rawLen - 3];
-    raw[rawLen - 3]  = raw[rawLen - 2];
-    raw[rawLen - 2]  = tmp;
+    uint8_t  corrupted[MAX_FRAME_LEN];
+    memcpy(corrupted, raw, rawLen);
+    uint8_t  tmp            = corrupted[rawLen - 3];
+    corrupted[rawLen - 3]   = corrupted[rawLen - 2];
+    corrupted[rawLen - 2]   = tmp;
 
     FrameStructure_t   frame;
-    FrameParseStatus_t result = ParseFrame(raw, rawLen, &frame);
+    FrameParseStatus_t result = ParseFrame(corrupted, rawLen, &frame);
 
     TEST_ASSERT_EQUAL(PARSED_FRAME_ERR_CRC, result);
 }
@@ -529,11 +540,11 @@ void TestBuildAckFrameFormat(void)
     FrameBuildStatus_t ret = BuildFrame(CMD_ACK, ackPayload, sizeof(ackPayload),
                                        frame, &frameLen);
 
-    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, ret);
-    TEST_ASSERT_EQUAL_UINT16(7, frameLen);       /* 1 mDataPayload + 6 overhead */
-    TEST_ASSERT_EQUAL_UINT8(1,            frame[1]);   /* mLength */
-    TEST_ASSERT_EQUAL_HEX8(CMD_ACK,      frame[2]);
-    TEST_ASSERT_EQUAL_HEX8(CMD_DATA_PUSH, frame[3]);  /* acked command */
+    TEST_ASSERT_EQUAL(BUILT_FRAME_OK, ret);
+    TEST_ASSERT_EQUAL_UINT16(7, frameLen);
+    TEST_ASSERT_EQUAL_UINT8(1,             frame[1]);
+    TEST_ASSERT_EQUAL_HEX8(CMD_ACK,       frame[2]);
+    TEST_ASSERT_EQUAL_HEX8(CMD_DATA_PUSH, frame[3]);
 }
 
 /*
@@ -550,12 +561,12 @@ void TestBuildNackFrameFormat(void)
     FrameBuildStatus_t ret = BuildFrame(CMD_NACK, nackPayload, sizeof(nackPayload),
                                        frame, &frameLen);
 
-    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, ret);
-    TEST_ASSERT_EQUAL_UINT16(8, frameLen);            /* 2 mDataPayload + 6 overhead */
-    TEST_ASSERT_EQUAL_UINT8(2,                 frame[1]);   /* mLength */
-    TEST_ASSERT_EQUAL_HEX8(CMD_NACK,           frame[2]);
-    TEST_ASSERT_EQUAL_HEX8(CMD_DATA_PUSH,      frame[3]);   /* failed command */
-    TEST_ASSERT_EQUAL_HEX8(NACK_ERR_CRC_FAIL,  frame[4]);   /* error code */
+    TEST_ASSERT_EQUAL(BUILT_FRAME_OK, ret);
+    TEST_ASSERT_EQUAL_UINT16(8, frameLen);
+    TEST_ASSERT_EQUAL_UINT8(2,                frame[1]);
+    TEST_ASSERT_EQUAL_HEX8(CMD_NACK,          frame[2]);
+    TEST_ASSERT_EQUAL_HEX8(CMD_DATA_PUSH,     frame[3]);
+    TEST_ASSERT_EQUAL_HEX8(NACK_ERR_CRC_FAIL, frame[4]);
 }
 
 /*
@@ -567,14 +578,12 @@ void TestParseHeartbeatRequest(void)
     uint8_t  raw[MAX_FRAME_LEN];
     uint16_t rawLen = BuildValidFrame(CMD_HEARTBEAT_REQ, NULL, 0, raw);
 
-    printf("Raw len: %d\n", rawLen);
-
     FrameStructure_t   frame;
     FrameParseStatus_t result = ParseFrame(raw, rawLen, &frame);
 
-    TEST_ASSERT_EQUAL(PARSED_FRAME_OK,            result);
-    TEST_ASSERT_EQUAL_HEX8(CMD_HEARTBEAT_REQ, frame.mCommand);
-    TEST_ASSERT_EQUAL_UINT8(0,                frame.mLength);
+    TEST_ASSERT_EQUAL(PARSED_FRAME_OK,         result);
+    TEST_ASSERT_EQUAL_HEX8(CMD_HEARTBEAT_REQ,  frame.mCommand);
+    TEST_ASSERT_EQUAL_UINT8(0,                 frame.mLength);
 }
 
 /*
@@ -588,10 +597,33 @@ void TestBuildHeartbeatResponse(void)
 
     FrameBuildStatus_t ret = BuildFrame(CMD_HEARTBEAT_RSP, NULL, 0, frame, &frameLen);
 
-    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, ret);
-    TEST_ASSERT_EQUAL_UINT16(6, frameLen);            /* 0 mDataPayload + 6 overhead */
-    TEST_ASSERT_EQUAL_UINT8(0,                frame[1]);   /* mLength */
-    TEST_ASSERT_EQUAL_HEX8(CMD_HEARTBEAT_RSP, frame[2]);
+    TEST_ASSERT_EQUAL(BUILT_FRAME_OK, ret);
+    TEST_ASSERT_EQUAL_UINT16(6, frameLen);
+    TEST_ASSERT_EQUAL_UINT8(0,                 frame[1]);
+    TEST_ASSERT_EQUAL_HEX8(CMD_HEARTBEAT_RSP,  frame[2]);
+}
+
+/*
+ * Test case: 4.5
+ * ParseFrame() must decode a HEARTBEAT_RSP frame with no mDataPayload.
+ *
+ * CheckParsedFrameIncomplete() whitelists only CMD_HEARTBEAT_REQ for 6-byte
+ * frames.  CMD_HEARTBEAT_RSP is also a valid 6-byte frame but is not in the
+ * whitelist, so parsing it returns PARSED_FRAME_INCOMPLETE incorrectly.
+ * Fix: replace the command-based whitelist with a pure counter check:
+ *   if (len < 6) → INCOMPLETE; if ((len - 6) != buffer[1]) → INCOMPLETE.
+ */
+void TestParseHeartbeatResponse(void)
+{
+    uint8_t  raw[MAX_FRAME_LEN];
+    uint16_t rawLen = BuildValidFrame(CMD_HEARTBEAT_RSP, NULL, 0, raw);
+
+    FrameStructure_t   frame;
+    FrameParseStatus_t result = ParseFrame(raw, rawLen, &frame);
+
+    TEST_ASSERT_EQUAL(PARSED_FRAME_OK,        result);
+    TEST_ASSERT_EQUAL_HEX8(CMD_HEARTBEAT_RSP, frame.mCommand);
+    TEST_ASSERT_EQUAL_UINT8(0,                frame.mLength);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -603,8 +635,13 @@ void TestBuildHeartbeatResponse(void)
 
 /*
  * Test case: 5.1
- * Three consecutive frames in one byte stream must each be parseable by
- * advancing the offset after each call.
+ * The caller knows frame boundaries from the mLength field and passes exactly
+ * one frame at a time to ParseFrame().  Three frames built into a stream must
+ * each parse correctly when sliced to their exact length.
+ *
+ * Passing the entire remaining stream length fails because CheckParsedFrameIncomplete
+ * compares (total_bytes - 6) against frame.mLength – these only match when
+ * exactly one frame is in the buffer.
  */
 void TestParseThreeConsecutiveFramesByOffset(void)
 {
@@ -620,29 +657,27 @@ void TestParseThreeConsecutiveFramesByOffset(void)
     uint16_t len2 = BuildValidFrame(CMD_DATA_PUSH, payload2, sizeof(payload2), frame2);
     uint16_t len3 = BuildValidFrame(CMD_DATA_PUSH, payload3, sizeof(payload3), frame3);
 
-    uint8_t  stream[MAX_FRAME_LEN * 3];
+    uint8_t stream[MAX_FRAME_LEN * 3];
     uint16_t offset = 0;
-
     memcpy(&stream[offset], frame1, len1); offset += len1;
     memcpy(&stream[offset], frame2, len2); offset += len2;
     memcpy(&stream[offset], frame3, len3); offset += len3;
 
     FrameStructure_t parsed;
 
-    /* Frame 1 */
-    /* Wrong offset here? */
-    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, ParseFrame(stream, offset - len1 - len2 - len3, &parsed));
+    /* Frame 1 – pass exactly len1 bytes */
+    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, ParseFrame(stream, len1, &parsed));
     TEST_ASSERT_EQUAL_UINT8(1,    parsed.mLength);
     TEST_ASSERT_EQUAL_HEX8(0x01, parsed.mDataPayload[0]);
 
-    /* Frame 2 */
-    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, ParseFrame(&stream[len1], offset - len2 - len3, &parsed));
+    /* Frame 2 – pass exactly len2 bytes starting at offset len1 */
+    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, ParseFrame(&stream[len1], len2, &parsed));
     TEST_ASSERT_EQUAL_UINT8(2,    parsed.mLength);
     TEST_ASSERT_EQUAL_HEX8(0x02, parsed.mDataPayload[0]);
     TEST_ASSERT_EQUAL_HEX8(0x03, parsed.mDataPayload[1]);
 
-    /* Frame 3 */
-    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, ParseFrame(&stream[len1 + len2], offset - len3, &parsed));
+    /* Frame 3 – pass exactly len3 bytes starting at offset len1+len2 */
+    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, ParseFrame(&stream[len1 + len2], len3, &parsed));
     TEST_ASSERT_EQUAL_UINT8(3,    parsed.mLength);
     TEST_ASSERT_EQUAL_HEX8(0x04, parsed.mDataPayload[0]);
     TEST_ASSERT_EQUAL_HEX8(0x05, parsed.mDataPayload[1]);

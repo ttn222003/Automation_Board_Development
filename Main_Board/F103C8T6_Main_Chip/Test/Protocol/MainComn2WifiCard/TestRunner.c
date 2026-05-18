@@ -42,6 +42,8 @@ extern void TestBuildAckFrameFormat(void);
 extern void TestBuildNackFrameFormat(void);
 extern void TestParseHeartbeatRequest(void);
 extern void TestBuildHeartbeatResponse(void);
+extern void TestParseHeartbeatResponse(void);
+extern void TestParseAckFrameWithNoExtraPayload(void);
 
 /* ── SUITE 5 – Stream parsing ────────────────────────────────────────────── */
 extern void TestParseThreeConsecutiveFramesByOffset(void);
@@ -89,6 +91,7 @@ int main(void)
     RUN_TEST(TestBuildNackFrameFormat);
     RUN_TEST(TestParseHeartbeatRequest);
     RUN_TEST(TestBuildHeartbeatResponse);
+    RUN_TEST(TestParseHeartbeatResponse);
 
     printf("\n--- SUITE 5 - Stream parsing ---\n");
     RUN_TEST(TestParseThreeConsecutiveFramesByOffset);
