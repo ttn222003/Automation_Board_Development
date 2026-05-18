@@ -29,7 +29,9 @@ static uint16_t CalculateCrc(const uint8_t data[], uint16_t len)
 
 static FrameParseStatus_t CheckParsedFrameIncomplete(const uint8_t buffer[], uint8_t len)
 {
-    if ((len <= 6) && (buffer[2] != CMD_HEARTBEAT_REQ)) {
+    if ((len <= 6) && \
+        (buffer[2] != CMD_HEARTBEAT_REQ) && \
+        (buffer[2] != CMD_HEARTBEAT_RSP)){
         return PARSED_FRAME_INCOMPLETE;
     }
 
