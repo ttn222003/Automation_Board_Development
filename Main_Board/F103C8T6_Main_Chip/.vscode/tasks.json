@@ -1,0 +1,28 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build MainComn2WifiCard Tests",
+            "type": "shell",
+
+            "command": "make",
+
+            "args": [
+                "all"
+            ],
+
+            "options": {
+                "cwd": "${workspaceFolder}/Test/Protocol/MainComn2WifiCard"
+            },
+
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+
+            "problemMatcher": [
+                "$gcc"
+            ]
+        }
+    ]
+}
