@@ -27,7 +27,7 @@ static uint16_t CalculateCrc(const uint8_t data[], uint16_t len)
     return crc_result;
 }
 
-static FrameParseStatus_t CheckParsedFrameIncomplete(const uint8_t buffer[], uint8_t len)
+static FrameParseStatus_t CheckParsedFrameIncomplete(const uint8_t buffer[], uint16_t len)
 {
     if ((len <= 6) && \
         (buffer[2] != CMD_HEARTBEAT_REQ) && \
@@ -45,10 +45,16 @@ static FrameParseStatus_t CheckParsedFrameIncomplete(const uint8_t buffer[], uin
 FrameBuildStatus_t BuildFrame(CommandType_t cmd, const uint8_t* payload, uint8_t len, uint8_t* out_buffer, uint16_t* out_len)
 {
     if ((payload == NULL) && (len > 0)) {
+        *out_len = 0;
         return BUILT_FRAME_ERR_NULL_PTR;
     }
     
-    if ((out_buffer == NULL) || (out_len == NULL)) {
+    if (out_buffer == NULL) {
+        *out_len = 0;
+        return BUILT_FRAME_ERR_NULL_PTR;
+    }
+
+    if (out_len == NULL) {
         return BUILT_FRAME_ERR_NULL_PTR;
     }
 
@@ -90,7 +96,7 @@ FrameParseStatus_t ParseFrame(const uint8_t* buffer, uint16_t length_of_frame, F
 
     uint8_t real_buffer[MAX_FRAME_LEN];
     uint8_t flag_sof_found = 0;
-    uint8_t index_real_buffer = 0;
+    uint16_t index_real_buffer = 0;
 
     for (uint16_t i = 0; i < length_of_frame; i++) {
 
