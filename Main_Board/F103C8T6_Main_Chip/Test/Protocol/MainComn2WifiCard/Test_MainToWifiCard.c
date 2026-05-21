@@ -178,15 +178,20 @@ void TestRejectOversizedPayload(void)
 /*
  * Test case: 1.5
  * BuildFrame() with a NULL output buffer must return BUILT_FRAME_ERR_NULL_PTR.
+ *
+ * Update reason:
+ * outLen is an output value used by the caller to transmit the frame.  On
+ * failure it must be reset to 0 so the caller cannot reuse a stale length.
  */
 void TestRejectNullOutputBuffer(void)
 {
     uint8_t  mDataPayload[] = {0x01};
-    uint16_t frameLen  = 0;
+    uint16_t frameLen  = 1234;
 
     FrameBuildStatus_t ret = BuildFrame(CMD_DATA_PUSH, mDataPayload, 1, NULL, &frameLen);
 
     TEST_ASSERT_EQUAL(BUILT_FRAME_ERR_NULL_PTR, ret);
+    TEST_ASSERT_EQUAL_UINT16(0, frameLen);
 }
 
 /*
@@ -207,16 +212,24 @@ void TestRejectNullOutputLength(void)
  * Test case: 1.7
  * BuildFrame() with mDataPayload = NULL and mLength > 0 must return
  * BUILT_FRAME_ERR_NULL_PTR and reset outLen to 0.
+ *
+ * Update reason:
+ * This also checks that the output buffer is left untouched on failure.
+ * A failed build must not leave a partial frame that can be transmitted.
  */
 void TestRejectNullPayloadWhenLengthIsNonzero(void)
 {
     uint8_t  frame[MAX_FRAME_LEN];
-    uint16_t frameLen = 0;
+    uint16_t frameLen = 1234;
+
+    memset(frame, 0xCC, sizeof(frame));
 
     FrameBuildStatus_t ret = BuildFrame(CMD_DATA_PUSH, NULL, 1, frame, &frameLen);
 
     TEST_ASSERT_EQUAL(BUILT_FRAME_ERR_NULL_PTR, ret);
     TEST_ASSERT_EQUAL_UINT16(0, frameLen);
+    TEST_ASSERT_EQUAL_HEX8(0xCC, frame[0]);
+    TEST_ASSERT_EQUAL_HEX8(0xCC, frame[sizeof(frame) - 1]);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -336,6 +349,36 @@ void TestParseValidFrame(void)
 
 /*
  * Test case: 3.2
+ * ParseFrame() must decode the largest frame that BuildFrame() can emit.
+ * This catches parser-side byte counters that overflow at MAX_FRAME_LEN = 256.
+ *
+ * Add reason:
+ * MAX_PAYLOAD_LEN is a valid protocol boundary, so ParseFrame() must support
+ * the same maximum frame size that BuildFrame() produces.
+ */
+void TestParseFrameWithMaxPayload(void)
+{
+    uint8_t  mDataPayload[MAX_PAYLOAD_LEN];
+    uint8_t  raw[MAX_FRAME_LEN];
+
+    for (uint16_t i = 0; i < MAX_PAYLOAD_LEN; i++) {
+        mDataPayload[i] = (uint8_t)i;
+    }
+
+    uint16_t rawLen = BuildValidFrame(CMD_DATA_PUSH, mDataPayload,
+                                      MAX_PAYLOAD_LEN, raw);
+
+    FrameStructure_t   frame;
+    FrameParseStatus_t result = ParseFrame(raw, rawLen, &frame);
+
+    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, result);
+    TEST_ASSERT_EQUAL_HEX8(CMD_DATA_PUSH, frame.mCommand);
+    TEST_ASSERT_EQUAL_UINT16(MAX_PAYLOAD_LEN, frame.mLength);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(mDataPayload, frame.mDataPayload, MAX_PAYLOAD_LEN);
+}
+
+/*
+ * Test case: 3.3
  * ParseFrame() must return PARSED_FRAME_ERR_SOF_D when the first byte is not 0xAA.
  */
 void TestReturnSofErrorWhenSofIsWrong(void)
@@ -356,7 +399,7 @@ void TestReturnSofErrorWhenSofIsWrong(void)
 }
 
 /*
- * Test case: 3.3
+ * Test case: 3.4
  * ParseFrame() must return PARSED_FRAME_ERR_EOF_D when the last byte is not 0x55.
  */
 void TestReturnEofErrorWhenEofIsWrong(void)
@@ -376,7 +419,7 @@ void TestReturnEofErrorWhenEofIsWrong(void)
 }
 
 /*
- * Test case: 3.4
+ * Test case: 3.5
  * ParseFrame() must return PARSED_FRAME_ERR_CRC when CRC_H is corrupted.
  */
 void TestReturnCrcErrorWhenCrcIsWrong(void)
@@ -396,7 +439,7 @@ void TestReturnCrcErrorWhenCrcIsWrong(void)
 }
 
 /*
- * Test case: 3.5
+ * Test case: 3.6
  * ParseFrame() must return PARSED_FRAME_INCOMPLETE when mLength claims more bytes
  * than the buffer contains.
  */
@@ -417,7 +460,7 @@ void TestReturnIncompleteWhenLenClaimsMoreBytesThanAvailable(void)
 }
 
 /*
- * Test case: 3.6
+ * Test case: 3.7
  * ParseFrame() must skip noise bytes before SOF_D and parse the frame.
  * Stream: [noise][noise][noise][SOF_D][mLength][mCommand][mDataPayload][CRC_H][CRC_L][EOF]
  */
@@ -443,7 +486,7 @@ void TestSkipNoiseBeforeSof(void)
 }
 
 /*
- * Test case: 3.7
+ * Test case: 3.8
  * ParseFrame() with a NULL output frame must return PARSED_FRAME_NULL_PTR.
  */
 void TestRejectNullOutputFrame(void)
@@ -457,7 +500,7 @@ void TestRejectNullOutputFrame(void)
 }
 
 /*
- * Test case: 3.8
+ * Test case: 3.9
  * ParseFrame() with a NULL input buffer must return PARSED_FRAME_NULL_PTR.
  */
 void TestRejectNullInputBuffer(void)
@@ -469,7 +512,7 @@ void TestRejectNullInputBuffer(void)
 }
 
 /*
- * Test case: 3.9
+ * Test case: 3.10
  * ParseFrame() must return PARSED_FRAME_INCOMPLETE when the buffer is shorter
  * than the minimum frame length (6 bytes).
  */
@@ -484,7 +527,7 @@ void TestReturnIncompleteForShortBuffer(void)
 }
 
 /*
- * Test case: 3.10
+ * Test case: 3.11
  * ParseFrame() must return PARSED_FRAME_ERR_SOF_D when the stream has no 0xAA byte.
  */
 void TestReturnSofErrorWhenStreamHasNoSof(void)
@@ -498,7 +541,7 @@ void TestReturnSofErrorWhenStreamHasNoSof(void)
 }
 
 /*
- * Test case: 3.11
+ * Test case: 3.12
  * ParseFrame() must return PARSED_FRAME_ERR_CRC when the two CRC bytes are
  * swapped.
  */
@@ -626,6 +669,30 @@ void TestParseHeartbeatResponse(void)
     TEST_ASSERT_EQUAL_UINT8(0,                frame.mLength);
 }
 
+/*
+ * Test case: 4.6
+ * ParseFrame() must decode an ACK frame as exactly one payload byte:
+ * the command being acknowledged.
+ *
+ * Add reason:
+ * Existing tests covered ACK build format only.  This covers the receive path
+ * so command handlers can safely consume parsed ACK frames.
+ */
+void TestParseAckFrameWithNoExtraPayload(void)
+{
+    uint8_t  ackPayload[] = {CMD_DATA_PUSH};
+    uint8_t  raw[MAX_FRAME_LEN];
+    uint16_t rawLen = BuildValidFrame(CMD_ACK, ackPayload, sizeof(ackPayload), raw);
+
+    FrameStructure_t   frame;
+    FrameParseStatus_t result = ParseFrame(raw, rawLen, &frame);
+
+    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, result);
+    TEST_ASSERT_EQUAL_HEX8(CMD_ACK, frame.mCommand);
+    TEST_ASSERT_EQUAL_UINT8(1, frame.mLength);
+    TEST_ASSERT_EQUAL_HEX8(CMD_DATA_PUSH, frame.mDataPayload[0]);
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
  * SUITE 5 – Stream parsing
  *
@@ -704,4 +771,36 @@ void TestParseFrameContainingZeroByte(void)
     TEST_ASSERT_EQUAL_HEX8(0x00, frame.mDataPayload[0]);
     TEST_ASSERT_EQUAL_HEX8(0x01, frame.mDataPayload[1]);
     TEST_ASSERT_EQUAL_HEX8(0x00, frame.mDataPayload[2]);
+}
+
+/*
+ * Test case: 5.3
+ * ParseFrame() must resynchronize on a later valid SOF_D when UART noise
+ * contains a stray SOF_D byte before the actual frame.
+ *
+ * Add reason:
+ * UART streams can contain noise before a valid frame.  This test defines that
+ * the Core parser owns resync when noise includes a fake SOF_D byte.
+ */
+void TestSkipNoiseWithStraySofBeforeValidFrame(void)
+{
+    uint8_t  mDataPayload[] = {0x34, 0x56};
+    uint8_t  frameBuf[MAX_FRAME_LEN];
+    uint16_t frameLen = BuildValidFrame(CMD_DATA_PUSH, mDataPayload, 2, frameBuf);
+
+    uint8_t stream[MAX_FRAME_LEN + 4];
+    stream[0] = 0x11;
+    stream[1] = SOF_D;
+    stream[2] = 0x99;
+    stream[3] = 0x88;
+    memcpy(&stream[4], frameBuf, frameLen);
+
+    FrameStructure_t   frame;
+    FrameParseStatus_t result = ParseFrame(stream, frameLen + 4, &frame);
+
+    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, result);
+    TEST_ASSERT_EQUAL_HEX8(CMD_DATA_PUSH, frame.mCommand);
+    TEST_ASSERT_EQUAL_UINT8(2, frame.mLength);
+    TEST_ASSERT_EQUAL_HEX8(0x34, frame.mDataPayload[0]);
+    TEST_ASSERT_EQUAL_HEX8(0x56, frame.mDataPayload[1]);
 }

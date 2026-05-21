@@ -26,6 +26,7 @@ extern void TestReturnSameCrcForSameData(void);
 
 /* ── SUITE 3 – ParseUartFrame() ─────────────────────────────────────────── */
 extern void TestParseValidFrame(void);
+extern void TestParseFrameWithMaxPayload(void);
 extern void TestReturnSofErrorWhenSofIsWrong(void);
 extern void TestReturnEofErrorWhenEofIsWrong(void);
 extern void TestReturnCrcErrorWhenCrcIsWrong(void);
@@ -48,6 +49,7 @@ extern void TestParseAckFrameWithNoExtraPayload(void);
 /* ── SUITE 5 – Stream parsing ────────────────────────────────────────────── */
 extern void TestParseThreeConsecutiveFramesByOffset(void);
 extern void TestParseFrameContainingZeroByte(void);
+extern void TestSkipNoiseWithStraySofBeforeValidFrame(void);
 
 void setUp(void);
 void tearDown(void);
@@ -75,6 +77,7 @@ int main(void)
 
     printf("\n--- SUITE 3 - ParseUartFrame() ---\n");
     RUN_TEST(TestParseValidFrame);
+    RUN_TEST(TestParseFrameWithMaxPayload);
     RUN_TEST(TestReturnSofErrorWhenSofIsWrong);
     RUN_TEST(TestReturnEofErrorWhenEofIsWrong);
     RUN_TEST(TestReturnCrcErrorWhenCrcIsWrong);
@@ -92,10 +95,12 @@ int main(void)
     RUN_TEST(TestParseHeartbeatRequest);
     RUN_TEST(TestBuildHeartbeatResponse);
     RUN_TEST(TestParseHeartbeatResponse);
+    RUN_TEST(TestParseAckFrameWithNoExtraPayload);
 
     printf("\n--- SUITE 5 - Stream parsing ---\n");
     RUN_TEST(TestParseThreeConsecutiveFramesByOffset);
     RUN_TEST(TestParseFrameContainingZeroByte);
+    RUN_TEST(TestSkipNoiseWithStraySofBeforeValidFrame);
 
     return UNITY_END();
 }
