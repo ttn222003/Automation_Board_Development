@@ -43,8 +43,17 @@ typedef enum {
     EOF_D = 0x55,
 } FrameDelimiter_t;
 
+/*
+ * NACK payload format: [failed_cmd][error_code].
+ * These values are part of the STM32 <-> ESP32 wire protocol.
+ */
 typedef enum {
     NACK_ERR_CRC_FAIL = 0x01,
+    NACK_ERR_UNKNOWN_CMD,
+    NACK_ERR_INVALID_PAYLOAD_LEN,
+    NACK_ERR_PAYLOAD_TOO_LARGE,
+    NACK_ERR_MALFORMED_FRAME,
+    NACK_ERR_FRAME_INCOMPLETE,
 } NackErrorCode_t;
 
 typedef struct {
