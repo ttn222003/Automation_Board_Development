@@ -35,6 +35,7 @@ extern void TestSkipNoiseBeforeSof(void);
 extern void TestRejectNullOutputFrame(void);
 extern void TestRejectNullInputBuffer(void);
 extern void TestReturnIncompleteForShortBuffer(void);
+extern void TestParseExactSixByteHeartbeatRequestAsComplete(void);
 extern void TestReturnSofErrorWhenStreamHasNoSof(void);
 extern void TestRejectFrameWhenCrcBytesAreSwapped(void);
 
@@ -43,8 +44,11 @@ extern void TestBuildAckFrameFormat(void);
 extern void TestBuildNackFrameFormat(void);
 extern void TestParseHeartbeatRequest(void);
 extern void TestBuildHeartbeatResponse(void);
-extern void TestParseHeartbeatResponse(void);
 extern void TestParseAckFrameWithNoExtraPayload(void);
+extern void TestParseNackFrameWithErrorCode(void);
+extern void TestNackErrorCodeValuesAreStable(void);
+extern void TestBuildNackFrameForEachErrorCode(void);
+extern void TestParseNackFrameForEachErrorCode(void);
 
 /* ── SUITE 5 – Stream parsing ────────────────────────────────────────────── */
 extern void TestParseThreeConsecutiveFramesByOffset(void);
@@ -86,6 +90,7 @@ int main(void)
     RUN_TEST(TestRejectNullOutputFrame);
     RUN_TEST(TestRejectNullInputBuffer);
     RUN_TEST(TestReturnIncompleteForShortBuffer);
+    RUN_TEST(TestParseExactSixByteHeartbeatRequestAsComplete);
     RUN_TEST(TestReturnSofErrorWhenStreamHasNoSof);
     RUN_TEST(TestRejectFrameWhenCrcBytesAreSwapped);
 
@@ -94,8 +99,11 @@ int main(void)
     RUN_TEST(TestBuildNackFrameFormat);
     RUN_TEST(TestParseHeartbeatRequest);
     RUN_TEST(TestBuildHeartbeatResponse);
-    RUN_TEST(TestParseHeartbeatResponse);
     RUN_TEST(TestParseAckFrameWithNoExtraPayload);
+    RUN_TEST(TestParseNackFrameWithErrorCode);
+    RUN_TEST(TestNackErrorCodeValuesAreStable);
+    RUN_TEST(TestBuildNackFrameForEachErrorCode);
+    RUN_TEST(TestParseNackFrameForEachErrorCode);
 
     printf("\n--- SUITE 5 - Stream parsing ---\n");
     RUN_TEST(TestParseThreeConsecutiveFramesByOffset);
