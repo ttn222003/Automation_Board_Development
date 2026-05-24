@@ -1,0 +1,77 @@
+LCOV-like uncovered report
+
+NOTE: DA and BRDA entries include source code after '|'.
+
+
+
+SF:Systems/Dependencies/STM32F103C8T6/src/UartCommon.c
+LF:62
+LH:45
+BRF:24
+BRH:12
+UNCOVERED_LINES:
+DA:41,0 |         sBspUart.mCurrentStatus = BSP_UART_ERR_NULL_PTR;
+DA:42,0 |         return BSP_UART_ERR_NULL_PTR;
+DA:58,0 | 		return BSP_UART_ERR_NULL_PTR;
+DA:62,0 |         sBspUart.mCurrentStatus = BSP_UART_ERR_NOT_INIT;
+DA:63,0 |         return BSP_UART_ERR_NOT_INIT;
+DA:67,0 |     	return BSP_UART_ERR_ZERO_LEN;
+DA:72,0 |     	return BSP_UART_ERR_HAL;
+DA:81,0 |         sBspUart.mOverflowFlag = 1;
+DA:83,0 |         return;
+DA:100,0 |         return BSP_UART_ERR_NULL_PTR;
+DA:104,0 |         *out_read = 0;
+DA:105,0 |         return BSP_UART_ERR_NO_DATA;
+DA:128,0 | uint8_t IsBspUartOverflow(void)
+DA:130,0 |     if (sBspUart.mOverflowFlag == 1) {
+DA:131,0 |         sBspUart.mOverflowFlag = 0;
+DA:132,0 |         return 1;
+DA:135,0 |     return 0;
+UNCOVERED_BRANCHES:
+BRDA:40,0,0,0 |     if (huart == NULL) {
+BRDA:57,0,0,0 | 	if(data == NULL) {
+BRDA:61,0,0,0 |     if (sBspUart.mCurrentStatus != BSP_UART_OK) {
+BRDA:66,0,0,0 |     if (len == 0) {
+BRDA:71,0,1,0 |     if ((uart_status == HAL_ERROR) || (uart_status == HAL_BUSY)) {
+BRDA:71,0,2,0 |     if ((uart_status == HAL_ERROR) || (uart_status == HAL_BUSY)) {
+BRDA:80,0,0,0 |     if (sBspUart.mCurrentNumberOfBytes >= BSP_UART_RX_RING_BUF_SIZE) {
+BRDA:99,0,0,0 |     if(buf == NULL) {
+BRDA:103,0,0,0 |     if (sBspUart.mCurrentNumberOfBytes == 0) {
+BRDA:111,0,1,0 |     if (len > sBspUart.mCurrentNumberOfBytes) {
+BRDA:130,0,0,0 |     if (sBspUart.mOverflowFlag == 1) {
+BRDA:130,0,1,0 |     if (sBspUart.mOverflowFlag == 1) {
+end_of_record
+
+SF:Systems/Protocol/src/MainComn2WifiCard.c
+LF:67
+LH:54
+BRF:46
+BRH:34
+UNCOVERED_LINES:
+DA:34,0 |         return PARSED_FRAME_INCOMPLETE;
+DA:38,0 |         return PARSED_FRAME_INCOMPLETE;
+DA:49,0 |         *out_len = 0;
+DA:50,0 |         return BUILT_FRAME_ERR_NULL_PTR;
+DA:54,0 |         *out_len = 0;
+DA:55,0 |         return BUILT_FRAME_ERR_NULL_PTR;
+DA:59,0 |         return BUILT_FRAME_ERR_NULL_PTR;
+DA:63,0 |         *out_len = 0;
+DA:64,0 |         return BUILT_FRAME_ERR_PAYLOAD_TOO_LARGE;
+DA:95,0 |         return PARSED_FRAME_NULL_PTR;
+DA:114,0 |         return PARSED_FRAME_ERR_SOF_D;
+DA:118,0 |         return PARSED_FRAME_INCOMPLETE;
+DA:122,0 |         return PARSED_FRAME_ERR_EOF_D;
+UNCOVERED_BRANCHES:
+BRDA:33,0,0,0 |         (buffer[2] != CMD_HEARTBEAT_REQ)){
+BRDA:37,0,0,0 |     if ((len - 6) != buffer[1]) {
+BRDA:48,0,2,0 |     if ((payload == NULL) && (len > 0)) {
+BRDA:53,0,0,0 |     if (out_buffer == NULL) {
+BRDA:58,0,0,0 |     if (out_len == NULL) {
+BRDA:62,0,0,0 |     if (len > MAX_PAYLOAD_LEN) {
+BRDA:94,0,1,0 |     if ((buffer == NULL) || (out_frame == NULL)) {
+BRDA:94,0,2,0 |     if ((buffer == NULL) || (out_frame == NULL)) {
+BRDA:108,0,1,0 |         if (flag_sof_found) {
+BRDA:113,0,0,0 |     if (real_buffer[0] != SOF_D) {
+BRDA:117,0,0,0 |     if (CheckParsedFrameIncomplete(real_buffer, index_real_buffer) == PARSED_FRAME_INCOMPLETE) {
+BRDA:121,0,0,0 |     if (real_buffer[index_real_buffer - 1] != EOF_D) {
+end_of_record

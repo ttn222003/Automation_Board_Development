@@ -7,3 +7,4 @@ Main_Board/F103C8T6_Main_Chip/Test/PLC_Main/PLC_Execute_Logic/coverage_report/.r
 Main_Board/F103C8T6_Main_Chip/Test/Protocol/MainComn2WifiCard/coverage_report/.raw.json
 Main_Board/F103C8T6_Main_Chip/Test/Dependencies/STM32F103C8T6/UART/coverage_report/.raw.json
 Main_Board/F103C8T6_Main_Chip/Test/Dependencies/STM32F103C8T6/GPIO/coverage_report/.raw.json
+Main_Board/F103C8T6_Main_Chip/Test/Integration/MainComn2Wifi_and_UartCommon/coverage_report/.raw.json
