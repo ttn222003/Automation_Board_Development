@@ -7,6 +7,15 @@
 
 #include "MainComn2WifiCard.h"
 
+/*======= Internal Variable =======*/
+typedef struct {
+	uint8_t mDataPayload[MAX_PAYLOAD_LEN];
+	CommandType_t mCommand;
+	uint16_t mLength;
+}InternalFrameStructure_t;
+
+static InternalFrameStructure_t mOutFrame;
+
 /*======= Static Function Prototypes =======*/
 static uint16_t CalculateCrc(const uint8_t data[], uint16_t len)
 {
@@ -42,6 +51,13 @@ static FrameParseStatus_t CheckParsedFrameIncomplete(const uint8_t buffer[], uin
 }
 
 /*==========================================*/
+
+
+/*======= API =======*/
+void InitializeInternalFrameStructure(void)
+{
+
+}
 
 FrameBuildStatus_t BuildFrame(CommandType_t cmd, const uint8_t* payload, uint8_t len, uint8_t* out_buffer, uint16_t* out_len)
 {
@@ -89,9 +105,9 @@ FrameBuildStatus_t BuildFrame(CommandType_t cmd, const uint8_t* payload, uint8_t
     return BUILT_FRAME_OK;
 }
 
-FrameParseStatus_t ParseFrame(const uint8_t* buffer, uint16_t length_of_frame, FrameStructure_t* out_frame)
+FrameParseStatus_t ParseFrame(const uint8_t* buffer, uint16_t length_of_frame)
 {
-    if ((buffer == NULL) || (out_frame == NULL)) {
+    if (buffer == NULL) {
         return PARSED_FRAME_NULL_PTR;
     }
 
@@ -128,12 +144,21 @@ FrameParseStatus_t ParseFrame(const uint8_t* buffer, uint16_t length_of_frame, F
         return PARSED_FRAME_ERR_CRC;
     }
 
-    out_frame->mLength = real_buffer[1];
-    out_frame->mCommand = real_buffer[2];
+    mOutFrame.mLength = real_buffer[1];
+    mOutFrame.mCommand = real_buffer[2];
 
-    for (uint16_t i = 0; i < out_frame->mLength; i++) {
-        out_frame->mDataPayload[i] = real_buffer[3 + i];
+    for (uint16_t i = 0; i < mOutFrame.mLength; i++) {
+    	mOutFrame.mDataPayload[i] = real_buffer[3 + i];
     }
 
     return PARSED_FRAME_OK;
+}
+
+void GetFrame(FrameStructure_t* get_frame)
+{
+    get_frame->mCommand = mOutFrame.mCommand;
+    get_frame->mLength = mOutFrame.mLength;
+    for (uint16_t i = 0; i < get_frame->mLength; i++) {
+        get_frame->mDataPayload[i] = mOutFrame.mDataPayload[i];
+    }
 }
