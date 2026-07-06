@@ -3,7 +3,7 @@
  *
  * Integration tests for the protocol core and UART dependency layer.
  * Boundary under test:
- *   MainComn2WifiCard BuildFrame/ParseFrame <-> UartCommon Send/Read/ISR buffer.
+ *   MainComn2WifiCard BuildFrame/ParseFrame/GetFrame <-> UartCommon Send/Read/ISR buffer.
  */
 
 #include "unity.h"
@@ -67,6 +67,24 @@ static void ExpectUartTransmitOk(uint8_t *frame, uint16_t frameLen)
 }
 
 /*
+ * Update reason: ParseFrame() now stores decoded data internally. Integration
+ * tests must call GetFrame() after PARSED_FRAME_OK to verify the frame that
+ * other RTOS tasks will consume through the public protocol API.
+ */
+static FrameParseStatus_t ParseAndGetFrame(const uint8_t *raw,
+                                           uint16_t rawLen,
+                                           FrameStructure_t *frame)
+{
+    FrameParseStatus_t result = ParseFrame(raw, rawLen);
+
+    if ((result == PARSED_FRAME_OK) && (frame != NULL)) {
+        GetFrame(frame);
+    }
+
+    return result;
+}
+
+/*
  * SUITE 1 - Protocol TX path into UartCommon.
  */
 
@@ -109,7 +127,7 @@ void TestBuildNackForCrcFailThenSendOverUart(void)
                                         frame);
 
     FrameStructure_t parsedFrame;
-    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, ParseFrame(frame, frameLen, &parsedFrame));
+    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, ParseAndGetFrame(frame, frameLen, &parsedFrame));
     TEST_ASSERT_EQUAL_UINT8(CMD_NACK, parsedFrame.mCommand);
     TEST_ASSERT_EQUAL_UINT16(sizeof(nackPayload), parsedFrame.mLength);
     TEST_ASSERT_EQUAL_UINT8(CMD_DATA_PUSH, parsedFrame.mDataPayload[0]);
@@ -141,7 +159,7 @@ void TestReceiveHeartbeatRequestFromUartThenParse(void)
     ReadAvailableUartBytes(rxFrame, txFrameLen);
 
     FrameStructure_t parsedFrame;
-    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, ParseFrame(rxFrame, txFrameLen, &parsedFrame));
+    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, ParseAndGetFrame(rxFrame, txFrameLen, &parsedFrame));
     TEST_ASSERT_EQUAL_UINT8(CMD_HEARTBEAT_REQ, parsedFrame.mCommand);
     TEST_ASSERT_EQUAL_UINT16(0, parsedFrame.mLength);
 }
@@ -167,7 +185,7 @@ void TestReceiveDataPushFromUartThenParsePayload(void)
     ReadAvailableUartBytes(rxFrame, txFrameLen);
 
     FrameStructure_t parsedFrame;
-    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, ParseFrame(rxFrame, txFrameLen, &parsedFrame));
+    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, ParseAndGetFrame(rxFrame, txFrameLen, &parsedFrame));
     TEST_ASSERT_EQUAL_UINT8(CMD_DATA_PUSH, parsedFrame.mCommand);
     TEST_ASSERT_EQUAL_UINT16(sizeof(payload), parsedFrame.mLength);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(payload, parsedFrame.mDataPayload, sizeof(payload));
@@ -199,8 +217,7 @@ void TestCrcErrorFromUartRxBuildsAndSendsNack(void)
     uint8_t rxFrame[MAX_FRAME_LEN];
     ReadAvailableUartBytes(rxFrame, badFrameLen);
 
-    FrameStructure_t parsedFrame;
-    TEST_ASSERT_EQUAL(PARSED_FRAME_ERR_CRC, ParseFrame(rxFrame, badFrameLen, &parsedFrame));
+    TEST_ASSERT_EQUAL(PARSED_FRAME_ERR_CRC, ParseFrame(rxFrame, badFrameLen));
 
     uint8_t nackPayload[] = {
         (uint8_t)CMD_DATA_PUSH,
