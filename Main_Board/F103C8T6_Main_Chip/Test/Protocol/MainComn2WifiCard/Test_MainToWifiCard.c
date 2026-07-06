@@ -54,6 +54,27 @@ static uint16_t BuildValidFrame(uint8_t mCommand,
     return outLen;
 }
 
+/*
+ * Parse a frame through the new cached-frame API.
+ *
+ * Update reason:
+ * ParseFrame() no longer writes into a caller-owned FrameStructure_t. It only
+ * validates/parses the raw frame and stores the decoded frame internally.
+ * Tests that need decoded data must call GetFrame() after PARSED_FRAME_OK.
+ */
+static FrameParseStatus_t ParseAndGetFrame(const uint8_t *raw,
+                                           uint16_t rawLen,
+                                           FrameStructure_t *frame)
+{
+    FrameParseStatus_t result = ParseFrame(raw, rawLen);
+
+    if ((result == PARSED_FRAME_OK) && (frame != NULL)) {
+        GetFrame(frame);
+    }
+
+    return result;
+}
+
 /* Fixture helpers. */
 
 /* NACK scenario helpers. */
@@ -98,7 +119,7 @@ static void AssertNackFrameParsesWithErrorCode(uint8_t failedCommand,
                                       sizeof(nackPayload), raw);
 
     FrameStructure_t   frame;
-    FrameParseStatus_t result = ParseFrame(raw, rawLen, &frame);
+    FrameParseStatus_t result = ParseAndGetFrame(raw, rawLen, &frame);
 
     TEST_ASSERT_EQUAL(PARSED_FRAME_OK, result);
     TEST_ASSERT_EQUAL_HEX8(CMD_NACK, frame.mCommand);
@@ -390,7 +411,7 @@ void TestParseValidFrame(void)
     uint16_t rawLen = BuildValidFrame(CMD_DATA_PUSH, mDataPayload, 2, raw);
 
     FrameStructure_t   frame;
-    FrameParseStatus_t result = ParseFrame(raw, rawLen, &frame);
+    FrameParseStatus_t result = ParseAndGetFrame(raw, rawLen, &frame);
 
     TEST_ASSERT_EQUAL(PARSED_FRAME_OK, result);
     TEST_ASSERT_EQUAL_HEX8(CMD_DATA_PUSH, frame.mCommand);
@@ -421,7 +442,7 @@ void TestParseFrameWithMaxPayload(void)
                                       MAX_PAYLOAD_LEN, raw);
 
     FrameStructure_t   frame;
-    FrameParseStatus_t result = ParseFrame(raw, rawLen, &frame);
+    FrameParseStatus_t result = ParseAndGetFrame(raw, rawLen, &frame);
 
     TEST_ASSERT_EQUAL(PARSED_FRAME_OK, result);
     TEST_ASSERT_EQUAL_HEX8(CMD_DATA_PUSH, frame.mCommand);
@@ -445,7 +466,7 @@ void TestReturnSofErrorWhenSofIsWrong(void)
     corrupted[0] = 0xBB;
 
     FrameStructure_t   frame;
-    FrameParseStatus_t result = ParseFrame(corrupted, rawLen, &frame);
+    FrameParseStatus_t result = ParseAndGetFrame(corrupted, rawLen, &frame);
 
     TEST_ASSERT_EQUAL(PARSED_FRAME_ERR_SOF_D, result);
 }
@@ -465,7 +486,7 @@ void TestReturnEofErrorWhenEofIsWrong(void)
     corrupted[rawLen - 1] = 0x44;
 
     FrameStructure_t   frame;
-    FrameParseStatus_t result = ParseFrame(corrupted, rawLen, &frame);
+    FrameParseStatus_t result = ParseAndGetFrame(corrupted, rawLen, &frame);
 
     TEST_ASSERT_EQUAL(PARSED_FRAME_ERR_EOF_D, result);
 }
@@ -485,7 +506,7 @@ void TestReturnCrcErrorWhenCrcIsWrong(void)
     corrupted[rawLen - 3] ^= 0xFF;   /* corrupt CRC_H */
 
     FrameStructure_t   frame;
-    FrameParseStatus_t result = ParseFrame(corrupted, rawLen, &frame);
+    FrameParseStatus_t result = ParseAndGetFrame(corrupted, rawLen, &frame);
 
     TEST_ASSERT_EQUAL(PARSED_FRAME_ERR_CRC, result);
 }
@@ -506,7 +527,7 @@ void TestReturnIncompleteWhenLenClaimsMoreBytesThanAvailable(void)
     corrupted[1] = 10;   /* lie about mDataPayload length */
 
     FrameStructure_t   frame;
-    FrameParseStatus_t result = ParseFrame(corrupted, rawLen, &frame);
+    FrameParseStatus_t result = ParseAndGetFrame(corrupted, rawLen, &frame);
 
     TEST_ASSERT_EQUAL(PARSED_FRAME_INCOMPLETE, result);
 }
@@ -529,7 +550,7 @@ void TestSkipNoiseBeforeSof(void)
     memcpy(&stream[3], frameBuf, frameLen);
 
     FrameStructure_t   frame;
-    FrameParseStatus_t result = ParseFrame(stream, frameLen + 3, &frame);
+    FrameParseStatus_t result = ParseAndGetFrame(stream, frameLen + 3, &frame);
 
     TEST_ASSERT_EQUAL(PARSED_FRAME_OK,       result);
     TEST_ASSERT_EQUAL_HEX8(CMD_DATA_PUSH, frame.mCommand);
@@ -539,16 +560,29 @@ void TestSkipNoiseBeforeSof(void)
 
 /*
  * Test case: 3.8
- * ParseFrame() with a NULL output frame must return PARSED_FRAME_NULL_PTR.
+ * ParseFrame() must store a valid decoded frame internally, and GetFrame()
+ * must copy that cached frame to the caller.
+ *
+ * Update reason:
+ * ParseFrame() no longer accepts an output FrameStructure_t pointer.  The old
+ * NULL-output-pointer test is obsolete; the new contract is parse-then-get so
+ * RTOS tasks consume parsed data only through the public GetFrame() API.
  */
-void TestRejectNullOutputFrame(void)
+void TestParseFrameStoresDecodedFrameForGetFrame(void)
 {
+    uint8_t  payload[] = {0x44, 0x55};
     uint8_t  raw[MAX_FRAME_LEN];
-    uint16_t rawLen = BuildValidFrame(CMD_DATA_PUSH, NULL, 0, raw);
+    uint16_t rawLen = BuildValidFrame(CMD_DATA_PUSH, payload, sizeof(payload), raw);
 
-    FrameParseStatus_t result = ParseFrame(raw, rawLen, NULL);
+    FrameParseStatus_t result = ParseFrame(raw, rawLen);
 
-    TEST_ASSERT_EQUAL(PARSED_FRAME_NULL_PTR, result);
+    FrameStructure_t frame;
+    GetFrame(&frame);
+
+    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, result);
+    TEST_ASSERT_EQUAL_HEX8(CMD_DATA_PUSH, frame.mCommand);
+    TEST_ASSERT_EQUAL_UINT8(2, frame.mLength);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(payload, frame.mDataPayload, sizeof(payload));
 }
 
 /*
@@ -557,8 +591,7 @@ void TestRejectNullOutputFrame(void)
  */
 void TestRejectNullInputBuffer(void)
 {
-    FrameStructure_t   frame;
-    FrameParseStatus_t result = ParseFrame(NULL, 0, &frame);
+    FrameParseStatus_t result = ParseFrame(NULL, 0);
 
     TEST_ASSERT_EQUAL(PARSED_FRAME_NULL_PTR, result);
 }
@@ -573,7 +606,7 @@ void TestReturnIncompleteForShortBuffer(void)
     uint8_t raw[] = {SOF_D, 0x00, CMD_DATA_PUSH};
 
     FrameStructure_t   frame;
-    FrameParseStatus_t result = ParseFrame(raw, sizeof(raw), &frame);
+    FrameParseStatus_t result = ParseAndGetFrame(raw, sizeof(raw), &frame);
 
     TEST_ASSERT_EQUAL(PARSED_FRAME_INCOMPLETE, result);
 }
@@ -593,7 +626,7 @@ void TestParseExactSixByteHeartbeatRequestAsComplete(void)
     uint16_t rawLen = BuildValidFrame(CMD_HEARTBEAT_REQ, NULL, 0, raw);
 
     FrameStructure_t   frame;
-    FrameParseStatus_t result = ParseFrame(raw, rawLen, &frame);
+    FrameParseStatus_t result = ParseAndGetFrame(raw, rawLen, &frame);
 
     TEST_ASSERT_EQUAL_UINT16(6, rawLen);
     TEST_ASSERT_EQUAL(PARSED_FRAME_OK, result);
@@ -614,7 +647,7 @@ void TestReturnSofErrorWhenStreamHasNoSof(void)
     uint8_t raw[] = {0x11, 0x22, 0x33, 0x44};
 
     FrameStructure_t   frame;
-    FrameParseStatus_t result = ParseFrame(raw, sizeof(raw), &frame);
+    FrameParseStatus_t result = ParseAndGetFrame(raw, sizeof(raw), &frame);
 
     TEST_ASSERT_EQUAL(PARSED_FRAME_ERR_SOF_D, result);
 }
@@ -637,9 +670,85 @@ void TestRejectFrameWhenCrcBytesAreSwapped(void)
     corrupted[rawLen - 2]   = tmp;
 
     FrameStructure_t   frame;
-    FrameParseStatus_t result = ParseFrame(corrupted, rawLen, &frame);
+    FrameParseStatus_t result = ParseAndGetFrame(corrupted, rawLen, &frame);
 
     TEST_ASSERT_EQUAL(PARSED_FRAME_ERR_CRC, result);
+}
+
+/*
+ * Test case: 3.14
+ * GetFrame() must copy from the internal parsed-frame cache into the caller's
+ * buffer each time it is called.
+ *
+ * Add reason:
+ * RTOS tasks must communicate through APIs, not shared mutable frame storage.
+ * Mutating the caller-owned FrameStructure_t after GetFrame() must not mutate
+ * the internal cached frame.
+ */
+void TestGetFrameCopiesStoredFrameToCallerBuffer(void)
+{
+    uint8_t  payload[] = {0x21, 0x22, 0x23};
+    uint8_t  raw[MAX_FRAME_LEN];
+    uint16_t rawLen = BuildValidFrame(CMD_DATA_PUSH, payload, sizeof(payload), raw);
+
+    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, ParseFrame(raw, rawLen));
+
+    FrameStructure_t firstRead;
+    GetFrame(&firstRead);
+
+    firstRead.mCommand = CMD_NACK;
+    firstRead.mLength = 0;
+    memset(firstRead.mDataPayload, 0x00, sizeof(firstRead.mDataPayload));
+
+    FrameStructure_t secondRead;
+    GetFrame(&secondRead);
+
+    TEST_ASSERT_EQUAL_HEX8(CMD_DATA_PUSH, secondRead.mCommand);
+    TEST_ASSERT_EQUAL_UINT8(3, secondRead.mLength);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(payload, secondRead.mDataPayload, sizeof(payload));
+}
+
+/*
+ * Test case: 3.15
+ * A failed ParseFrame() call must not overwrite the last valid cached frame.
+ *
+ * Add reason:
+ * With the parse-then-get architecture, a communication task may read the last
+ * parsed frame after another parse attempt fails.  Invalid frames must not
+ * publish partial data into the internal cache.
+ */
+void TestParseErrorDoesNotOverwriteStoredFrame(void)
+{
+    uint8_t  goodPayload[] = {0x31, 0x32};
+    uint8_t  goodRaw[MAX_FRAME_LEN];
+    uint16_t goodRawLen = BuildValidFrame(CMD_DATA_PUSH,
+                                          goodPayload,
+                                          sizeof(goodPayload),
+                                          goodRaw);
+
+    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, ParseFrame(goodRaw, goodRawLen));
+
+    FrameStructure_t beforeError;
+    GetFrame(&beforeError);
+
+    uint8_t  badPayload[] = {0x41, 0x42};
+    uint8_t  badRaw[MAX_FRAME_LEN];
+    uint16_t badRawLen = BuildValidFrame(CMD_NACK,
+                                         badPayload,
+                                         sizeof(badPayload),
+                                         badRaw);
+    badRaw[badRawLen - 3U] ^= 0x01U;
+
+    TEST_ASSERT_EQUAL(PARSED_FRAME_ERR_CRC, ParseFrame(badRaw, badRawLen));
+
+    FrameStructure_t afterError;
+    GetFrame(&afterError);
+
+    TEST_ASSERT_EQUAL_HEX8(beforeError.mCommand, afterError.mCommand);
+    TEST_ASSERT_EQUAL_UINT16(beforeError.mLength, afterError.mLength);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(beforeError.mDataPayload,
+                                  afterError.mDataPayload,
+                                  beforeError.mLength);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -705,7 +814,7 @@ void TestParseHeartbeatRequest(void)
     uint16_t rawLen = BuildValidFrame(CMD_HEARTBEAT_REQ, NULL, 0, raw);
 
     FrameStructure_t   frame;
-    FrameParseStatus_t result = ParseFrame(raw, rawLen, &frame);
+    FrameParseStatus_t result = ParseAndGetFrame(raw, rawLen, &frame);
 
     TEST_ASSERT_EQUAL(PARSED_FRAME_OK,         result);
     TEST_ASSERT_EQUAL_HEX8(CMD_HEARTBEAT_REQ,  frame.mCommand);
@@ -752,7 +861,7 @@ void TestParseAckFrameWithNoExtraPayload(void)
     uint16_t rawLen = BuildValidFrame(CMD_ACK, ackPayload, sizeof(ackPayload), raw);
 
     FrameStructure_t   frame;
-    FrameParseStatus_t result = ParseFrame(raw, rawLen, &frame);
+    FrameParseStatus_t result = ParseAndGetFrame(raw, rawLen, &frame);
 
     TEST_ASSERT_EQUAL(PARSED_FRAME_OK, result);
     TEST_ASSERT_EQUAL_HEX8(CMD_ACK, frame.mCommand);
@@ -776,7 +885,7 @@ void TestParseNackFrameWithErrorCode(void)
     uint16_t rawLen = BuildValidFrame(CMD_NACK, nackPayload, sizeof(nackPayload), raw);
 
     FrameStructure_t   frame;
-    FrameParseStatus_t result = ParseFrame(raw, rawLen, &frame);
+    FrameParseStatus_t result = ParseAndGetFrame(raw, rawLen, &frame);
 
     TEST_ASSERT_EQUAL(PARSED_FRAME_OK, result);
     TEST_ASSERT_EQUAL_HEX8(CMD_NACK, frame.mCommand);
@@ -884,18 +993,18 @@ void TestParseThreeConsecutiveFramesByOffset(void)
     FrameStructure_t parsed;
 
     /* Frame 1 – pass exactly len1 bytes */
-    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, ParseFrame(stream, len1, &parsed));
+    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, ParseAndGetFrame(stream, len1, &parsed));
     TEST_ASSERT_EQUAL_UINT8(1,    parsed.mLength);
     TEST_ASSERT_EQUAL_HEX8(0x01, parsed.mDataPayload[0]);
 
     /* Frame 2 – pass exactly len2 bytes starting at offset len1 */
-    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, ParseFrame(&stream[len1], len2, &parsed));
+    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, ParseAndGetFrame(&stream[len1], len2, &parsed));
     TEST_ASSERT_EQUAL_UINT8(2,    parsed.mLength);
     TEST_ASSERT_EQUAL_HEX8(0x02, parsed.mDataPayload[0]);
     TEST_ASSERT_EQUAL_HEX8(0x03, parsed.mDataPayload[1]);
 
     /* Frame 3 – pass exactly len3 bytes starting at offset len1+len2 */
-    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, ParseFrame(&stream[len1 + len2], len3, &parsed));
+    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, ParseAndGetFrame(&stream[len1 + len2], len3, &parsed));
     TEST_ASSERT_EQUAL_UINT8(3,    parsed.mLength);
     TEST_ASSERT_EQUAL_HEX8(0x04, parsed.mDataPayload[0]);
     TEST_ASSERT_EQUAL_HEX8(0x05, parsed.mDataPayload[1]);
@@ -915,7 +1024,7 @@ void TestParseFrameContainingZeroByte(void)
     uint16_t rawLen = BuildValidFrame(CMD_DATA_PUSH, mDataPayload, 3, raw);
 
     FrameStructure_t   frame;
-    FrameParseStatus_t result = ParseFrame(raw, rawLen, &frame);
+    FrameParseStatus_t result = ParseAndGetFrame(raw, rawLen, &frame);
 
     TEST_ASSERT_EQUAL(PARSED_FRAME_OK,   result);
     TEST_ASSERT_EQUAL_UINT8(3,    frame.mLength);
@@ -953,7 +1062,7 @@ void TestSkipNoiseWithStraySofBeforeValidFrame(void)
     memcpy(&stream[4], frameBuf, frameLen);
 
     FrameStructure_t   frame;
-    FrameParseStatus_t result = ParseFrame(stream, frameLen + 4, &frame);
+    FrameParseStatus_t result = ParseAndGetFrame(stream, frameLen + 4, &frame);
 
     TEST_ASSERT_EQUAL(PARSED_FRAME_OK, result);
     TEST_ASSERT_EQUAL_HEX8(CMD_DATA_PUSH, frame.mCommand);

@@ -32,12 +32,14 @@ extern void TestReturnEofErrorWhenEofIsWrong(void);
 extern void TestReturnCrcErrorWhenCrcIsWrong(void);
 extern void TestReturnIncompleteWhenLenClaimsMoreBytesThanAvailable(void);
 extern void TestSkipNoiseBeforeSof(void);
-extern void TestRejectNullOutputFrame(void);
+extern void TestParseFrameStoresDecodedFrameForGetFrame(void);
 extern void TestRejectNullInputBuffer(void);
 extern void TestReturnIncompleteForShortBuffer(void);
 extern void TestParseExactSixByteHeartbeatRequestAsComplete(void);
 extern void TestReturnSofErrorWhenStreamHasNoSof(void);
 extern void TestRejectFrameWhenCrcBytesAreSwapped(void);
+extern void TestGetFrameCopiesStoredFrameToCallerBuffer(void);
+extern void TestParseErrorDoesNotOverwriteStoredFrame(void);
 
 /* ── SUITE 4 – Protocol command frame formats ────────────────────────────── */
 extern void TestBuildAckFrameFormat(void);
@@ -87,12 +89,14 @@ int main(void)
     RUN_TEST(TestReturnCrcErrorWhenCrcIsWrong);
     RUN_TEST(TestReturnIncompleteWhenLenClaimsMoreBytesThanAvailable);
     RUN_TEST(TestSkipNoiseBeforeSof);
-    RUN_TEST(TestRejectNullOutputFrame);
+    RUN_TEST(TestParseFrameStoresDecodedFrameForGetFrame);
     RUN_TEST(TestRejectNullInputBuffer);
     RUN_TEST(TestReturnIncompleteForShortBuffer);
     RUN_TEST(TestParseExactSixByteHeartbeatRequestAsComplete);
     RUN_TEST(TestReturnSofErrorWhenStreamHasNoSof);
     RUN_TEST(TestRejectFrameWhenCrcBytesAreSwapped);
+    RUN_TEST(TestGetFrameCopiesStoredFrameToCallerBuffer);
+    RUN_TEST(TestParseErrorDoesNotOverwriteStoredFrame);
 
     printf("\n--- SUITE 4 - Protocol command frame formats ---\n");
     RUN_TEST(TestBuildAckFrameFormat);
