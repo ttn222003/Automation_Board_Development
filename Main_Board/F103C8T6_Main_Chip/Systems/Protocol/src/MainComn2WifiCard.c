@@ -17,6 +17,13 @@ typedef struct {
 static InternalFrameStructure_t mOutFrame;
 
 /*======= Static Function Prototypes =======*/
+
+/**
+ * @brief Calculates the CRC 16-bit for the given data
+ * @param data: Data array used to calculate the CRC
+ * @param len: Length of the data array
+ * @return The calculated CRC value
+ */
 static uint16_t CalculateCrc(const uint8_t data[], uint16_t len)
 {
     uint16_t crc_result = 0xFFFFu;
@@ -36,6 +43,12 @@ static uint16_t CalculateCrc(const uint8_t data[], uint16_t len)
     return crc_result;
 }
 
+/**
+ * @brief Checks if the parsed frame is incomplete
+ * @param buffer Pointer to the buffer containing the frame data
+ * @param len Length of the data in the buffer
+ * @return The status of the frame parsing
+ */
 static FrameParseStatus_t CheckParsedFrameIncomplete(const uint8_t buffer[], uint16_t len)
 {
     if ((len <= 6) && \
@@ -56,9 +69,22 @@ static FrameParseStatus_t CheckParsedFrameIncomplete(const uint8_t buffer[], uin
 /*======= API =======*/
 void InitializeInternalFrameStructure(void)
 {
-
+    mOutFrame.mCommand = 0;
+    mOutFrame.mLength = 0;
+    for (uint16_t i = 0; i < MAX_PAYLOAD_LEN; i++) {
+        mOutFrame.mDataPayload[i] = 0;
+    }
 }
 
+/**
+ * @brief Builds a frame to be sent over the communication channel
+ * @param cmd: The command for the frame
+ * @param payload: Pointer to the payload data
+ * @param len: Length of the payload
+ * @param out_buffer: Pointer to the output buffer after completing building the frame
+ * @param out_len: Pointer to the length of the output frame after completing building the frame
+ * @return The status after building the frame
+ */
 FrameBuildStatus_t BuildFrame(CommandType_t cmd, const uint8_t* payload, uint8_t len, uint8_t* out_buffer, uint16_t* out_len)
 {
     if ((payload == NULL) && (len > 0)) {
@@ -105,6 +131,13 @@ FrameBuildStatus_t BuildFrame(CommandType_t cmd, const uint8_t* payload, uint8_t
     return BUILT_FRAME_OK;
 }
 
+
+/**
+ * @brief Parses the received frame and validates its structure
+ * @param buffer: Pointer to the buffer containing the frame data
+ * @param length_of_frame: Length of the frame in the buffer
+ * @return The status after parsing the frame
+ */
 FrameParseStatus_t ParseFrame(const uint8_t* buffer, uint16_t length_of_frame)
 {
     if (buffer == NULL) {
@@ -126,23 +159,15 @@ FrameParseStatus_t ParseFrame(const uint8_t* buffer, uint16_t length_of_frame)
         }
     }
 
-    if (real_buffer[0] != SOF_D) {
-        return PARSED_FRAME_ERR_SOF_D;
-    }
+    if (real_buffer[0] != SOF_D)    return PARSED_FRAME_ERR_SOF_D;
 
-    if (CheckParsedFrameIncomplete(real_buffer, index_real_buffer) == PARSED_FRAME_INCOMPLETE) {
-        return PARSED_FRAME_INCOMPLETE;
-    }
+    if (CheckParsedFrameIncomplete(real_buffer, index_real_buffer) == PARSED_FRAME_INCOMPLETE)  return PARSED_FRAME_INCOMPLETE;
 
-    if (real_buffer[index_real_buffer - 1] != EOF_D) {
-        return PARSED_FRAME_ERR_EOF_D;
-    }
+    if (real_buffer[index_real_buffer - 1] != EOF_D)    return PARSED_FRAME_ERR_EOF_D;
     
     uint16_t crc_result = CalculateCrc(&real_buffer[1], index_real_buffer - 4);
 
-    if (crc_result != ((uint16_t)real_buffer[index_real_buffer - 3] << 8 | real_buffer[index_real_buffer - 2])) {
-        return PARSED_FRAME_ERR_CRC;
-    }
+    if (crc_result != ((uint16_t)real_buffer[index_real_buffer - 3] << 8 | real_buffer[index_real_buffer - 2])) return PARSED_FRAME_ERR_CRC;
 
     mOutFrame.mLength = real_buffer[1];
     mOutFrame.mCommand = real_buffer[2];

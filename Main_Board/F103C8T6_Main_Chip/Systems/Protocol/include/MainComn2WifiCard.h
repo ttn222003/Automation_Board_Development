@@ -63,6 +63,7 @@ typedef struct {
 } FrameStructure_t;
 
 /*======= API Functions =======*/
+void InitializeInternalFrameStructure(void);
 FrameBuildStatus_t BuildFrame(CommandType_t cmd, const uint8_t* payload, uint8_t len, uint8_t* out_buffer, uint16_t* out_len);
 FrameParseStatus_t ParseFrame(const uint8_t* buffer, uint16_t len);
 void GetFrame(FrameStructure_t* get_frame);
