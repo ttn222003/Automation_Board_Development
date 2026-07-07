@@ -40,6 +40,7 @@ extern void TestReturnSofErrorWhenStreamHasNoSof(void);
 extern void TestRejectFrameWhenCrcBytesAreSwapped(void);
 extern void TestGetFrameCopiesStoredFrameToCallerBuffer(void);
 extern void TestParseErrorDoesNotOverwriteStoredFrame(void);
+extern void TestInitializeInternalFrameStructureClearsCachedFrame(void);
 
 /* ── SUITE 4 – Protocol command frame formats ────────────────────────────── */
 extern void TestBuildAckFrameFormat(void);
@@ -97,6 +98,7 @@ int main(void)
     RUN_TEST(TestRejectFrameWhenCrcBytesAreSwapped);
     RUN_TEST(TestGetFrameCopiesStoredFrameToCallerBuffer);
     RUN_TEST(TestParseErrorDoesNotOverwriteStoredFrame);
+    RUN_TEST(TestInitializeInternalFrameStructureClearsCachedFrame);
 
     printf("\n--- SUITE 4 - Protocol command frame formats ---\n");
     RUN_TEST(TestBuildAckFrameFormat);

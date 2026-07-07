@@ -15,6 +15,14 @@
 #include <stdint.h>
 #include <string.h>
 
+/*
+ * Source update needed:
+ * InitializeInternalFrameStructure() is implemented in MainComn2WifiCard.c but
+ * is not declared in MainComn2WifiCard.h yet.  Keep this extern here so the
+ * test can define the expected public API behavior first.
+ */
+extern void InitializeInternalFrameStructure(void);
+
 /* ── Fixtures ────────────────────────────────────────────────────────────── */
 
 /*
@@ -131,6 +139,7 @@ static void AssertNackFrameParsesWithErrorCode(uint8_t failedCommand,
 /* setUp / tearDown */
 void setUp(void)
 {
+    InitializeInternalFrameStructure();
 }
 
 void tearDown(void)
@@ -751,6 +760,37 @@ void TestParseErrorDoesNotOverwriteStoredFrame(void)
                                   beforeError.mLength);
 }
 
+/*
+ * Test case: 3.16
+ * InitializeInternalFrameStructure() must clear the cached parsed frame.
+ *
+ * Add reason:
+ * The protocol cache is now an internal communication boundary between parser
+ * and command handlers.  Startup or test setup must be able to reset that
+ * cache so GetFrame() cannot return a stale frame parsed before initialization.
+ */
+void TestInitializeInternalFrameStructureClearsCachedFrame(void)
+{
+    uint8_t  payload[] = {0x71, 0x72};
+    uint8_t  raw[MAX_FRAME_LEN];
+    uint16_t rawLen = BuildValidFrame(CMD_DATA_PUSH, payload, sizeof(payload), raw);
+
+    TEST_ASSERT_EQUAL(PARSED_FRAME_OK, ParseFrame(raw, rawLen));
+
+    FrameStructure_t beforeInit;
+    GetFrame(&beforeInit);
+    TEST_ASSERT_EQUAL_HEX8(CMD_DATA_PUSH, beforeInit.mCommand);
+    TEST_ASSERT_EQUAL_UINT16(sizeof(payload), beforeInit.mLength);
+
+    InitializeInternalFrameStructure();
+
+    FrameStructure_t afterInit;
+    memset(&afterInit, 0xA5, sizeof(afterInit));
+    GetFrame(&afterInit);
+
+    TEST_ASSERT_EQUAL_UINT8(0, afterInit.mCommand);
+    TEST_ASSERT_EQUAL_UINT16(0, afterInit.mLength);
+}
 /* ═══════════════════════════════════════════════════════════════════════════
  * SUITE 4 – Protocol command frame formats
  *
