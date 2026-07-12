@@ -23,10 +23,13 @@
 /* USER CODE BEGIN Includes */
 #include "FreeRTOS.h"
 #include "task.h"
+#include "queue.h"
 #include "PlcConfig.h"
 #include "GpioCommon.h"
 #include "PlcGpio.h"
 #include "PlcMainExecuteLogic.h"
+#include "UartCommon.h"
+#include "MainComn2WifiCard.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -61,7 +64,13 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint32_t count_debug = 0;
+/* ======= Varibale =======*/
+uint8_t uart_rx_data;
+
+/* For Queue */
+QueueHandle_t xCommunicationQueueHandle;
+
+/* ======= Prototype Function =======*/
 void PLCScanTask(void* const pvParameters);
 void CommunicationTask(void* const pvParameters);
 void WatchdogTask(void* const pvParameters);
@@ -101,15 +110,26 @@ int main(void)
   // Initialize all peripheral
   int8_t initialization_state = 1;
   int8_t initialization_variable = 1;
+  int8_t initialization_bsp_uart = 0;
 
   initialization_state = GpioCommon() & 0x01;
   initialization_variable = InitializeVariable() & 0x01;
+  initialization_bsp_uart = InitBspUart(&huart1) & 0x01;
+  InitializeInternalFrameStructure();
 
-  if ((initialization_state != 1) || (initialization_variable != 1))
+  if ((initialization_state != 1) || \
+	(initialization_variable != 1) || \
+	(initialization_bsp_uart != 0))
   {
 	  // Handle something here
   }
 
+
+  /* Create Queue */
+  xCommunicationQueueHandle = xQueueCreate(5, sizeof(uint8_t));
+  configASSERT(xCommunicationQueueHandle != NULL);
+
+  /* Create Tasks */
   BaseType_t xPLCScanReturned;
   BaseType_t xCommunicationReturned;
   BaseType_t xWatchdogReturned;
@@ -123,6 +143,10 @@ int main(void)
   xWatchdogReturned = xTaskCreate(WatchdogTask, "Watchdog Task", 256, NULL, configMAX_PRIORITIES - 3, NULL);
   configASSERT(xWatchdogReturned == pdPASS);
 
+  /* ======= Start Interrupt UART ======= */
+  HAL_UART_Receive_IT(&huart1, &uart_rx_data, 1);
+
+  /* ======= Start Scheduler ======= */
   vTaskStartScheduler();
   /* USER CODE END 2 */
 
@@ -254,6 +278,8 @@ static void MX_GPIO_Init(void)
 void PLCScanTask(void* const pvParameters)
 {
 	uint16_t output_image[OUTPUT_NUMBER];
+	FrameStructure_t frame_structure;
+	uint8_t cmd;
 
 	BSP_GPIO_Init();
 	InitPlcCore();
@@ -265,6 +291,16 @@ void PLCScanTask(void* const pvParameters)
 	while(1)
 	{
 		TickType_t scan_start = xTaskGetTickCount();
+
+		BaseType_t frame_received = xQueueReceive(xCommunicationQueueHandle, &cmd, 2);
+
+		if (frame_received == pdPASS) {
+			if (cmd == PARSED_FRAME_OK) {
+				GetFrame(&frame_structure);
+
+				/* Handle frame here */
+			}
+		}
 
 		/* Read Input Image */
 		ReadPlcInputs();
@@ -284,11 +320,23 @@ void PLCScanTask(void* const pvParameters)
 
 void CommunicationTask(void* const pvParameters)
 {
-	/* TO DO */
-	//count_debug += 2;
+	BspUartStatus_t uart_read = BSP_UART_OK;
+	uint8_t rx_data_buffer[BSP_UART_RX_RING_BUF_SIZE];
+	uint16_t output_read = 0;
+	FrameParseStatus_t parse_frame_status;
+
 	while(1)
 	{
+		uart_read = ReadBspUart(rx_data_buffer, GetBspUartAvailable(), &output_read);
 
+		if (uart_read == BSP_UART_OK) {
+			parse_frame_status = ParseFrame(rx_data_buffer, output_read);
+		}
+
+		if (parse_frame_status == PARSED_FRAME_OK) {
+			uint8_t cmd = PARSED_FRAME_OK;
+			xQueueSend(xCommunicationQueueHandle, &cmd, 1);
+		}
 	}
 }
 
@@ -301,6 +349,16 @@ void WatchdogTask(void* const pvParameters)
 
 	}
 }
+
+/* ======= Interrupt Callback ======= */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  if (huart->Instance == huart1.Instance) {
+	  HandleBspUartIsrRx(uart_rx_data);
+	  HAL_UART_Receive_IT(&huart1, &uart_rx_data, 1);
+  }
+}
+
 /* USER CODE END 4 */
 
 /**
