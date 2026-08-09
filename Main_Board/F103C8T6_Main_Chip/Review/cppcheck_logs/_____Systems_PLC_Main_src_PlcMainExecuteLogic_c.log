@@ -1,0 +1,9 @@
+..\Systems\PLC_Main\src\PlcMainExecuteLogic.c:10:2: information: Include file: "PlcMainExecuteLogic.h" not found. [missingInclude]
+#include "PlcMainExecuteLogic.h"
+ ^
+..\Systems\PLC_Main\src\PlcMainExecuteLogic.c:20:8: style: The function 'InitializeVariable' is never used. [unusedFunction]
+int8_t InitializeVariable(void)
+       ^
+..\Systems\PLC_Main\src\PlcMainExecuteLogic.c:41:6: style: The function 'ExecutePlcLogic' is never used. [unusedFunction]
+void ExecutePlcLogic(uint16_t* output_image)
+     ^

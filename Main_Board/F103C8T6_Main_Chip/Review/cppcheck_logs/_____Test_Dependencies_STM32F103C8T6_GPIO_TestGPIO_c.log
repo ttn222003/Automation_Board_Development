@@ -1,0 +1,66 @@
+..\Test\Dependencies\STM32F103C8T6\GPIO\TestGPIO.c:7:2: information: Include file: "unity.h" not found. [missingInclude]
+#include "unity.h"
+ ^
+..\Test\Dependencies\STM32F103C8T6\GPIO\TestGPIO.c:8:2: information: Include file: "Mockstm32f1xx_hal_gpio.h" not found. [missingInclude]
+#include "Mockstm32f1xx_hal_gpio.h"
+ ^
+..\Test\Dependencies\STM32F103C8T6\GPIO\TestGPIO.c:9:2: information: Include file: "GpioCommon.h" not found. [missingInclude]
+#include "GpioCommon.h"
+ ^
+..\Test\Dependencies\STM32F103C8T6\GPIO\TestGPIO.c:10:2: information: Include file: <string.h> not found. Please note: Standard library headers do not need to be provided to get proper results. [missingIncludeSystem]
+#include <string.h>
+ ^
+..\Test\Dependencies\STM32F103C8T6\GPIO\TestGPIO.c:40:6: style: The function 'setUp' is never used. [unusedFunction]
+void setUp(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\GPIO\TestGPIO.c:46:6: style: The function 'tearDown' is never used. [unusedFunction]
+void tearDown(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\GPIO\TestGPIO.c:61:6: style: The function 'TestBspGpioCommonReturnsSuccess' is never used. [unusedFunction]
+void TestBspGpioCommonReturnsSuccess(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\GPIO\TestGPIO.c:73:6: style: The function 'TestBspGpioCommonInitializesPinMapping' is never used. [unusedFunction]
+void TestBspGpioCommonInitializesPinMapping(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\GPIO\TestGPIO.c:98:6: style: The function 'TestBspGpioInitReadsCurrentODR' is never used. [unusedFunction]
+void TestBspGpioInitReadsCurrentODR(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\GPIO\TestGPIO.c:117:6: style: The function 'TestBspGpioInitAllOutputsOff' is never used. [unusedFunction]
+void TestBspGpioInitAllOutputsOff(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\GPIO\TestGPIO.c:131:6: style: The function 'TestBspGpioInitAllOutputsOn' is never used. [unusedFunction]
+void TestBspGpioInitAllOutputsOn(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\GPIO\TestGPIO.c:149:6: style: The function 'TestBspWriteOutputsAllZeros' is never used. [unusedFunction]
+void TestBspWriteOutputsAllZeros(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\GPIO\TestGPIO.c:160:6: style: The function 'TestBspWriteOutputsAllOnes' is never used. [unusedFunction]
+void TestBspWriteOutputsAllOnes(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\GPIO\TestGPIO.c:171:6: style: The function 'TestBspWriteOutputsAlternatingPattern01' is never used. [unusedFunction]
+void TestBspWriteOutputsAlternatingPattern01(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\GPIO\TestGPIO.c:189:6: style: The function 'TestBspWriteOutputsAlternatingPattern10' is never used. [unusedFunction]
+void TestBspWriteOutputsAlternatingPattern10(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\GPIO\TestGPIO.c:209:6: style: The function 'TestBspWriteOutputsSingleOutputOn' is never used. [unusedFunction]
+void TestBspWriteOutputsSingleOutputOn(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\GPIO\TestGPIO.c:232:6: style: The function 'TestBspWriteOutputsIgnoresUpperBits' is never used. [unusedFunction]
+void TestBspWriteOutputsIgnoresUpperBits(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\GPIO\TestGPIO.c:250:6: style: The function 'TestBspSequentialWritesChangeOutputs' is never used. [unusedFunction]
+void TestBspSequentialWritesChangeOutputs(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\GPIO\TestGPIO.c:276:6: style: The function 'TestBspFeedWatchdogDoesNotCrash' is never used. [unusedFunction]
+void TestBspFeedWatchdogDoesNotCrash(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\GPIO\TestGPIO.c:293:6: style: The function 'TestBspTypicalPlcScanSequence' is never used. [unusedFunction]
+void TestBspTypicalPlcScanSequence(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\GPIO\TestGPIO.c:319:6: style: The function 'TestBspBoundaryMaximumOutputValue' is never used. [unusedFunction]
+void TestBspBoundaryMaximumOutputValue(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\GPIO\TestGPIO.c:330:6: style: The function 'TestBspBoundaryMinimumOutputValue' is never used. [unusedFunction]
+void TestBspBoundaryMinimumOutputValue(void)
+     ^

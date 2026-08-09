@@ -1,0 +1,51 @@
+..\Test\PLC_Main\PLC_Execute_Logic\TestPlcMainExecutionLogic.c:9:2: information: Include file: "unity.h" not found. [missingInclude]
+#include "unity.h"
+ ^
+..\Test\PLC_Main\PLC_Execute_Logic\TestPlcMainExecutionLogic.c:10:2: information: Include file: "PlcMainExecuteLogic.h" not found. [missingInclude]
+#include "PlcMainExecuteLogic.h"
+ ^
+..\Test\PLC_Main\PLC_Execute_Logic\TestPlcMainExecutionLogic.c:11:2: information: Include file: <string.h> not found. Please note: Standard library headers do not need to be provided to get proper results. [missingIncludeSystem]
+#include <string.h>
+ ^
+..\Test\PLC_Main\PLC_Execute_Logic\TestPlcMainExecutionLogic.c:15:6: style: The function 'setUp' is never used. [unusedFunction]
+void setUp(void)
+     ^
+..\Test\PLC_Main\PLC_Execute_Logic\TestPlcMainExecutionLogic.c:20:6: style: The function 'tearDown' is never used. [unusedFunction]
+void tearDown(void)
+     ^
+..\Test\PLC_Main\PLC_Execute_Logic\TestPlcMainExecutionLogic.c:34:6: style: The function 'TestExecuteInitVariableReturnsSuccess' is never used. [unusedFunction]
+void TestExecuteInitVariableReturnsSuccess(void)
+     ^
+..\Test\PLC_Main\PLC_Execute_Logic\TestPlcMainExecutionLogic.c:51:6: style: The function 'TestExecuteInitVariableClearsOutArray' is never used. [unusedFunction]
+void TestExecuteInitVariableClearsOutArray(void)
+     ^
+..\Test\PLC_Main\PLC_Execute_Logic\TestPlcMainExecutionLogic.c:76:6: style: The function 'TestExecuteInitVariableIsIdempotent' is never used. [unusedFunction]
+void TestExecuteInitVariableIsIdempotent(void)
+     ^
+..\Test\PLC_Main\PLC_Execute_Logic\TestPlcMainExecutionLogic.c:92:6: style: The function 'TestExecuteLogicWritesAllOutputSlots' is never used. [unusedFunction]
+void TestExecuteLogicWritesAllOutputSlots(void)
+     ^
+..\Test\PLC_Main\PLC_Execute_Logic\TestPlcMainExecutionLogic.c:109:6: style: The function 'TestExecuteLogicOutputValuesAreBinary' is never used. [unusedFunction]
+void TestExecuteLogicOutputValuesAreBinary(void)
+     ^
+..\Test\PLC_Main\PLC_Execute_Logic\TestPlcMainExecutionLogic.c:127:6: style: The function 'TestExecuteLogicDoesNotWriteBeyondOutputArray' is never used. [unusedFunction]
+void TestExecuteLogicDoesNotWriteBeyondOutputArray(void)
+     ^
+..\Test\PLC_Main\PLC_Execute_Logic\TestPlcMainExecutionLogic.c:153:6: style: The function 'TestExecuteLogicOutIsStatefulBetweenScans' is never used. [unusedFunction]
+void TestExecuteLogicOutIsStatefulBetweenScans(void)
+     ^
+..\Test\PLC_Main\PLC_Execute_Logic\TestPlcMainExecutionLogic.c:172:6: style: The function 'TestExecuteLogicInitClearsResidualStateBeforeFirstScan' is never used. [unusedFunction]
+void TestExecuteLogicInitClearsResidualStateBeforeFirstScan(void)
+     ^
+..\Test\PLC_Main\PLC_Execute_Logic\TestPlcMainExecutionLogic.c:210:6: style: The function 'TestExecuteLogicCurrentPatternIs0x15' is never used. [unusedFunction]
+void TestExecuteLogicCurrentPatternIs0x15(void)
+     ^
+..\Test\PLC_Main\PLC_Execute_Logic\TestPlcMainExecutionLogic.c:228:6: style: The function 'TestExecuteLogicOutputMapsToExpectedBitmask' is never used. [unusedFunction]
+void TestExecuteLogicOutputMapsToExpectedBitmask(void)
+     ^
+..\Test\PLC_Main\PLC_Execute_Logic\TestPlcMainExecutionLogic.c:250:6: style: The function 'TestExecuteLogicOutputIsValidForUpdatePlcOutputs' is never used. [unusedFunction]
+void TestExecuteLogicOutputIsValidForUpdatePlcOutputs(void)
+     ^
+..\Test\PLC_Main\PLC_Execute_Logic\TestPlcMainExecutionLogic.c:269:6: style: The function 'TestExecuteLogicConsistentAcrossMultipleScans' is never used. [unusedFunction]
+void TestExecuteLogicConsistentAcrossMultipleScans(void)
+     ^

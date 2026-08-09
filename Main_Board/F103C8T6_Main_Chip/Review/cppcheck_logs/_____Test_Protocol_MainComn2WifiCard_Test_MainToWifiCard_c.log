@@ -1,0 +1,177 @@
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:11:2: information: Include file: "unity.h" not found. [missingInclude]
+#include "unity.h"
+ ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:12:2: information: Include file: "MainComn2WifiCard.h" not found. [missingInclude]
+#include "MainComn2WifiCard.h"
+ ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:14:2: information: Include file: <stdio.h> not found. Please note: Standard library headers do not need to be provided to get proper results. [missingIncludeSystem]
+#include <stdio.h>
+ ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:15:2: information: Include file: <stdint.h> not found. Please note: Standard library headers do not need to be provided to get proper results. [missingIncludeSystem]
+#include <stdint.h>
+ ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:16:2: information: Include file: <string.h> not found. Please note: Standard library headers do not need to be provided to get proper results. [missingIncludeSystem]
+#include <string.h>
+ ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:418:14: style: Variable 'mDataPayload' can be declared as const array [constVariable]
+    uint8_t  mDataPayload[] = {0x10, 0x20};
+             ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:468:14: style: Variable 'payload' can be declared as const array [constVariable]
+    uint8_t  payload[] = {0x10};
+             ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:489:14: style: Variable 'mDataPayload' can be declared as const array [constVariable]
+    uint8_t  mDataPayload[] = {0x10};
+             ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:509:14: style: Variable 'mDataPayload' can be declared as const array [constVariable]
+    uint8_t  mDataPayload[] = {0x10, 0x20};
+             ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:530:14: style: Variable 'mDataPayload' can be declared as const array [constVariable]
+    uint8_t  mDataPayload[] = {0x10, 0x20, 0x30};
+             ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:551:14: style: Variable 'mDataPayload' can be declared as const array [constVariable]
+    uint8_t  mDataPayload[] = {0xAB};
+             ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:645:14: style: Variable 'mDataPayload' can be declared as const array [constVariable]
+    uint8_t  mDataPayload[] = {0x10, 0x20};
+             ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:1060:14: style: Variable 'mDataPayload' can be declared as const array [constVariable]
+    uint8_t  mDataPayload[] = {0x00, 0x01, 0x00};
+             ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:1091:14: style: Variable 'mDataPayload' can be declared as const array [constVariable]
+    uint8_t  mDataPayload[] = {0x34, 0x56};
+             ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:450:54: warning: Uninitialized variable: mDataPayload [uninitvar]
+    uint16_t rawLen = BuildValidFrame(CMD_DATA_PUSH, mDataPayload,
+                                                     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:446:28: note: Assuming condition is false
+    for (uint16_t i = 0; i < MAX_PAYLOAD_LEN; i++) {
+                           ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:450:54: note: Uninitialized variable: mDataPayload
+    uint16_t rawLen = BuildValidFrame(CMD_DATA_PUSH, mDataPayload,
+                                                     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:1029:51: style: Variable 'offset' is assigned a value that is never used. [unreadVariable]
+    memcpy(&stream[offset], frame3, len3); offset += len3;
+                                                  ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:140:6: style: The function 'setUp' is never used. [unusedFunction]
+void setUp(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:145:6: style: The function 'tearDown' is never used. [unusedFunction]
+void tearDown(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:169:6: style: The function 'TestBuildFrameWithPayload' is never used. [unusedFunction]
+void TestBuildFrameWithPayload(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:199:6: style: The function 'TestBuildFrameWithoutPayload' is never used. [unusedFunction]
+void TestBuildFrameWithoutPayload(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:219:6: style: The function 'TestBuildFrameWithMaxPayload' is never used. [unusedFunction]
+void TestBuildFrameWithMaxPayload(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:242:6: style: The function 'TestRejectOversizedPayload' is never used. [unusedFunction]
+void TestRejectOversizedPayload(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:268:6: style: The function 'TestRejectNullOutputBuffer' is never used. [unusedFunction]
+void TestRejectNullOutputBuffer(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:283:6: style: The function 'TestRejectNullOutputLength' is never used. [unusedFunction]
+void TestRejectNullOutputLength(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:302:6: style: The function 'TestRejectNullPayloadWhenLengthIsNonzero' is never used. [unusedFunction]
+void TestRejectNullPayloadWhenLengthIsNonzero(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:328:6: style: The function 'TestCalculateCrcForKnownProtocolData' is never used. [unusedFunction]
+void TestCalculateCrcForKnownProtocolData(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:350:6: style: The function 'TestChangeCrcWhenSingleBitFlips' is never used. [unusedFunction]
+void TestChangeCrcWhenSingleBitFlips(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:372:6: style: The function 'TestCalculateCrcForEmptyPayloadFrame' is never used. [unusedFunction]
+void TestCalculateCrcForEmptyPayloadFrame(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:392:6: style: The function 'TestReturnSameCrcForSameData' is never used. [unusedFunction]
+void TestReturnSameCrcForSameData(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:416:6: style: The function 'TestParseValidFrame' is never used. [unusedFunction]
+void TestParseValidFrame(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:441:6: style: The function 'TestParseFrameWithMaxPayload' is never used. [unusedFunction]
+void TestParseFrameWithMaxPayload(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:466:6: style: The function 'TestReturnSofErrorWhenSofIsWrong' is never used. [unusedFunction]
+void TestReturnSofErrorWhenSofIsWrong(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:487:6: style: The function 'TestReturnEofErrorWhenEofIsWrong' is never used. [unusedFunction]
+void TestReturnEofErrorWhenEofIsWrong(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:507:6: style: The function 'TestReturnCrcErrorWhenCrcIsWrong' is never used. [unusedFunction]
+void TestReturnCrcErrorWhenCrcIsWrong(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:528:6: style: The function 'TestReturnIncompleteWhenLenClaimsMoreBytesThanAvailable' is never used. [unusedFunction]
+void TestReturnIncompleteWhenLenClaimsMoreBytesThanAvailable(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:549:6: style: The function 'TestSkipNoiseBeforeSof' is never used. [unusedFunction]
+void TestSkipNoiseBeforeSof(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:574:6: style: The function 'TestRejectNullInputBuffer' is never used. [unusedFunction]
+void TestRejectNullInputBuffer(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:586:6: style: The function 'TestReturnIncompleteForShortBuffer' is never used. [unusedFunction]
+void TestReturnIncompleteForShortBuffer(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:605:6: style: The function 'TestParseExactSixByteHeartbeatRequestAsComplete' is never used. [unusedFunction]
+void TestParseExactSixByteHeartbeatRequestAsComplete(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:628:6: style: The function 'TestReturnSofErrorWhenStreamHasNoSof' is never used. [unusedFunction]
+void TestReturnSofErrorWhenStreamHasNoSof(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:643:6: style: The function 'TestRejectFrameWhenCrcBytesAreSwapped' is never used. [unusedFunction]
+void TestRejectFrameWhenCrcBytesAreSwapped(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:671:6: style: The function 'TestGetFrameCopiesStoredFrameToCallerBuffer' is never used. [unusedFunction]
+void TestGetFrameCopiesStoredFrameToCallerBuffer(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:703:6: style: The function 'TestParseErrorDoesNotOverwriteStoredFrame' is never used. [unusedFunction]
+void TestParseErrorDoesNotOverwriteStoredFrame(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:746:6: style: The function 'TestInitializeInternalFrameStructureClearsCachedFrame' is never used. [unusedFunction]
+void TestInitializeInternalFrameStructureClearsCachedFrame(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:783:6: style: The function 'TestParseZeroLengthBufferReturnsSofError' is never used. [unusedFunction]
+void TestParseZeroLengthBufferReturnsSofError(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:802:6: style: The function 'TestBuildAckFrameFormat' is never used. [unusedFunction]
+void TestBuildAckFrameFormat(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:827:6: style: The function 'TestBuildNackFrameFormat' is never used. [unusedFunction]
+void TestBuildNackFrameFormat(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:848:6: style: The function 'TestParseHeartbeatRequest' is never used. [unusedFunction]
+void TestParseHeartbeatRequest(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:866:6: style: The function 'TestBuildHeartbeatResponse' is never used. [unusedFunction]
+void TestBuildHeartbeatResponse(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:895:6: style: The function 'TestParseAckFrameWithNoExtraPayload' is never used. [unusedFunction]
+void TestParseAckFrameWithNoExtraPayload(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:919:6: style: The function 'TestParseNackFrameWithErrorCode' is never used. [unusedFunction]
+void TestParseNackFrameWithErrorCode(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:943:6: style: The function 'TestNackErrorCodeValuesAreStable' is never used. [unusedFunction]
+void TestNackErrorCodeValuesAreStable(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:963:6: style: The function 'TestBuildNackFrameForEachErrorCode' is never used. [unusedFunction]
+void TestBuildNackFrameForEachErrorCode(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:983:6: style: The function 'TestParseNackFrameForEachErrorCode' is never used. [unusedFunction]
+void TestParseNackFrameForEachErrorCode(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:1011:6: style: The function 'TestParseThreeConsecutiveFramesByOffset' is never used. [unusedFunction]
+void TestParseThreeConsecutiveFramesByOffset(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:1058:6: style: The function 'TestParseFrameContainingZeroByte' is never used. [unusedFunction]
+void TestParseFrameContainingZeroByte(void)
+     ^
+..\Test\Protocol\MainComn2WifiCard\Test_MainToWifiCard.c:1087:6: style: The function 'TestSkipNoiseWithStraySofBeforeValidFrame' is never used. [unusedFunction]
+void TestSkipNoiseWithStraySofBeforeValidFrame(void)
+     ^

@@ -1,0 +1,18 @@
+..\Systems\Protocol\include\MainComn2WifiCard.h:11:2: information: Include file: <stddef.h> not found. Please note: Standard library headers do not need to be provided to get proper results. [missingIncludeSystem]
+#include <stddef.h>
+ ^
+..\Systems\Protocol\include\MainComn2WifiCard.h:12:2: information: Include file: <stdint.h> not found. Please note: Standard library headers do not need to be provided to get proper results. [missingIncludeSystem]
+#include <stdint.h>
+ ^
+..\Systems\Protocol\include\MainComn2WifiCard.h:13:2: information: Include file: "PlcConfig.h" not found. [missingInclude]
+#include "PlcConfig.h"
+ ^
+..\Systems\Protocol\include\MainComn2WifiCard.h:60:13: style: struct member 'FrameStructure_t::mDataPayload' is never used. [unusedStructMember]
+    uint8_t mDataPayload[MAX_PAYLOAD_LEN];
+            ^
+..\Systems\Protocol\include\MainComn2WifiCard.h:61:19: style: struct member 'FrameStructure_t::mCommand' is never used. [unusedStructMember]
+    CommandType_t mCommand;
+                  ^
+..\Systems\Protocol\include\MainComn2WifiCard.h:62:14: style: struct member 'FrameStructure_t::mLength' is never used. [unusedStructMember]
+    uint16_t mLength;
+             ^

@@ -1,0 +1,102 @@
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:9:2: information: Include file: "unity.h" not found. [missingInclude]
+#include "unity.h"
+ ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:10:2: information: Include file: "UartCommon.h" not found. [missingInclude]
+#include "UartCommon.h"
+ ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:11:2: information: Include file: "Mockstm32f1xx_hal_uart.h" not found. [missingInclude]
+#include "Mockstm32f1xx_hal_uart.h"   /* CMock generated */
+ ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:13:2: information: Include file: <string.h> not found. Please note: Standard library headers do not need to be provided to get proper results. [missingIncludeSystem]
+#include <string.h>
+ ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:26:6: style: The function 'setUp' is never used. [unusedFunction]
+void setUp(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:31:6: style: The function 'tearDown' is never used. [unusedFunction]
+void tearDown(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:49:6: style: The function 'TestInitBspUartWithValidHandleReturnsOk' is never used. [unusedFunction]
+void TestInitBspUartWithValidHandleReturnsOk(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:61:6: style: The function 'TestInitBspUartNullHandleReturnsError' is never used. [unusedFunction]
+void TestInitBspUartNullHandleReturnsError(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:73:6: style: The function 'TestSendBspUartBeforeInitReturnsNotInit' is never used. [unusedFunction]
+void TestSendBspUartBeforeInitReturnsNotInit(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:90:6: style: The function 'TestSendBspUartAfterResetReturnsNotInit' is never used. [unusedFunction]
+void TestSendBspUartAfterResetReturnsNotInit(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:110:6: style: The function 'TestSendBspUartCallsHalTransmit' is never used. [unusedFunction]
+void TestSendBspUartCallsHalTransmit(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:129:6: style: The function 'TestSendBspUartHalErrorReturnsError' is never used. [unusedFunction]
+void TestSendBspUartHalErrorReturnsError(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:146:6: style: The function 'TestSendBspUartNullPointerReturnsError' is never used. [unusedFunction]
+void TestSendBspUartNullPointerReturnsError(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:160:6: style: The function 'TestSendBspUartZeroLenReturnsError' is never used. [unusedFunction]
+void TestSendBspUartZeroLenReturnsError(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:175:6: style: The function 'TestSendBspUartHalBusyReturnsError' is never used. [unusedFunction]
+void TestSendBspUartHalBusyReturnsError(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:201:6: style: The function 'TestSendBspUartRetryAfterHalBusySucceeds' is never used. [unusedFunction]
+void TestSendBspUartRetryAfterHalBusySucceeds(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:230:6: style: The function 'TestSendBspUartRetryAfterNullSucceeds' is never used. [unusedFunction]
+void TestSendBspUartRetryAfterNullSucceeds(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:255:6: style: The function 'TestSendBspUartRetryAfterZeroLenSucceeds' is never used. [unusedFunction]
+void TestSendBspUartRetryAfterZeroLenSucceeds(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:285:6: style: The function 'TestSendBspUartAfterReadNullDoesNotBlock' is never used. [unusedFunction]
+void TestSendBspUartAfterReadNullDoesNotBlock(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:311:6: style: The function 'TestSendBspUartAfterReadEmptyDoesNotBlock' is never used. [unusedFunction]
+void TestSendBspUartAfterReadEmptyDoesNotBlock(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:339:6: style: The function 'TestHandleIsrRxOneByteIsAvailable' is never used. [unusedFunction]
+void TestHandleIsrRxOneByteIsAvailable(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:350:6: style: The function 'TestHandleIsrRxMultipleBytesAvailable' is never used. [unusedFunction]
+void TestHandleIsrRxMultipleBytesAvailable(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:363:6: style: The function 'TestHandleIsrRxPreservesFifoOrder' is never used. [unusedFunction]
+void TestHandleIsrRxPreservesFifoOrder(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:385:6: style: The function 'TestHandleIsrRxZeroBytePayloadIsReadable' is never used. [unusedFunction]
+void TestHandleIsrRxZeroBytePayloadIsReadable(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:416:6: style: The function 'TestHandleIsrRxOverflowSetsFlag' is never used. [unusedFunction]
+void TestHandleIsrRxOverflowSetsFlag(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:444:6: style: The function 'TestHandleIsrRxOverflowFlagClearsAfterCheck' is never used. [unusedFunction]
+void TestHandleIsrRxOverflowFlagClearsAfterCheck(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:459:6: style: The function 'TestHandleIsrRxRingBufferWrapsAround' is never used. [unusedFunction]
+void TestHandleIsrRxRingBufferWrapsAround(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:496:6: style: The function 'TestReadBspUartEmptyBufferReturnsNoData' is never used. [unusedFunction]
+void TestReadBspUartEmptyBufferReturnsNoData(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:512:6: style: The function 'TestReadBspUartReadsOnlyAvailableBytes' is never used. [unusedFunction]
+void TestReadBspUartReadsOnlyAvailableBytes(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:535:6: style: The function 'TestReadBspUartNullBufferReturnsError' is never used. [unusedFunction]
+void TestReadBspUartNullBufferReturnsError(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:549:6: style: The function 'TestReadBspUartDecreasesAvailableCount' is never used. [unusedFunction]
+void TestReadBspUartDecreasesAvailableCount(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:570:6: style: The function 'TestReadBspUartPartialReadReportsActualCount' is never used. [unusedFunction]
+void TestReadBspUartPartialReadReportsActualCount(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:598:6: style: The function 'TestReadBspUartSequentialPartialReadsReturnCorrectData' is never used. [unusedFunction]
+void TestReadBspUartSequentialPartialReadsReturnCorrectData(void)
+     ^
+..\Test\Dependencies\STM32F103C8T6\UART\TestUART.c:640:6: style: The function 'TestReadBspUartAfterDrainReturnsNoData' is never used. [unusedFunction]
+void TestReadBspUartAfterDrainReturnsNoData(void)
+     ^

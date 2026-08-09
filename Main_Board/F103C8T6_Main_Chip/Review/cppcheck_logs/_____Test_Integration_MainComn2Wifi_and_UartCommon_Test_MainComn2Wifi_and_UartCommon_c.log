@@ -1,0 +1,39 @@
+..\Test\Integration\MainComn2Wifi_and_UartCommon\Test_MainComn2Wifi_and_UartCommon.c:9:2: information: Include file: "unity.h" not found. [missingInclude]
+#include "unity.h"
+ ^
+..\Test\Integration\MainComn2Wifi_and_UartCommon\Test_MainComn2Wifi_and_UartCommon.c:10:2: information: Include file: "MainComn2WifiCard.h" not found. [missingInclude]
+#include "MainComn2WifiCard.h"
+ ^
+..\Test\Integration\MainComn2Wifi_and_UartCommon\Test_MainComn2Wifi_and_UartCommon.c:11:2: information: Include file: "UartCommon.h" not found. [missingInclude]
+#include "UartCommon.h"
+ ^
+..\Test\Integration\MainComn2Wifi_and_UartCommon\Test_MainComn2Wifi_and_UartCommon.c:12:2: information: Include file: "Mockstm32f1xx_hal_uart.h" not found. [missingInclude]
+#include "Mockstm32f1xx_hal_uart.h"
+ ^
+..\Test\Integration\MainComn2Wifi_and_UartCommon\Test_MainComn2Wifi_and_UartCommon.c:14:2: information: Include file: <stdint.h> not found. Please note: Standard library headers do not need to be provided to get proper results. [missingIncludeSystem]
+#include <stdint.h>
+ ^
+..\Test\Integration\MainComn2Wifi_and_UartCommon\Test_MainComn2Wifi_and_UartCommon.c:15:2: information: Include file: <string.h> not found. Please note: Standard library headers do not need to be provided to get proper results. [missingIncludeSystem]
+#include <string.h>
+ ^
+..\Test\Integration\MainComn2Wifi_and_UartCommon\Test_MainComn2Wifi_and_UartCommon.c:19:6: style: The function 'setUp' is never used. [unusedFunction]
+void setUp(void)
+     ^
+..\Test\Integration\MainComn2Wifi_and_UartCommon\Test_MainComn2Wifi_and_UartCommon.c:26:6: style: The function 'tearDown' is never used. [unusedFunction]
+void tearDown(void)
+     ^
+..\Test\Integration\MainComn2Wifi_and_UartCommon\Test_MainComn2Wifi_and_UartCommon.c:97:6: style: The function 'TestBuildHeartbeatResponseThenSendOverUart' is never used. [unusedFunction]
+void TestBuildHeartbeatResponseThenSendOverUart(void)
+     ^
+..\Test\Integration\MainComn2Wifi_and_UartCommon\Test_MainComn2Wifi_and_UartCommon.c:117:6: style: The function 'TestBuildNackForCrcFailThenSendOverUart' is never used. [unusedFunction]
+void TestBuildNackForCrcFailThenSendOverUart(void)
+     ^
+..\Test\Integration\MainComn2Wifi_and_UartCommon\Test_MainComn2Wifi_and_UartCommon.c:150:6: style: The function 'TestReceiveHeartbeatRequestFromUartThenParse' is never used. [unusedFunction]
+void TestReceiveHeartbeatRequestFromUartThenParse(void)
+     ^
+..\Test\Integration\MainComn2Wifi_and_UartCommon\Test_MainComn2Wifi_and_UartCommon.c:173:6: style: The function 'TestReceiveDataPushFromUartThenParsePayload' is never used. [unusedFunction]
+void TestReceiveDataPushFromUartThenParsePayload(void)
+     ^
+..\Test\Integration\MainComn2Wifi_and_UartCommon\Test_MainComn2Wifi_and_UartCommon.c:204:6: style: The function 'TestCrcErrorFromUartRxBuildsAndSendsNack' is never used. [unusedFunction]
+void TestCrcErrorFromUartRxBuildsAndSendsNack(void)
+     ^

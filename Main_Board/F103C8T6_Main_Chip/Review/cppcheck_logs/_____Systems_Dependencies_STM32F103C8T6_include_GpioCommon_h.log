@@ -1,0 +1,6 @@
+..\Systems\Dependencies\STM32F103C8T6\include\GpioCommon.h:11:2: information: Include file: "main.h" not found. [missingInclude]
+#include "main.h"
+ ^
+..\Systems\Dependencies\STM32F103C8T6\include\GpioCommon.h:12:2: information: Include file: "PlcConfig.h" not found. [missingInclude]
+#include "PlcConfig.h"
+ ^

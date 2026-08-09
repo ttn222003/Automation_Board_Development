@@ -1,0 +1,9 @@
+..\Systems\Dependencies\STM32F103C8T6\include\UartCommon.h:12:2: information: Include file: "main.h" not found. [missingInclude]
+#include "main.h"
+ ^
+..\Systems\Dependencies\STM32F103C8T6\include\UartCommon.h:13:2: information: Include file: <string.h> not found. Please note: Standard library headers do not need to be provided to get proper results. [missingIncludeSystem]
+#include <string.h>
+ ^
+..\Systems\Dependencies\STM32F103C8T6\include\UartCommon.h:14:2: information: Include file: "PlcConfig.h" not found. [missingInclude]
+#include "PlcConfig.h"
+ ^

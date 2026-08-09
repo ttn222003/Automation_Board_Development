@@ -1,0 +1,24 @@
+..\Systems\PLC_Main\src\PlcGpio.c:8:2: information: Include file: "PlcGpio.h" not found. [missingInclude]
+#include "PlcGpio.h"
+ ^
+..\Systems\PLC_Main\src\PlcGpio.c:49:32: style: Parameter 'output_image' can be declared as const array [constParameter]
+void UpdatePlcOutputs(uint16_t output_image[])
+                               ^
+..\Systems\PLC_Main\src\PlcGpio.c:31:6: style: The function 'InitPlcCore' is never used. [unusedFunction]
+void InitPlcCore(void)
+     ^
+..\Systems\PLC_Main\src\PlcGpio.c:44:6: style: The function 'ReadPlcInputs' is never used. [unusedFunction]
+void ReadPlcInputs(void)
+     ^
+..\Systems\PLC_Main\src\PlcGpio.c:49:6: style: The function 'UpdatePlcOutputs' is never used. [unusedFunction]
+void UpdatePlcOutputs(uint16_t output_image[])
+     ^
+..\Systems\PLC_Main\src\PlcGpio.c:63:6: style: The function 'SetPlcState' is never used. [unusedFunction]
+void SetPlcState(PlcState_t state)
+     ^
+..\Systems\PLC_Main\src\PlcGpio.c:68:12: style: The function 'GetPlcState' is never used. [unusedFunction]
+PlcState_t GetPlcState(void)
+           ^
+..\Systems\PLC_Main\src\PlcGpio.c:77:10: style: The function 'ReadOutputImage' is never used. [unusedFunction]
+uint16_t ReadOutputImage(void)
+         ^

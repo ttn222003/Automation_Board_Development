@@ -1,0 +1,99 @@
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:9:2: information: Include file: "unity.h" not found. [missingInclude]
+#include "unity.h"
+ ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:10:2: information: Include file: "PlcGpio.h" not found. [missingInclude]
+#include "PlcGpio.h"
+ ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:11:2: information: Include file: <string.h> not found. Please note: Standard library headers do not need to be provided to get proper results. [missingIncludeSystem]
+#include <string.h>
+ ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:31:6: style: The function 'setUp' is never used. [unusedFunction]
+void setUp(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:36:6: style: The function 'tearDown' is never used. [unusedFunction]
+void tearDown(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:50:6: style: The function 'TestCoreInitSetsStopState' is never used. [unusedFunction]
+void TestCoreInitSetsStopState(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:64:6: style: The function 'TestCoreInitClearsAllOutputs' is never used. [unusedFunction]
+void TestCoreInitClearsAllOutputs(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:76:6: style: The function 'TestCoreInitResetsOutputsAfterWrite' is never used. [unusedFunction]
+void TestCoreInitResetsOutputsAfterWrite(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:102:6: style: The function 'TestCoreSetStateRunAllowsOutputUpdate' is never used. [unusedFunction]
+void TestCoreSetStateRunAllowsOutputUpdate(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:118:6: style: The function 'TestCoreSetStateStopBlocksOutputUpdate' is never used. [unusedFunction]
+void TestCoreSetStateStopBlocksOutputUpdate(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:144:6: style: The function 'TestCoreSetStateRunStopRunCycle' is never used. [unusedFunction]
+void TestCoreSetStateRunStopRunCycle(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:167:6: style: The function 'TestCoreReadOutputImageInStopStateWithNoWriteReturnsZero' is never used. [unusedFunction]
+void TestCoreReadOutputImageInStopStateWithNoWriteReturnsZero(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:182:6: style: The function 'TestCoreUpdateOutputsInStopStateHasNoEffect' is never used. [unusedFunction]
+void TestCoreUpdateOutputsInStopStateHasNoEffect(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:198:6: style: The function 'TestCoreUpdateOutputsInStopStatePreservesLastWrittenValue' is never used. [unusedFunction]
+void TestCoreUpdateOutputsInStopStatePreservesLastWrittenValue(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:223:6: style: The function 'TestCoreUpdateOutputsAllZerosInRunState' is never used. [unusedFunction]
+void TestCoreUpdateOutputsAllZerosInRunState(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:238:6: style: The function 'TestCoreUpdateOutputsAllOnesInRunState' is never used. [unusedFunction]
+void TestCoreUpdateOutputsAllOnesInRunState(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:253:6: style: The function 'TestCoreUpdateOutputsAlternatingPattern01' is never used. [unusedFunction]
+void TestCoreUpdateOutputsAlternatingPattern01(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:268:6: style: The function 'TestCoreUpdateOutputsAlternatingPattern10' is never used. [unusedFunction]
+void TestCoreUpdateOutputsAlternatingPattern10(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:284:6: style: The function 'TestCoreUpdateOutputsOnlyLsbIsUsed' is never used. [unusedFunction]
+void TestCoreUpdateOutputsOnlyLsbIsUsed(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:299:6: style: The function 'TestCoreUpdateOutputsOverwritesPreviousImage' is never used. [unusedFunction]
+void TestCoreUpdateOutputsOverwritesPreviousImage(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:323:6: style: The function 'TestCoreReadOutputImageReturnsZeroAfterInit' is never used. [unusedFunction]
+void TestCoreReadOutputImageReturnsZeroAfterInit(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:334:6: style: The function 'TestCoreReadOutputImagePreservesValueInStopState' is never used. [unusedFunction]
+void TestCoreReadOutputImagePreservesValueInStopState(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:352:6: style: The function 'TestCoreReadOutputImageAllZerosInRunState' is never used. [unusedFunction]
+void TestCoreReadOutputImageAllZerosInRunState(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:362:6: style: The function 'TestCoreReadOutputImageAllOnesInRunState' is never used. [unusedFunction]
+void TestCoreReadOutputImageAllOnesInRunState(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:378:6: style: The function 'TestCoreReadOutputImageSingleOutputOn' is never used. [unusedFunction]
+void TestCoreReadOutputImageSingleOutputOn(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:399:6: style: The function 'TestCoreReadOutputImageIsIdempotent' is never used. [unusedFunction]
+void TestCoreReadOutputImageIsIdempotent(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:422:6: style: The function 'TestCoreReadPlcInputsDoesNotCrash' is never used. [unusedFunction]
+void TestCoreReadPlcInputsDoesNotCrash(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:436:6: style: The function 'TestCoreGetPlcStateReturnsStopAfterInit' is never used. [unusedFunction]
+void TestCoreGetPlcStateReturnsStopAfterInit(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:446:6: style: The function 'TestCoreGetPlcStateReturnsRunAfterSetRun' is never used. [unusedFunction]
+void TestCoreGetPlcStateReturnsRunAfterSetRun(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:456:6: style: The function 'TestCoreGetPlcStateReturnsStopAfterSetStop' is never used. [unusedFunction]
+void TestCoreGetPlcStateReturnsStopAfterSetStop(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:467:6: style: The function 'TestCoreGetPlcStateTracksTransitions' is never used. [unusedFunction]
+void TestCoreGetPlcStateTracksTransitions(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:485:6: style: The function 'TestCoreGetPlcStateIsIdempotent' is never used. [unusedFunction]
+void TestCoreGetPlcStateIsIdempotent(void)
+     ^
+..\Test\PLC_Main\PLC_GPIO\TestPlcGpio.c:503:6: style: The function 'TestCoreFullPlcScanCycleWithStateCheck' is never used. [unusedFunction]
+void TestCoreFullPlcScanCycleWithStateCheck(void)
+     ^

@@ -1,0 +1,6 @@
+..\Systems\PLC_Main\include\PlcGpio.h:11:2: information: Include file: <stdint.h> not found. Please note: Standard library headers do not need to be provided to get proper results. [missingIncludeSystem]
+#include <stdint.h>
+ ^
+..\Systems\PLC_Main\include\PlcGpio.h:12:2: information: Include file: "PlcConfig.h" not found. [missingInclude]
+#include "PlcConfig.h"
+ ^

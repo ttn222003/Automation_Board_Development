@@ -1,0 +1,15 @@
+..\Systems\Dependencies\STM32F103C8T6\src\GpioCommon.c:8:2: information: Include file: "GpioCommon.h" not found. [missingInclude]
+#include "GpioCommon.h"
+ ^
+..\Systems\Dependencies\STM32F103C8T6\src\GpioCommon.c:21:8: style: The function 'GpioCommon' is never used. [unusedFunction]
+int8_t GpioCommon(void)
+       ^
+..\Systems\Dependencies\STM32F103C8T6\src\GpioCommon.c:35:6: style: The function 'BSP_GPIO_Init' is never used. [unusedFunction]
+void BSP_GPIO_Init(void)
+     ^
+..\Systems\Dependencies\STM32F103C8T6\src\GpioCommon.c:45:6: style: The function 'BSP_WriteOutputs' is never used. [unusedFunction]
+void BSP_WriteOutputs(uint16_t output_image)
+     ^
+..\Systems\Dependencies\STM32F103C8T6\src\GpioCommon.c:54:6: style: The function 'BSP_FeedWatchdog' is never used. [unusedFunction]
+void BSP_FeedWatchdog(void)
+     ^

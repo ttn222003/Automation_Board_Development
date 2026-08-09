@@ -1,0 +1,27 @@
+..\Systems\Dependencies\STM32F103C8T6\src\UartCommon.c:9:2: information: Include file: "UartCommon.h" not found. [missingInclude]
+#include "UartCommon.h"
+ ^
+..\Systems\Dependencies\STM32F103C8T6\src\UartCommon.c:38:49: style: Parameter 'huart' can be declared as pointer to const [constParameterPointer]
+BspUartStatus_t InitBspUart(UART_HandleTypeDef *huart)
+                                                ^
+..\Systems\Dependencies\STM32F103C8T6\src\UartCommon.c:29:6: style: The function 'ResetBspUartState' is never used. [unusedFunction]
+void ResetBspUartState(void)
+     ^
+..\Systems\Dependencies\STM32F103C8T6\src\UartCommon.c:38:17: style: The function 'InitBspUart' is never used. [unusedFunction]
+BspUartStatus_t InitBspUart(UART_HandleTypeDef *huart)
+                ^
+..\Systems\Dependencies\STM32F103C8T6\src\UartCommon.c:55:17: style: The function 'SendBspUart' is never used. [unusedFunction]
+BspUartStatus_t SendBspUart(UART_HandleTypeDef *huart, const uint8_t *data, uint16_t len)
+                ^
+..\Systems\Dependencies\STM32F103C8T6\src\UartCommon.c:78:6: style: The function 'HandleBspUartIsrRx' is never used. [unusedFunction]
+void HandleBspUartIsrRx(uint8_t byte)
+     ^
+..\Systems\Dependencies\STM32F103C8T6\src\UartCommon.c:92:10: style: The function 'GetBspUartAvailable' is never used. [unusedFunction]
+uint16_t GetBspUartAvailable(void)
+         ^
+..\Systems\Dependencies\STM32F103C8T6\src\UartCommon.c:97:17: style: The function 'ReadBspUart' is never used. [unusedFunction]
+BspUartStatus_t ReadBspUart(uint8_t *buf, uint16_t len, uint16_t *out_read)
+                ^
+..\Systems\Dependencies\STM32F103C8T6\src\UartCommon.c:128:9: style: The function 'IsBspUartOverflow' is never used. [unusedFunction]
+uint8_t IsBspUartOverflow(void)
+        ^
