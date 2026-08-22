@@ -2,11 +2,32 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build MainComn2WifiCard Tests",
+            "label": "Build GpioCommon Tests",
+
             "type": "shell",
-
             "command": "make",
+            "args": [
+                "all"
+            ],
 
+            "options": {
+                "cwd": "${workspaceFolder}/Test/Dependencies/STM32F103C8T6/GPIO"
+            },
+
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+
+        {
+            "label": "Build MainComn2WifiCard Tests",
+
+            "type": "shell",
+            "command": "make",
             "args": [
                 "all"
             ],
@@ -19,7 +40,6 @@
                 "kind": "build",
                 "isDefault": true
             },
-
             "problemMatcher": [
                 "$gcc"
             ]

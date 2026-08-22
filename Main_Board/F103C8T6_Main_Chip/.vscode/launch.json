@@ -2,24 +2,40 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Debug GPIO Common Tests",
+
+            "type": "cppdbg",
+            "request": "launch",
+
+            "program": "${workspaceFolder}/Test/Dependencies/STM32F103C8T6/GPIO/TestRunner.exe",
+
+            "args": [],
+            "stopAtEntry": false,
+
+            "cwd": "${workspaceFolder}/Test/Dependencies/STM32F103C8T6/GPIO",
+
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "C:/msys64/ucrt64/bin/gdb.exe",
+
+            "preLaunchTask": "Build GpioCommon Tests"
+        },
+
+        {
             "name": "Debug MainComn2WifiCard Tests",
 
             "type": "cppdbg",
-
             "request": "launch",
 
             "program": "${workspaceFolder}/Test/Protocol/MainComn2WifiCard/TestRunner.exe",
 
             "args": [],
-
             "stopAtEntry": false,
 
             "cwd": "${workspaceFolder}/Test/Protocol/MainComn2WifiCard",
 
             "externalConsole": false,
-
             "MIMode": "gdb",
-
             "miDebuggerPath": "C:/msys64/ucrt64/bin/gdb.exe",
 
             "preLaunchTask": "Build MainComn2WifiCard Tests"
