@@ -37,6 +37,12 @@ extern void TestBspTypicalPlcScanSequence(void);
 /* ── Suite 7: Boundary conditions ──────────────────────────────────── */
 extern void TestBspBoundaryMaximumOutputValue(void);
 extern void TestBspBoundaryMinimumOutputValue(void);
+extern void TestBspBoundaryRejectOutOfRangeOutputImage(void);
+
+/* ── Suite 8 – State Transitions between Functions ──────────────────────────────────── */
+extern void TestBspStateTransitionInitBeforeGpioCommon(void);
+extern void TestBspStateTransitionWriteOutputsBeforeGpioCommon(void);
+extern void TestBspStateTransitionNormalSequence(void);
 
 /* ─────────────────────────────────────────────────────────────────── */
 
@@ -73,6 +79,12 @@ int main(void)
     printf("\n--- Suite 7: Boundary Conditions ---\n");
     RUN_TEST(TestBspBoundaryMaximumOutputValue);
     RUN_TEST(TestBspBoundaryMinimumOutputValue);
+    RUN_TEST(TestBspBoundaryRejectOutOfRangeOutputImage);
+
+    printf("\n--- Suite 8: State Transitions ---\n");
+    RUN_TEST(TestBspStateTransitionInitBeforeGpioCommon);
+    RUN_TEST(TestBspStateTransitionWriteOutputsBeforeGpioCommon);
+    RUN_TEST(TestBspStateTransitionNormalSequence);
 
     return UNITY_END();
 }

@@ -1,7 +1,7 @@
 /*
  * TestGPIO.c
  *
- * Unit tests for the GpioCommon BSP layer – STM32F103C8T6
+ * Unit tests for the InitBspInternalOutputs BSP layer – STM32F103C8T6
  */
 
 #include "unity.h"
@@ -10,7 +10,7 @@
 #include <string.h>
 
 /* ── GPIOA mock register ───────────────────────────────────────────────────
- * GpioCommon.c accesses GPIOA->ODR directly (BSP_GPIO_Init).
+ * InitBspInternalOutputs.c accesses GPIOA->ODR directly (InitBspGpio).
  * We provide the symbol here so the linker resolves it for the host build.
  * CMock compares MEMORY at the pointer, so passing the same GPIOA to both
  * _Expect and the real call always matches – no extra work needed.
@@ -50,29 +50,29 @@ void tearDown(void)
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
- * SUITE 1 – GpioCommon()  Initialisation
+ * SUITE 1 – InitBspInternalOutputs()  Initialisation
  * ═══════════════════════════════════════════════════════════════════════ */
 
 /*
  * Test case: 1.1
- * GpioCommon() does not call any HAL function; it only populates the
+ * InitBspInternalOutputs() does not call any HAL function; it only populates the
  * internal Output struct.  No Expects are queued here.
  */
 void TestBspGpioCommonReturnsSuccess(void)
 {
-    int8_t result = GpioCommon();
+    int8_t result = InitBspInternalOutputs();
     TEST_ASSERT_EQUAL_INT8(1, result);
 }
 
 /*
  * Test case: 1.2
- * After GpioCommon() the pin mapping must be correct: a subsequent
- * BSP_WriteOutputs call must address pins 0-5 in order.
+ * After InitBspInternalOutputs() the pin mapping must be correct: a subsequent
+ * WriteBspGpioOutputs call must address pins 0-5 in order.
  * Pattern 0x2A = 0b101010 → pins 1,3,5 SET, 0,2,4 RESET.
  */
 void TestBspGpioCommonInitializesPinMapping(void)
 {
-    GpioCommon();
+    InitBspInternalOutputs();
 
     HAL_GPIO_WritePin_Expect(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
     HAL_GPIO_WritePin_Expect(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
@@ -81,13 +81,13 @@ void TestBspGpioCommonInitializesPinMapping(void)
     HAL_GPIO_WritePin_Expect(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
     HAL_GPIO_WritePin_Expect(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 
-    BSP_WriteOutputs(0x2A);
+    WriteBspGpioOutputs(0x2A);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
- * SUITE 2 – BSP_GPIO_Init()
+ * SUITE 2 – InitBspGpio()
  *
- * BSP_GPIO_Init reads GPIOA->ODR then writes each bit to the matching pin.
+ * InitBspGpio reads GPIOA->ODR then writes each bit to the matching pin.
  * We set ODR on our mock struct, queue the expected HAL calls, then invoke.
  * ═══════════════════════════════════════════════════════════════════════ */
 
@@ -97,7 +97,7 @@ void TestBspGpioCommonInitializesPinMapping(void)
  */
 void TestBspGpioInitReadsCurrentODR(void)
 {
-    GpioCommon();
+    InitBspInternalOutputs();
     GPIOA->ODR = 0x15u;    /* 0b010101 */
 
     HAL_GPIO_WritePin_Expect(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
@@ -107,7 +107,7 @@ void TestBspGpioInitReadsCurrentODR(void)
     HAL_GPIO_WritePin_Expect(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
     HAL_GPIO_WritePin_Expect(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
 
-    BSP_GPIO_Init();
+    InitBspGpio();
 }
 
 /*
@@ -116,12 +116,12 @@ void TestBspGpioInitReadsCurrentODR(void)
  */
 void TestBspGpioInitAllOutputsOff(void)
 {
-    GpioCommon();
+    InitBspInternalOutputs();
     GPIOA->ODR = 0x00u;
 
     ExpectWriteOutputs(0x00);
 
-    BSP_GPIO_Init();
+    InitBspGpio();
 }
 
 /*
@@ -130,16 +130,16 @@ void TestBspGpioInitAllOutputsOff(void)
  */
 void TestBspGpioInitAllOutputsOn(void)
 {
-    GpioCommon();
+    InitBspInternalOutputs();
     GPIOA->ODR = 0x3Fu;
 
     ExpectWriteOutputs(0x3Fu);
 
-    BSP_GPIO_Init();
+    InitBspGpio();
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
- * SUITE 3 – BSP_WriteOutputs(uint16_t output_image)
+ * SUITE 3 – WriteBspGpioOutputs(uint16_t output_image)
  * ═══════════════════════════════════════════════════════════════════════ */
 
 /*
@@ -148,9 +148,9 @@ void TestBspGpioInitAllOutputsOn(void)
  */
 void TestBspWriteOutputsAllZeros(void)
 {
-    GpioCommon();
+    InitBspInternalOutputs();
     ExpectWriteOutputs(0x00);
-    BSP_WriteOutputs(0x00);
+    WriteBspGpioOutputs(0x00);
 }
 
 /*
@@ -159,9 +159,9 @@ void TestBspWriteOutputsAllZeros(void)
  */
 void TestBspWriteOutputsAllOnes(void)
 {
-    GpioCommon();
+    InitBspInternalOutputs();
     ExpectWriteOutputs(0x3Fu);
-    BSP_WriteOutputs(0x3Fu);
+    WriteBspGpioOutputs(0x3Fu);
 }
 
 /*
@@ -170,7 +170,7 @@ void TestBspWriteOutputsAllOnes(void)
  */
 void TestBspWriteOutputsAlternatingPattern01(void)
 {
-    GpioCommon();
+    InitBspInternalOutputs();
 
     HAL_GPIO_WritePin_Expect(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
     HAL_GPIO_WritePin_Expect(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
@@ -179,7 +179,7 @@ void TestBspWriteOutputsAlternatingPattern01(void)
     HAL_GPIO_WritePin_Expect(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
     HAL_GPIO_WritePin_Expect(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
 
-    BSP_WriteOutputs(0x15);
+    WriteBspGpioOutputs(0x15);
 }
 
 /*
@@ -188,7 +188,7 @@ void TestBspWriteOutputsAlternatingPattern01(void)
  */
 void TestBspWriteOutputsAlternatingPattern10(void)
 {
-    GpioCommon();
+    InitBspInternalOutputs();
 
     HAL_GPIO_WritePin_Expect(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
     HAL_GPIO_WritePin_Expect(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
@@ -197,7 +197,7 @@ void TestBspWriteOutputsAlternatingPattern10(void)
     HAL_GPIO_WritePin_Expect(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
     HAL_GPIO_WritePin_Expect(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 
-    BSP_WriteOutputs(0x2A);
+    WriteBspGpioOutputs(0x2A);
 }
 
 /*
@@ -215,12 +215,12 @@ void TestBspWriteOutputsSingleOutputOn(void)
         Mockstm32f1xx_hal_gpio_Init();
         memset(&GPIOA_Mock, 0, sizeof(GPIOA_Mock));
 
-        GpioCommon();
+        InitBspInternalOutputs();
 
         uint16_t pattern = (uint16_t)(1u << bit);
         ExpectWriteOutputs(pattern);    /* only pin[bit] SET, rest RESET */
 
-        BSP_WriteOutputs(pattern);
+        WriteBspGpioOutputs(pattern);
     }
 }
 
@@ -231,7 +231,7 @@ void TestBspWriteOutputsSingleOutputOn(void)
  */
 void TestBspWriteOutputsIgnoresUpperBits(void)
 {
-    GpioCommon();
+    InitBspInternalOutputs();
 
     HAL_GPIO_WritePin_Expect(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
     HAL_GPIO_WritePin_Expect(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
@@ -240,7 +240,7 @@ void TestBspWriteOutputsIgnoresUpperBits(void)
     HAL_GPIO_WritePin_Expect(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
     HAL_GPIO_WritePin_Expect(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
 
-    BSP_WriteOutputs((uint16_t)(0xFF00u | 0x15u));
+    WriteBspGpioOutputs((uint16_t)(0xFF00u | 0x15u));
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -249,19 +249,19 @@ void TestBspWriteOutputsIgnoresUpperBits(void)
 
 void TestBspSequentialWritesChangeOutputs(void)
 {
-    GpioCommon();
+    InitBspInternalOutputs();
 
     /* ── Scan 1: 0x00 – all off ─────────────────────────── */
     ExpectWriteOutputs(0x00);
-    BSP_WriteOutputs(0x00);
+    WriteBspGpioOutputs(0x00);
 
     /* ── Scan 2: 0x3F – all on ──────────────────────────── */
     ExpectWriteOutputs(0x3Fu);
-    BSP_WriteOutputs(0x3Fu);
+    WriteBspGpioOutputs(0x3Fu);
 
     /* ── Scan 3: 0x15 – alternating ─────────────────────── */
     ExpectWriteOutputs(0x15u);
-    BSP_WriteOutputs(0x15u);
+    WriteBspGpioOutputs(0x15u);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -285,7 +285,7 @@ void TestBspFeedWatchdogDoesNotCrash(void)
 
 /*
  * Mirrors the real task flow:
- *   GpioCommon()  →  BSP_GPIO_Init()  →  BSP_WriteOutputs(ReadOutputImage())
+ *   InitBspInternalOutputs()  →  InitBspGpio()  →  WriteBspGpioOutputs(ReadOutputImage())
  *
  * ReadOutputImage() is simulated by passing a fixed pattern so the BSP
  * layer remains isolated from the Core layer.
@@ -293,17 +293,17 @@ void TestBspFeedWatchdogDoesNotCrash(void)
 void TestBspTypicalPlcScanSequence(void)
 {
     /* ── Initialisation phase ──────────────────────────────────────── */
-    int8_t init = GpioCommon();
+    int8_t init = InitBspInternalOutputs();
     TEST_ASSERT_EQUAL_INT8(1, init);
 
     GPIOA->ODR = 0x00u;
     ExpectWriteOutputs(0x00);
-    BSP_GPIO_Init();
+    InitBspGpio();
 
     /* ── Scan cycle: Core produced output_image = 0x2A ────────────── */
     uint16_t plc_output_image = 0x2Au;
     ExpectWriteOutputs(plc_output_image);
-    BSP_WriteOutputs(plc_output_image);
+    WriteBspGpioOutputs(plc_output_image);
 
     BSP_FeedWatchdog();   /* no HAL calls expected */
 }
@@ -318,9 +318,9 @@ void TestBspTypicalPlcScanSequence(void)
  */
 void TestBspBoundaryMaximumOutputValue(void)
 {
-    GpioCommon();
+    InitBspInternalOutputs();
     ExpectWriteOutputs(0x3Fu);
-    BSP_WriteOutputs(0x3Fu);
+    WriteBspGpioOutputs(0x3Fu);
 }
 
 /*
@@ -329,9 +329,71 @@ void TestBspBoundaryMaximumOutputValue(void)
  */
 void TestBspBoundaryMinimumOutputValue(void)
 {
-    GpioCommon();
+    InitBspInternalOutputs();
     ExpectWriteOutputs(0x00);
-    BSP_WriteOutputs(0x00);
+    WriteBspGpioOutputs(0x00);
+    DeinitBspInternalOutputs();
+}
+
+/*
+ * Test case: 7.3
+ * Reject out range image 0xFF – upper bit must be masked
+ * and not affect the physical outputs.  The lower bits are all zero
+ * and returning a warning code.
+ */
+void TestBspBoundaryRejectOutOfRangeOutputImage(void)
+{
+    InitBspInternalOutputs();
+    ExpectWriteOutputs(0x00);
+    InitBspGpio();
+    ExpectWriteOutputs(0x3F);
+    uint8_t write_state = WriteBspGpioOutputs(0xFF);
+    TEST_ASSERT_EQUAL_INT8(BSP_GPIO_WARNING_OUTPUTS_OUT_RANGE, write_state);
+    DeinitBspInternalOutputs();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+ * SUITE 8 – State Transitions between Functions
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+/*
+ * Test case: 8.1
+ * InitBspGpio() called before InitBspInternalOutputs() – should not crash, but no outputs set
+ */
+void TestBspStateTransitionInitBeforeGpioCommon(void)
+{
+    uint8_t init = InitBspGpio();
+    TEST_ASSERT_EQUAL_INT8(BSP_GPIO_ERR_UNINITALIZED_INTERNAL_OUTPUTS, init);
+    InitBspInternalOutputs();
+    DeinitBspInternalOutputs();
+}
+
+/*
+ * Test case: 8.2
+ * WriteBspGpioOutputs() called before InitBspInternalOutputs() – should not crash, but no outputs set
+ */
+void TestBspStateTransitionWriteOutputsBeforeGpioCommon(void)
+{
+    uint8_t write_state = WriteBspGpioOutputs(0x00);
+    TEST_ASSERT_EQUAL_INT8(BSP_GPIO_ERR_UNINITALIZED_INTERNAL_OUTPUTS, write_state);
+    InitBspInternalOutputs();
+    DeinitBspInternalOutputs();
+}
+
+/*
+ * Test case: 8.3
+ * InitBspInternalOutputs() -> InitBspGpio() -> WriteBspGpioOutputs() – should work normally
+ */
+void TestBspStateTransitionNormalSequence(void)
+{
+    ExpectWriteOutputs(0x00);
+    InitBspInternalOutputs();
+    uint8_t init = InitBspGpio();
+    TEST_ASSERT_EQUAL_INT8(BSP_GPIO_INIT_OK, init);
+    ExpectWriteOutputs(0x00);
+    uint8_t write_state = WriteBspGpioOutputs(0x00);
+    TEST_ASSERT_EQUAL_INT8(BSP_GPIO_WRITE_OK, write_state);
+    DeinitBspInternalOutputs();
 }
 
 /* End of TestGPIO.c */

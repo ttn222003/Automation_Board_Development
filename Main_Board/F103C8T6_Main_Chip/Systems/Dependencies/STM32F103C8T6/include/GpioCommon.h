@@ -11,9 +11,17 @@
 #include "main.h"
 #include "PlcConfig.h"
 
-int8_t GpioCommon(void);
-void BSP_GPIO_Init(void);
-void BSP_WriteOutputs(uint16_t output_image);
+typedef enum {
+	BSP_GPIO_INIT_OK							= 1,
+	BSP_GPIO_WRITE_OK							= 2,
+	BSP_GPIO_WARNING_OUTPUTS_OUT_RANGE			= 3,
+	BSP_GPIO_ERR_UNINITALIZED_INTERNAL_OUTPUTS	= -1,
+} eBspGpioStatus;
+
+int8_t InitBspInternalOutputs(void);
+int8_t DeinitBspInternalOutputs(void);
+eBspGpioStatus InitBspGpio(void);
+eBspGpioStatus WriteBspGpioOutputs(uint16_t output_image);
 void BSP_FeedWatchdog(void);
 
 
