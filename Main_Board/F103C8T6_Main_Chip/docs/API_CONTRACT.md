@@ -1,17 +1,22 @@
 # API Contract
 
 ## GPIO
-- int8_t GpioCommon(void);
+- int8_t InitBspInternalOutputs(void);
 Input: No
-Return: OK, ERROR
+Return: Internal output status
 ISR Safe: No
 
-- void BSP_GPIO_Init(void);
+int8_t DeinitBspInternalOutputs(void);
 Input: No
-Return: No
+Return: Internal output status
 ISR Safe: No
 
-- void BSP_WriteOutputs(uint16_t output_image);
+- void InitBspGpio(void);
+Input: No
+Return: BSP GPIO status
+ISR Safe: No
+
+- void WriteBspGpioOutputs(uint16_t output_image);
 Input: output_image
-Return: No
+Return: BSP GPIO status
 ISR Safe: No
