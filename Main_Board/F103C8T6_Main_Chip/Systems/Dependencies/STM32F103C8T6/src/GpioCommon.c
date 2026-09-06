@@ -10,7 +10,8 @@
 /* This define image of IO base on version and product */
 
 typedef enum {
-	emOUTPUTS_OK				= 1,
+	emOUTPUTS_INIT_COMPLETE		= 1, // Change here, add test case to cover this, medium issue,
+	emOUTPUTS_DEINIT_COMPLETE	= 2,
 	emOUTPUTS_ERR_UNINITALIZED	= -1,
 } eInternalOutputStatus;
 

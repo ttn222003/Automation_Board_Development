@@ -45,6 +45,7 @@ void setUp(void)
 
 void tearDown(void)
 {
+    DeinitBspInternalOutputs();
     Mockstm32f1xx_hal_gpio_Verify();        /* fail if any Expect was unused */
     Mockstm32f1xx_hal_gpio_Destroy();       /* free CMock memory             */
 }
@@ -332,7 +333,6 @@ void TestBspBoundaryMinimumOutputValue(void)
     InitBspInternalOutputs();
     ExpectWriteOutputs(0x00);
     WriteBspGpioOutputs(0x00);
-    DeinitBspInternalOutputs();
 }
 
 /*
@@ -349,7 +349,6 @@ void TestBspBoundaryRejectOutOfRangeOutputImage(void)
     ExpectWriteOutputs(0x3F);
     uint8_t write_state = WriteBspGpioOutputs(0xFF);
     TEST_ASSERT_EQUAL_INT8(BSP_GPIO_WARNING_OUTPUTS_OUT_RANGE, write_state);
-    DeinitBspInternalOutputs();
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -365,7 +364,6 @@ void TestBspStateTransitionInitBeforeGpioCommon(void)
     uint8_t init = InitBspGpio();
     TEST_ASSERT_EQUAL_INT8(BSP_GPIO_ERR_UNINITALIZED_INTERNAL_OUTPUTS, init);
     InitBspInternalOutputs();
-    DeinitBspInternalOutputs();
 }
 
 /*
@@ -377,7 +375,6 @@ void TestBspStateTransitionWriteOutputsBeforeGpioCommon(void)
     uint8_t write_state = WriteBspGpioOutputs(0x00);
     TEST_ASSERT_EQUAL_INT8(BSP_GPIO_ERR_UNINITALIZED_INTERNAL_OUTPUTS, write_state);
     InitBspInternalOutputs();
-    DeinitBspInternalOutputs();
 }
 
 /*
@@ -393,7 +390,6 @@ void TestBspStateTransitionNormalSequence(void)
     ExpectWriteOutputs(0x00);
     uint8_t write_state = WriteBspGpioOutputs(0x00);
     TEST_ASSERT_EQUAL_INT8(BSP_GPIO_WRITE_OK, write_state);
-    DeinitBspInternalOutputs();
 }
 
 /* End of TestGPIO.c */
