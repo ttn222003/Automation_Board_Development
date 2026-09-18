@@ -27,7 +27,7 @@ static eInternalOutputStatus mOutputStatus = emOUTPUTS_ERR_UNINITALIZED;
 
 
 /*======= API =======*/
-int8_t InitBspInternalOutputs(void)
+int8_t MappingBspGpioOutputsToInternalOutputs(void)
 {
 	mOutput.mNumberOfUpdatingOutput = OUTPUT_NUMBER;
 
@@ -38,12 +38,12 @@ int8_t InitBspInternalOutputs(void)
 	mOutput.mUpdatingOutput[4] = GPIO_PIN_4;
 	mOutput.mUpdatingOutput[5] = GPIO_PIN_5;
 
-	mOutputStatus = emOUTPUTS_OK;
+	mOutputStatus = emOUTPUTS_INIT_COMPLETE;
 
-	return emOUTPUTS_OK;
+	return emOUTPUTS_INIT_COMPLETE;
 }
 
-int8_t DeinitBspInternalOutputs(void)
+int8_t DeMappintBspGpioOutputsFromInternalOutputs(void)
 {
 	mOutput.mNumberOfUpdatingOutput = 0;
 
@@ -59,7 +59,7 @@ int8_t DeinitBspInternalOutputs(void)
 	return emOUTPUTS_ERR_UNINITALIZED;
 }
 
-eBspGpioStatus InitBspGpio(void)
+eBspGpioStatus InitializeBspGpioOutputs(void)
 {
 	if (mOutputStatus == emOUTPUTS_ERR_UNINITALIZED) {
 		return BSP_GPIO_ERR_UNINITALIZED_INTERNAL_OUTPUTS;
@@ -81,13 +81,18 @@ eBspGpioStatus WriteBspGpioOutputs(uint16_t output_image)
 		return BSP_GPIO_ERR_UNINITALIZED_INTERNAL_OUTPUTS;
 	}
 
+	if (output_image > (uint16_t)(~(0xFFFF << mOutput.mNumberOfUpdatingOutput))) {
+		for (uint8_t index = 0; index < mOutput.mNumberOfUpdatingOutput; index++)
+		{
+			HAL_GPIO_WritePin(GPIOA, mOutput.mUpdatingOutput[index], (GPIO_PinState)(output_image >> index) & 0x01);
+		}
+
+		return BSP_GPIO_WARNING_OUTPUTS_OUT_RANGE;
+	}
+
 	for (uint8_t index = 0; index < mOutput.mNumberOfUpdatingOutput; index++)
 	{
 		HAL_GPIO_WritePin(GPIOA, mOutput.mUpdatingOutput[index], (GPIO_PinState)(output_image >> index) & 0x01);
-	}
-
-	if (output_image > (uint16_t)(~(0xFFFF << mOutput.mNumberOfUpdatingOutput))) {
-		return BSP_GPIO_WARNING_OUTPUTS_OUT_RANGE;
 	}
 
 	return BSP_GPIO_WRITE_OK;

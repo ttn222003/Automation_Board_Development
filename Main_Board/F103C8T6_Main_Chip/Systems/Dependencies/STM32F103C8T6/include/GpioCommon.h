@@ -18,9 +18,9 @@ typedef enum {
 	BSP_GPIO_ERR_UNINITALIZED_INTERNAL_OUTPUTS	= -1,
 } eBspGpioStatus;
 
-int8_t InitBspInternalOutputs(void);
-int8_t DeinitBspInternalOutputs(void);
-eBspGpioStatus InitBspGpio(void);
+int8_t MappingBspGpioOutputsToInternalOutputs(void);
+int8_t DeMappintBspGpioOutputsFromInternalOutputs(void);
+eBspGpioStatus InitializeBspGpioOutputs(void);
 eBspGpioStatus WriteBspGpioOutputs(uint16_t output_image);
 void BSP_FeedWatchdog(void);
 
