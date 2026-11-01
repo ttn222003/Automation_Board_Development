@@ -14,6 +14,7 @@
 #include "string.h"
 #include "driver/gpio.h"
 #include "WifiCardComn2Main.h"
+#include "UartCommon.h"
 
 static const int RX_BUF_SIZE = 1024;
 
@@ -22,6 +23,9 @@ static const int RX_BUF_SIZE = 1024;
 
 void init(void)
 {
+    int status_driver_install = 0;
+    int status_param_config = 0;
+
     const uart_config_t uart_config = {
         .baud_rate = CONFIG_EXAMPLE_UART_BAUD_RATE,
         .data_bits = UART_DATA_8_BITS,
@@ -31,8 +35,14 @@ void init(void)
         .source_clk = UART_SCLK_DEFAULT,
     };
     // We won't use a buffer for sending data.
-    uart_driver_install(UART_NUM_1, RX_BUF_SIZE * 2, 0, 0, NULL, 0);
-    uart_param_config(UART_NUM_1, &uart_config);
+    status_driver_install = uart_driver_install(UART_NUM_1, RX_BUF_SIZE * 2, 0, 0, NULL, 0);
+    status_param_config = uart_param_config(UART_NUM_1, &uart_config);
+
+    if (InitBspUart(status_driver_install, status_param_config) != BSP_UART_OK) {
+        ESP_LOGE("INIT", "Failed to initialize BSP UART");
+        return;
+    }
+
     uart_set_pin(UART_NUM_1, TXD_PIN, RXD_PIN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
 }
 
