@@ -112,7 +112,7 @@ int main(void)
   int8_t initialization_variable = 1;
   int8_t initialization_bsp_uart = 0;
 
-  initialization_state = GpioCommon() & 0x01;
+  initialization_state = MappingBspGpioOutputsToInternalOutputs() & 0x01;
   initialization_variable = InitializeVariable() & 0x01;
   initialization_bsp_uart = InitBspUart(&huart1) & 0x01;
   InitializeInternalFrameStructure();
@@ -281,7 +281,7 @@ void PLCScanTask(void* const pvParameters)
 	FrameStructure_t frame_structure;
 	uint8_t cmd;
 
-	BSP_GPIO_Init();
+	InitializeBspGpioOutputs();
 	InitPlcCore();
 	SetPlcState(ePlcStateRun);
 
@@ -310,7 +310,7 @@ void PLCScanTask(void* const pvParameters)
 		/* Update Output Image */
 		UpdatePlcOutputs(output_image);
 		/* Write to GPIO */
-		BSP_WriteOutputs(ReadOutputImage());
+		WriteBspGpioOutputs(ReadOutputImage());
 		/* Watchdog refresh */
 		BSP_FeedWatchdog();
 

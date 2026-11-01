@@ -54,14 +54,14 @@ int8_t DeMappintBspGpioOutputsFromInternalOutputs(void)
 	mOutput.mUpdatingOutput[4] = 0;
 	mOutput.mUpdatingOutput[5] = 0;
 
-	mOutputStatus = emOUTPUTS_ERR_UNINITALIZED;
+	mOutputStatus = emOUTPUTS_DEINIT_COMPLETE;
 
-	return emOUTPUTS_ERR_UNINITALIZED;
+	return emOUTPUTS_DEINIT_COMPLETE;
 }
 
 eBspGpioStatus InitializeBspGpioOutputs(void)
 {
-	if (mOutputStatus == emOUTPUTS_ERR_UNINITALIZED) {
+	if ((mOutputStatus == emOUTPUTS_DEINIT_COMPLETE) || (mOutputStatus == emOUTPUTS_ERR_UNINITALIZED)){
 		return BSP_GPIO_ERR_UNINITALIZED_INTERNAL_OUTPUTS;
 	}
 
@@ -77,7 +77,7 @@ eBspGpioStatus InitializeBspGpioOutputs(void)
 
 eBspGpioStatus WriteBspGpioOutputs(uint16_t output_image)
 {
-	if (mOutputStatus == emOUTPUTS_ERR_UNINITALIZED) {
+	if ((mOutputStatus == emOUTPUTS_DEINIT_COMPLETE) || (mOutputStatus == emOUTPUTS_ERR_UNINITALIZED)){
 		return BSP_GPIO_ERR_UNINITALIZED_INTERNAL_OUTPUTS;
 	}
 
