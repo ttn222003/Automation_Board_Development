@@ -13,6 +13,7 @@
 #include "driver/uart.h"
 #include "string.h"
 #include "driver/gpio.h"
+#include "WifiCardComn2Main.h"
 
 static const int RX_BUF_SIZE = 1024;
 
